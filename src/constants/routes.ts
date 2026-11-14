@@ -1,0 +1,12 @@
+export const ROUTES = {
+  start: "/",
+  products: "/products",
+  product: (id: string) => `/products/${id}`,
+  build: (id: string) => `/products/${id}/build`,
+  publish: (id: string) => `/products/${id}/publish`,
+  distribute: (id: string) => `/products/${id}/distribute`,
+  promote: (id: string) => `/products/${id}/promote`,
+  partners: "/partners",
+  connections: "/connections",
+  admin: "/admin",
+} as const

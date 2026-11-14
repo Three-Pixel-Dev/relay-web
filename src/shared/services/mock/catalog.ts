@@ -1,0 +1,410 @@
+import type {
+  ChannelCatalogItem,
+  Palette,
+  ProductType,
+  RelayCatalog,
+  ServiceCatalogItem,
+  TrendingIdea,
+} from "@/shared/types/relay"
+
+export const SERVICE_CATALOG: ServiceCatalogItem[] = [
+  {
+    id: "whop",
+    name: "Whop",
+    short: "W",
+    color: "#ff6243",
+    kind: "oauth",
+    group: "Sell",
+    main: true,
+    does: "Your main store. Relay creates the product, checkout link and storefront, turns on affiliates, sets the partner share and reads every sale.",
+    price: "Whop’s own fee per sale (about 3% plus card processing)",
+  },
+  {
+    id: "etsy",
+    name: "Etsy",
+    short: "E",
+    color: "#f1641e",
+    kind: "oauth",
+    group: "Sell",
+    does: "Creates listings with files and mockups, reads sales and views.",
+    price: "$0.20 per listing · $15 shop setup",
+  },
+  {
+    id: "gumroad",
+    name: "Gumroad",
+    short: "G",
+    color: "#ff90e8",
+    kind: "oauth",
+    group: "Sell",
+    does: "Creates products, reads sales, runs affiliates.",
+    price: "10% per sale",
+  },
+  {
+    id: "payhip",
+    name: "Payhip",
+    short: "Ph",
+    color: "#5c6ac4",
+    kind: "guided",
+    group: "Sell",
+    does: "No API. Relay prepares files and copy; you upload with a guide.",
+    price: "5% per sale",
+  },
+  {
+    id: "kdp",
+    name: "Amazon KDP",
+    short: "K",
+    color: "#ff9900",
+    kind: "guided",
+    group: "Sell",
+    does: "No API. Relay prepares print-ready files; you upload with a guide.",
+    price: "Royalty-based",
+  },
+  {
+    id: "pinterest",
+    name: "Pinterest",
+    short: "Pi",
+    color: "#e60023",
+    kind: "oauth",
+    group: "Reach",
+    does: "Creates boards and pins on a schedule, reads clicks.",
+    price: "Free",
+  },
+  {
+    id: "youtube",
+    name: "YouTube",
+    short: "Y",
+    color: "#ff0033",
+    kind: "oauth",
+    group: "Reach",
+    does: "Schedules Shorts, reads views.",
+    price: "Free",
+  },
+  {
+    id: "tiktok",
+    name: "TikTok",
+    short: "T",
+    color: "#69c9d0",
+    kind: "oauth",
+    group: "Reach",
+    does: "Posts videos on a schedule, reads views.",
+    price: "Free",
+  },
+  {
+    id: "instagram",
+    name: "Instagram",
+    short: "Ig",
+    color: "#d62976",
+    kind: "oauth",
+    group: "Reach",
+    does: "Posts Reels and carousels, reads reach.",
+    price: "Free",
+  },
+  {
+    id: "beehiiv",
+    name: "beehiiv",
+    short: "B",
+    color: "#ffcf5a",
+    kind: "oauth",
+    group: "Leads",
+    does: "Hosts your list, landing page and email sequences.",
+    price: "Free to 2,500 subscribers",
+  },
+  {
+    id: "convertkit",
+    name: "Kit (ConvertKit)",
+    short: "Kt",
+    color: "#fb6970",
+    kind: "oauth",
+    group: "Leads",
+    does: "Alternative list host.",
+    price: "Free to 10,000 subscribers",
+  },
+  {
+    id: "stripe",
+    name: "Stripe",
+    short: "St",
+    color: "#635bff",
+    kind: "oauth",
+    group: "Leads",
+    does: "Payments on your own landing page.",
+    price: "2.9% + 30¢",
+  },
+  {
+    id: "gmail",
+    name: "Gmail or Outlook",
+    short: "@",
+    color: "#8fc9ff",
+    kind: "oauth",
+    group: "Outreach",
+    does: "Sends your partnership emails from your own mailbox and reads replies to those threads only.",
+    price: "Free",
+  },
+  {
+    id: "llm",
+    name: "Text model",
+    short: "Tx",
+    color: "#c7b4ff",
+    kind: "key",
+    group: "AI (your keys)",
+    does: "Your own key from any text model provider. Reads your sources, research, pockets, structure, manuscript, listings, emails.",
+    price: "Cents per task",
+  },
+  {
+    id: "img",
+    name: "Image model",
+    short: "Im",
+    color: "#8fc9ff",
+    kind: "key",
+    group: "AI (your keys)",
+    does: "Your own key from any image model provider. Covers, page graphics, pin designs.",
+    price: "Cents per image",
+  },
+  {
+    id: "higgsfield",
+    name: "Higgsfield",
+    short: "HF",
+    color: "#ff7a59",
+    kind: "key",
+    group: "AI (your keys)",
+    does: "Promo videos (Kling, Seedance, Sora…).",
+    price: "Pay per second of video",
+  },
+  {
+    id: "elevenlabs",
+    name: "ElevenLabs",
+    short: "11",
+    color: "#7ee8b0",
+    kind: "key",
+    group: "AI (your keys)",
+    does: "Narration for promo videos.",
+    price: "Cents per minute",
+  },
+]
+
+export const TRENDING: TrendingIdea[] = [
+  {
+    title: "ADHD daily planners for adults",
+    stats: "Etsy searches up 38% in 90 days · 4,100 listings · $4–9",
+  },
+  {
+    title: "Reactive-dog walking guides",
+    stats: "High pain, few products · 620 listings · $7–15",
+  },
+  {
+    title: "Teacher sub plans and classroom printables",
+    stats: "Seasonal peak Aug–Sep · 12,000 listings · $3–8",
+  },
+  {
+    title: "Budget planners for single-income households",
+    stats: "Steady · 6,400 listings · $4–12",
+  },
+  {
+    title: "Wedding planning checklists",
+    stats: "High purchasing power · 9,800 listings · $5–14",
+  },
+  {
+    title: "Exam-recall workbooks for college finals",
+    stats: "Low competition · 410 listings · $6–12",
+  },
+]
+
+export const PRODUCT_TYPES: ProductType[] = [
+  {
+    id: "ebook",
+    name: "eBook / guide",
+    desc: "8–14 chapters of method and examples. Best for teaching something.",
+    pages: "60–120 pages",
+    price: "$9–27",
+    sections: 11,
+  },
+  {
+    id: "workbook",
+    name: "Workbook",
+    desc: "Short lessons plus exercises and fill-in pages. Higher perceived value than an ebook.",
+    pages: "40–80 pages",
+    price: "$12–29",
+    sections: 9,
+  },
+  {
+    id: "planner",
+    name: "Planner / tracker",
+    desc: "Dated or undated pages with a system. The Etsy bestseller category.",
+    pages: "20–60 pages",
+    price: "$4–12",
+    sections: 8,
+  },
+  {
+    id: "checklist",
+    name: "Checklist / cheat sheet",
+    desc: "1–6 pages, dense and useful. Great lead magnet or low-ticket add-on.",
+    pages: "1–6 pages",
+    price: "$2–7",
+    sections: 4,
+  },
+  {
+    id: "templates",
+    name: "Template pack",
+    desc: "Reusable documents: scripts, emails, plans. Sells on specificity.",
+    pages: "10–30 templates",
+    price: "$9–24",
+    sections: 8,
+  },
+  {
+    id: "minicourse",
+    name: "Mini-course PDF",
+    desc: "5–7 lessons with actions and a tracker. Bridges to a paid course later.",
+    pages: "30–60 pages",
+    price: "$19–49",
+    sections: 7,
+  },
+]
+
+export const CHANNELS: ChannelCatalogItem[] = [
+  {
+    id: "seo",
+    name: "Marketplace search",
+    needs: [],
+    desc: "Relay rewrites your title, tags and price from what buyers type, tests two titles for 14 days, keeps the winner.",
+    did: "Title B is winning (+31% views). Switching all listings to it on Sunday.",
+    nums: [
+      ["Listing views", "412"],
+      ["Favourites", "38"],
+      ["Sales", "7"],
+    ],
+  },
+  {
+    id: "pinterest",
+    name: "Pinterest",
+    needs: ["pinterest"],
+    desc: "40 pins from your pages and mockups, keyworded, two a day for 60 days across 4 boards.",
+    did: "Pinned 14 of 40. Best pin: “The 3-zone distance rule” (1,900 impressions).",
+    nums: [
+      ["Impressions", "12.4k"],
+      ["Clicks", "286"],
+      ["Saves", "71"],
+    ],
+  },
+  {
+    id: "leads",
+    name: "Lead magnet + email list",
+    needs: ["beehiiv"],
+    desc: "A free one-page sample, a landing page, a 5-email sequence that ends on your product, a second sequence for the next one.",
+    did: "Landing page live. 5 emails scheduled. Welcome email open rate 61%.",
+    nums: [
+      ["Visitors", "640"],
+      ["Subscribers", "118"],
+      ["Sales from email", "5"],
+    ],
+  },
+  {
+    id: "relay",
+    name: "Relay discovery",
+    needs: [],
+    desc: "Your product in Relay’s weekly “new products” email and storefront, credited to you.",
+    did: "Featured in this Thursday’s issue (position 4 of 12).",
+    nums: [
+      ["Issue readers", "8,200"],
+      ["Clicks", "94"],
+      ["Sales", "3"],
+    ],
+  },
+  {
+    id: "affiliates",
+    name: "Affiliates",
+    needs: ["gumroad", "whop"],
+    desc: "Turns on the affiliate programme (30%), writes the pitch, finds 20 creators in your niche.",
+    did: "",
+    nums: [
+      ["Affiliates", "0"],
+      ["Clicks", "0"],
+      ["Sales", "0"],
+    ],
+  },
+  {
+    id: "paid",
+    name: "Small paid test",
+    needs: ["pinterest"],
+    desc: "$5/day Pinterest Ads to your landing page, stops at $50, reports cost per lead.",
+    did: "",
+    nums: [
+      ["Spend", "$0"],
+      ["Leads", "0"],
+      ["Cost / lead", "—"],
+    ],
+  },
+]
+
+export const PALETTES: Palette[] = [
+  {
+    name: "Editorial",
+    cols: ["#f4f1ea", "#25262b", "#8a3b2e", "#dccdbf", "#5f6168"],
+    display: "Merriweather",
+    body: "Open Sans",
+  },
+  {
+    name: "Calm",
+    cols: ["#f7f6f2", "#1f2a44", "#3b7a6e", "#cfe0d8", "#6b7280"],
+    display: "Fraunces",
+    body: "Inter",
+  },
+  {
+    name: "Bold",
+    cols: ["#fffdf5", "#14121c", "#ffcf5a", "#ffe9b0", "#4b4563"],
+    display: "Sora",
+    body: "Sora",
+  },
+]
+
+export const BUILD_STEPS = [
+  "Sources and what you know",
+  "Profitable pockets",
+  "Product type",
+  "Structure",
+  "Manuscript",
+  "Branding",
+  "Ready",
+]
+
+export const PLATFORMS = ["whop", "etsy", "gumroad", "payhip", "kdp"]
+
+export const OUTREACH_DEFAULT = {
+  subject: "{{first_name}}, your email list is missing one thing",
+  body: "Hi {{first_name}},\n\nI’ve followed your {{niche}} content for a while. You have an audience that trusts you and an email list, and as far as I can see no product of your own to offer them yet.\n\nI build digital products (guides, workbooks, planners) from a creator’s existing content. I’d write and design one from your videos, you approve every page, and we sell it to your list through one checkout and split the revenue {{split}}. No cost to you and no work beyond approving it.\n\nWant me to send a one-page outline of what I’d build for you? Reply “yes” and I’ll have it to you in two days.\n\n{{your_name}}",
+  f1: "Hi {{first_name}}, floating this back up. I sketched three product ideas from your last month of content. Want me to send them?",
+  f2: "Last note from me, {{first_name}}. If the timing is wrong, no problem. If you’d like the outline later, reply any time.",
+  split: 50,
+  cap: 30,
+}
+
+export const REPLIES = {
+  interested: [
+    "Hey! Funny timing, I’ve been meaning to make something for my list for a year. Send the outline over.",
+    "Yes, send it. What would the split look like after fees?",
+    "Interested. Can you show me one you’ve already built?",
+  ],
+  declined: [
+    "Thanks, but I’m working on my own course right now.",
+    "Not for me at the moment, appreciate you asking.",
+  ],
+}
+
+export function getCatalog(): RelayCatalog {
+  return {
+    services: SERVICE_CATALOG,
+    trending: TRENDING,
+    types: PRODUCT_TYPES,
+    channels: CHANNELS,
+    palettes: PALETTES,
+    buildSteps: BUILD_STEPS,
+    platforms: PLATFORMS,
+    prices: { monthly: 19, yearly: 149 },
+  }
+}
+
+export function serviceById(id: string) {
+  return SERVICE_CATALOG.find((item) => item.id === id)
+}
+
+export function typeById(id: string) {
+  return PRODUCT_TYPES.find((item) => item.id === id)
+}

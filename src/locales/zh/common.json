@@ -1,0 +1,94 @@
+{
+  "app": {
+    "name": "relay",
+    "tagline": "做出来、卖出去、被人看见"
+  },
+  "nav": {
+    "start": "开始",
+    "products": "我的产品",
+    "partners": "合作伙伴",
+    "connections": "连接",
+    "admin": "管理",
+    "aria_main": "主导航"
+  },
+  "crumbs": {
+    "build": "制作",
+    "publish": "上架",
+    "distribute": "分发",
+    "promote": "推广"
+  },
+  "shell": {
+    "plan_trial": "每月 $19 或每年 $149。7 天试用。",
+    "plan_on_title": "Relay 已开通",
+    "plan_on_body": "由你自己的 AI 密钥和已连接账户完成工作。",
+    "account": "账户",
+    "language": "语言",
+    "trial_cta": "开始试用",
+    "plan_pill": "Relay {{plan}} · 已连接 {{count}}",
+    "proto_label": "Relay 原型",
+    "proto_sim": "写作、图像和服务操作均为模拟。不会真正创建或扣费。"
+  },
+  "home": {
+    "title": "你了解、在意、或想帮助别人的是什么？",
+    "subtitle": "Relay 会阅读你的资料、找到可盈利方向、写出带引用的产品，并上架到 Whop。",
+    "cta": "开始一个产品"
+  },
+  "products": {
+    "title": "我的产品",
+    "empty": "还没有产品。从你了解的内容开始。"
+  },
+  "partners": {
+    "title": "合作伙伴",
+    "empty": "寻找有邮件列表但还没有产品的创作者，然后用你自己的邮箱发出合作邀请。"
+  },
+  "connections": {
+    "title": "连接",
+    "empty": "连接 Whop、邮箱和你自己的 AI 密钥。Relay 不转售 AI。",
+    "subtitle": "Relay 通过你的账户工作。连接一次，所有产品共用。",
+    "plan": "Relay 套餐",
+    "plan_monthly": "每月 $19 · 试用",
+    "plan_yearly": "每年 $149 · 试用",
+    "not_started": "尚未开始",
+    "active": "已开通",
+    "main_store": "主店铺",
+    "guided": "引导 · 无 API",
+    "connect": "连接",
+    "add_key": "添加密钥",
+    "remove": "移除",
+    "removed": "已移除 {{name}}。",
+    "note": "正式环境使用最小范围的 OAuth，密钥在服务端加密，每项操作记入产品线程。此原型只在浏览器保存标签，不会真正调用服务。"
+  },
+  "admin": {
+    "title": "管理",
+    "subtitle": "做了什么、上架了什么、卖出了什么。",
+    "subscribers": "订阅者",
+    "products_built": "已制作产品（30 天）",
+    "listed": "已上架",
+    "sale_by_day_30": "30 天内有成交",
+    "from_sources": "来自资料来源的产品",
+    "outreach_sent": "已发送外联邮件（30 天）",
+    "reply_rate": "回复率",
+    "partner_live": "已在 Whop 上架的合作产品",
+    "this_account": "本账户",
+    "col_product": "产品",
+    "col_type": "类型",
+    "col_stage": "阶段",
+    "col_sales": "销量",
+    "col_leads": "线索",
+    "col_spend": "AI 花费",
+    "empty": "还没有内容。"
+  },
+  "actions": {
+    "back_home": "返回开始页"
+  },
+  "errors": {
+    "page_title": "出错了",
+    "page_description": "无法加载此页面。请刷新重试，或返回开始页。",
+    "reload": "刷新页面"
+  },
+  "states": {
+    "loading": "加载中…",
+    "not_found_title": "未找到该页面",
+    "not_found_description": "内容可能已被删除，或链接不正确。"
+  }
+}

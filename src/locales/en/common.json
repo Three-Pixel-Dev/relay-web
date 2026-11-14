@@ -1,0 +1,94 @@
+{
+  "app": {
+    "name": "relay",
+    "tagline": "Build, sell, get seen"
+  },
+  "nav": {
+    "start": "Start",
+    "products": "My products",
+    "partners": "Partners",
+    "connections": "Connections",
+    "admin": "Admin",
+    "aria_main": "Main"
+  },
+  "crumbs": {
+    "build": "Build",
+    "publish": "Publish",
+    "distribute": "Distribute",
+    "promote": "Promote"
+  },
+  "shell": {
+    "plan_trial": "$19/month or $149/year. 7-day trial.",
+    "plan_on_title": "Relay is on",
+    "plan_on_body": "Your AI keys and connected accounts do the work.",
+    "account": "Account",
+    "language": "Language",
+    "trial_cta": "Start your trial",
+    "plan_pill": "Relay {{plan}} · {{count}} connected",
+    "proto_label": "Relay prototype",
+    "proto_sim": "Writing, images and service actions are simulated. Nothing is created or charged."
+  },
+  "home": {
+    "title": "What do you know, care about, or want to help people with?",
+    "subtitle": "Relay reads your sources, finds a profitable pocket, writes a cited product, and lists it on Whop.",
+    "cta": "Start a product"
+  },
+  "products": {
+    "title": "My products",
+    "empty": "No products yet. Start from what you know."
+  },
+  "partners": {
+    "title": "Partners",
+    "empty": "Find creators with an email list and no product, then send an offer from your mailbox."
+  },
+  "connections": {
+    "title": "Connections",
+    "empty": "Connect Whop, your mailbox, and your own AI keys. Relay does not resell AI.",
+    "subtitle": "Relay works through your accounts. Connect once; every product uses them.",
+    "plan": "Relay plan",
+    "plan_monthly": "$19/month · trial",
+    "plan_yearly": "$149/year · trial",
+    "not_started": "Not started",
+    "active": "Active",
+    "main_store": "Main store",
+    "guided": "Guided · no API",
+    "connect": "Connect",
+    "add_key": "Add key",
+    "remove": "Remove",
+    "removed": "{{name}} removed.",
+    "note": "Production: OAuth with minimum scopes, keys encrypted server-side, every action logged in the product thread. This prototype stores a label in your browser and calls nothing."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "What gets built, what gets listed, what sells.",
+    "subscribers": "Subscribers",
+    "products_built": "Products built (30 d)",
+    "listed": "Listed",
+    "sale_by_day_30": "With a sale by day 30",
+    "from_sources": "Products built from sources",
+    "outreach_sent": "Outreach emails sent (30 d)",
+    "reply_rate": "Reply rate",
+    "partner_live": "Partner products live on Whop",
+    "this_account": "This account",
+    "col_product": "Product",
+    "col_type": "Type",
+    "col_stage": "Stage",
+    "col_sales": "Sales",
+    "col_leads": "Leads",
+    "col_spend": "AI spend",
+    "empty": "Nothing yet."
+  },
+  "actions": {
+    "back_home": "Back to start"
+  },
+  "errors": {
+    "page_title": "Something went wrong",
+    "page_description": "This page could not be loaded. Reload to try again, or go back to start.",
+    "reload": "Reload page"
+  },
+  "states": {
+    "loading": "Loading…",
+    "not_found_title": "We couldn't find that",
+    "not_found_description": "It may have been removed, or the link may be incorrect."
+  }
+}
