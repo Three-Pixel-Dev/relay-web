@@ -59,7 +59,7 @@ export function StartPage() {
 
   function requireSub() {
     openModal({
-      title: "Start your trial to build a product",
+      title: "Choose a plan to build a product",
       body: (
         <PlansPicker onPicked={closeModal} />
       ),

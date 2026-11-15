@@ -11,7 +11,6 @@ import { ThreadText } from "@/components/common/thread-text"
 import { ROUTES } from "@/constants/routes"
 import { openConnectModal } from "@/features/connections/components/connect-modal"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
-import { usePartnersQuery } from "@/shared/queries/partner.query"
 import {
   useEnsurePublishIntroMutation,
   useProductQuery,
@@ -50,7 +49,6 @@ export function PublishPage() {
 
 function PublishView({ product, catalog }: { product: Product; catalog: RelayCatalog }) {
   const { data: workspace } = useWorkspaceQuery()
-  const { data: partners = [] } = usePartnersQuery()
   const setPlatforms = useSetPlatformsMutation()
   const proceed = usePublishProceedMutation()
   const skip = usePublishSkipMutation()
@@ -61,7 +59,6 @@ function PublishView({ product, catalog }: { product: Product; catalog: RelayCat
   const closeModal = useUiStore((state) => state.closeModal)
   const pub = product.publish
   const connected = (id: string) => workspace?.services[id]?.status === "connected"
-  const partner = partners.find((item) => item.id === product.partnerId)
   const palette = catalog.palettes[product.brand?.palette ?? 0]
 
   function runProceed() {

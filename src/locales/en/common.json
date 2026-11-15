@@ -18,12 +18,14 @@
     "promote": "Promote"
   },
   "shell": {
-    "plan_trial": "$19/month or $149/year. 7-day trial.",
+    "plan_trial": "$99 / 6 months or $149 / year. No trial.",
     "plan_on_title": "Relay is on",
     "plan_on_body": "Your AI keys and connected accounts do the work.",
     "account": "Account",
     "language": "Language",
-    "trial_cta": "Start your trial",
+    "trial_cta": "Choose a plan",
+    "choose_plan_cta": "Choose a plan",
+    "sign_out": "Sign out",
     "plan_pill": "Relay {{plan}} · {{count}} connected",
     "proto_label": "Relay prototype",
     "proto_sim": "Writing, images and service actions are simulated. Nothing is created or charged."
@@ -46,8 +48,9 @@
     "empty": "Connect Whop, your mailbox, and your own AI keys. Relay does not resell AI.",
     "subtitle": "Relay works through your accounts. Connect once; every product uses them.",
     "plan": "Relay plan",
-    "plan_monthly": "$19/month · trial",
-    "plan_yearly": "$149/year · trial",
+    "plan_monthly": "$99 / 6 months · no trial",
+    "plan_six_months": "$99 / 6 months · no trial",
+    "plan_yearly": "$149 / year · no trial",
     "not_started": "Not started",
     "active": "Active",
     "main_store": "Main store",

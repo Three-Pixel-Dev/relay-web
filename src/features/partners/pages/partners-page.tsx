@@ -80,7 +80,7 @@ export function PartnersPage() {
           const parsed = apiError(error)
           if (parsed.code === "SUB_REQUIRED") {
             openModal({
-              title: "Start your trial to find partners",
+              title: "Choose a plan to find partners",
               body: <PlansPicker onPicked={closeModal} />,
               actions: <button type="button" className="btn ghost" onClick={closeModal}>Not now</button>,
             })

@@ -4,13 +4,14 @@ export function apiError(error: unknown) {
   if (axios.isAxiosError(error) && error.response?.data) {
     const data = error.response.data as {
       message?: string
-      code?: string
+      code?: string | number
       service?: string
-      meta?: { code?: string; service?: string }
+      meta?: { code?: string | number; service?: string }
     }
+    const rawCode = data.code ?? data.meta?.code
     return {
       message: data.message ?? error.message,
-      code: data.code ?? data.meta?.code,
+      code: rawCode != null ? String(rawCode) : undefined,
       service: data.service ?? data.meta?.service,
     }
   }

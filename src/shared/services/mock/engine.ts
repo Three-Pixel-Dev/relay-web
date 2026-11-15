@@ -123,7 +123,7 @@ export function getProduct(id: string) {
 
 export function createProduct(input: CreateProductInput) {
   if (!getState().workspace.sub && getState().workspace.role !== "admin") {
-    throw Object.assign(new Error("Start your trial to build a product"), {
+    throw Object.assign(new Error("Choose a plan to build a product"), {
       code: "SUB_REQUIRED",
     })
   }
@@ -826,7 +826,7 @@ export function updateOutreach(patch: Partial<typeof OUTREACH_DEFAULT>) {
 
 export async function runScout(query: string, platforms: PartnerPlatform[]) {
   if (!getState().workspace.sub && getState().workspace.role !== "admin") {
-    throw Object.assign(new Error("Start your trial to find partners"), { code: "SUB_REQUIRED" })
+    throw Object.assign(new Error("Choose a plan to find partners"), { code: "SUB_REQUIRED" })
   }
   patchState((state) => {
     state.scout = []
