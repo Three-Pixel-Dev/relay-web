@@ -1,5 +1,7 @@
 export const ROUTES = {
   start: "/",
+  login: "/login",
+  signup: "/signup",
   products: "/products",
   product: (id: string) => `/products/${id}`,
   build: (id: string) => `/products/${id}/build`,

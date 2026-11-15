@@ -397,7 +397,7 @@ export function getCatalog(): RelayCatalog {
     palettes: PALETTES,
     buildSteps: BUILD_STEPS,
     platforms: PLATFORMS,
-    prices: { monthly: 19, yearly: 149 },
+    prices: { six_months: 99, yearly: 149 },
   }
 }
 

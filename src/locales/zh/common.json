@@ -18,12 +18,14 @@
     "promote": "推广"
   },
   "shell": {
-    "plan_trial": "每月 $19 或每年 $149。7 天试用。",
+    "plan_trial": "6 个月 $99 或每年 $149。无试用。",
     "plan_on_title": "Relay 已开通",
     "plan_on_body": "由你自己的 AI 密钥和已连接账户完成工作。",
     "account": "账户",
     "language": "语言",
-    "trial_cta": "开始试用",
+    "trial_cta": "选择套餐",
+    "choose_plan_cta": "选择套餐",
+    "sign_out": "退出登录",
     "plan_pill": "Relay {{plan}} · 已连接 {{count}}",
     "proto_label": "Relay 原型",
     "proto_sim": "写作、图像和服务操作均为模拟。不会真正创建或扣费。"
@@ -46,8 +48,9 @@
     "empty": "连接 Whop、邮箱和你自己的 AI 密钥。Relay 不转售 AI。",
     "subtitle": "Relay 通过你的账户工作。连接一次，所有产品共用。",
     "plan": "Relay 套餐",
-    "plan_monthly": "每月 $19 · 试用",
-    "plan_yearly": "每年 $149 · 试用",
+    "plan_monthly": "6 个月 $99 · 无试用",
+    "plan_six_months": "6 个月 $99 · 无试用",
+    "plan_yearly": "每年 $149 · 无试用",
     "not_started": "尚未开始",
     "active": "已开通",
     "main_store": "主店铺",
