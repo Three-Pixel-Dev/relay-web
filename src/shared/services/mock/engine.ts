@@ -235,7 +235,12 @@ export async function proceedProduct(id: string) {
   running.add(id)
   try {
     if (i === 0) {
-      if (item.sources.length && !item.profile) {
+      if (step.status === "review" || item.profile) {
+        step.status = "review"
+        patchState(() => undefined)
+        return cloneProduct(item)
+      }
+      if (item.sources.length) {
         step.status = "running"
         patchState(() => undefined)
         if (!(await progress(item, i, readLines(item.sources), 850))) return cloneProduct(item)

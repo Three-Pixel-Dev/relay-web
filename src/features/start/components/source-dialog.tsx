@@ -63,6 +63,7 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
                   kind: "file" as const,
                   name: file.name,
                   size: file.size,
+                  file,
                 }))
               )
             }}

@@ -141,12 +141,12 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
   },
   {
     id: "llm",
-    name: "Text model",
+    name: "Text model (Gemini)",
     short: "Tx",
     color: "#c7b4ff",
     kind: "key",
     group: "AI (your keys)",
-    does: "Your own key from any text model provider. Reads your sources, research, pockets, structure, manuscript, listings, emails.",
+    does: "Your Google Gemini API key (AIza…). Used for Gemini embeddings (indexing your sources) and generating source summaries, pockets, structure, manuscript, listings, and emails.",
     price: "Cents per task",
   },
   {

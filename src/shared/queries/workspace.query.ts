@@ -43,7 +43,8 @@ export function useMarkOnboardedMutation() {
 export function useConnectServiceMutation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, label }: { id: string; label: string }) => connectService(id, label),
+    mutationFn: ({ id, label, credential }: { id: string; label: string; credential?: string }) =>
+      connectService(id, label, credential),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
     },

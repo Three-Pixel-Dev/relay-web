@@ -88,6 +88,25 @@ async function dispatch(config: InternalAxiosRequestConfig) {
   params = route("/products/:id/sources")
   if (params && method === "post") return ok(config, engine.addSources(params.id, body.sources))
 
+  params = route("/products/:id/sources/upload")
+  if (params && method === "post") {
+    const formData = config.data instanceof FormData ? config.data : null
+    const uploaded: { id: string; kind: "file"; name: string; size: number }[] = []
+    if (formData) {
+      for (const value of formData.getAll("files")) {
+        if (value instanceof File) {
+          uploaded.push({
+            id: `s${Math.random().toString(36).slice(2, 8)}`,
+            kind: "file",
+            name: value.name,
+            size: value.size,
+          })
+        }
+      }
+    }
+    return ok(config, engine.addSources(params.id, uploaded))
+  }
+
   params = route("/products/:id/sources/:sourceId")
   if (params && method === "delete") {
     return ok(config, engine.removeSource(params.id, params.sourceId))

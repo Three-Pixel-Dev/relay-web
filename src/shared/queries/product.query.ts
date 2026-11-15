@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
+import { env } from "@/app/config/env"
 import {
   addProductSection,
   addProductSources,
@@ -56,11 +57,12 @@ export function useProductsQuery() {
 }
 
 export function useProductQuery(id: string | undefined) {
+  const pollIntervalMs = env.apiBaseUrl ? 800 : 250
   return useQuery({
     queryKey: productKeys.detail(id ?? ""),
     queryFn: () => getProduct(id!),
     enabled: Boolean(id),
-    refetchInterval: (query) => (isBusy(query.state.data) ? 250 : false),
+    refetchInterval: (query) => (isBusy(query.state.data) ? pollIntervalMs : false),
   })
 }
 

@@ -16,9 +16,10 @@ export async function startSubscription(plan: SubscriptionPlan) {
   return data
 }
 
-export async function connectService(id: string, label: string) {
+export async function connectService(id: string, label: string, credential?: string) {
   const { data } = await apiClient.post<Workspace>(`/workspace/services/${id}/connect`, {
     label,
+    credential,
   })
   return data
 }

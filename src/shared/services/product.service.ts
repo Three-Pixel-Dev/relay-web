@@ -12,7 +12,23 @@ export async function getProduct(id: string) {
 }
 
 export async function createProduct(input: CreateProductInput) {
-  const { data } = await apiClient.post<Product>("/products", input)
+  const allSources = input.sources ?? []
+  const realFiles = allSources
+    .filter((s) => s.kind === "file" && s.file instanceof File)
+    .map((s) => s.file as File)
+  const linkAndSampleSources = allSources
+    .filter((s) => !(s.kind === "file" && s.file instanceof File))
+    .map(({ file: _file, ...rest }) => rest)
+
+  const { data } = await apiClient.post<Product>("/products", {
+    ...input,
+    sources: linkAndSampleSources,
+    pendingFilesCount: realFiles.length,
+  })
+
+  if (realFiles.length > 0) {
+    return await uploadProductSources(data.id, realFiles)
+  }
   return data
 }
 
@@ -20,9 +36,37 @@ export async function deleteProduct(id: string) {
   await apiClient.delete(`/products/${id}`)
 }
 
-export async function addProductSources(id: string, sources: SourceItem[]) {
-  const { data } = await apiClient.post<Product>(`/products/${id}/sources`, { sources })
+export async function uploadProductSources(id: string, files: File[]) {
+  const formData = new FormData()
+  for (const file of files) {
+    formData.append("files", file)
+  }
+  const { data } = await apiClient.post<Product>(`/products/${id}/sources/upload`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  })
   return data
+}
+
+export async function addProductSources(id: string, sources: SourceItem[]) {
+  const realFiles = sources
+    .filter((s) => s.kind === "file" && s.file instanceof File)
+    .map((s) => s.file as File)
+  const linkAndSampleSources = sources
+    .filter((s) => !(s.kind === "file" && s.file instanceof File))
+    .map(({ file: _file, ...rest }) => rest)
+
+  let latest: Product | null = null
+  if (linkAndSampleSources.length > 0) {
+    const { data } = await apiClient.post<Product>(`/products/${id}/sources`, {
+      sources: linkAndSampleSources,
+    })
+    latest = data
+  }
+  if (realFiles.length > 0) {
+    latest = await uploadProductSources(id, realFiles)
+  }
+  if (latest) return latest
+  return await getProduct(id)
 }
 
 export async function removeProductSource(id: string, sourceId: string) {

@@ -39,9 +39,9 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
       ? "Read the rest of your inbox, send anything you did not approve"
       : "Change payouts, delete your account"
 
-  function finish(label: string) {
+  function finish(label: string, credential?: string) {
     connect.mutate(
-      { id: service.id, label },
+      { id: service.id, label, credential },
       {
         onSuccess: () => {
           closeModal()
@@ -89,15 +89,17 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
   return (
     <>
       <p className="muted small" style={{ marginBottom: 14 }}>
-        {service.does} Billed by your provider at {service.price.toLowerCase()}. Paste any text;
-        this prototype calls nothing.
+        {service.does} Billed by your provider at {service.price.toLowerCase()}.{" "}
+        {service.id === "llm"
+          ? "Paste a Google Gemini API key (starts with AIza…) so Relay can embed your sources and generate summaries."
+          : "Paste your provider API key below."}
       </p>
       <div>
-        <label htmlFor="k1">API key</label>
+        <label htmlFor="k1">{service.id === "llm" ? "Gemini API key" : "API key"}</label>
         <input
           id="k1"
           type="password"
-          placeholder="sk-…"
+          placeholder={service.id === "llm" ? "AIza…" : "sk-…"}
           value={keyValue}
           onChange={(event) => setKeyValue(event.target.value)}
         />
@@ -111,11 +113,18 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
           className="btn sun"
           disabled={connect.isPending}
           onClick={() => {
-            if (keyValue.trim().length < 6) {
+            const trimmed = keyValue.trim()
+            if (trimmed.length < 6) {
               showToast("Paste a key first.")
               return
             }
-            finish(`${keyValue.slice(0, 3)}••••${keyValue.slice(-3)}`)
+            if (service.id === "llm" && trimmed.startsWith("sk-")) {
+              showToast(
+                "Source indexing requires a Google Gemini API key (AIza…), not an OpenAI sk-… key."
+              )
+              return
+            }
+            finish(`${trimmed.slice(0, 3)}••••${trimmed.slice(-3)}`, trimmed)
           }}
         >
           {connect.isPending ? <span className="spin" /> : null} Test and save

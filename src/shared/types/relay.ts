@@ -74,6 +74,9 @@ export interface SourceItem {
   name: string
   url?: string
   size?: number
+  status?: string
+  error?: string
+  file?: File
 }
 
 export interface SourceProfile {
@@ -258,6 +261,7 @@ export interface CreateProductInput {
   client?: string
   partnerId?: string | null
   sources?: SourceItem[]
+  pendingFilesCount?: number
 }
 
 export interface ScoutResult extends Omit<
