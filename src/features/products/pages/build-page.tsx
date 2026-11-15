@@ -10,7 +10,11 @@ import { BuildActionBar } from "@/features/products/components/build-action-bar"
 import { StepCard } from "@/features/products/components/step-card"
 import { openSourceDialog } from "@/features/start/components/source-dialog"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
-import { useAddSourcesMutation, useProductQuery } from "@/shared/queries/product.query"
+import {
+  useAddSourcesMutation,
+  useProductEvents,
+  useProductQuery,
+} from "@/shared/queries/product.query"
 import { formatTime, money } from "@/util/format"
 import { SOURCE_KINDS } from "@/util/source"
 
@@ -19,6 +23,10 @@ export function BuildPage() {
   const { data: product, isLoading } = useProductQuery(id)
   const { data: catalog } = useCatalogQuery()
   const addSources = useAddSourcesMutation()
+  const isRunning = Boolean(
+    product && product.stage === "build" && product.steps[product.cur]?.status === "running"
+  )
+  useProductEvents(id, isRunning)
 
   if (isLoading || !catalog) return null
   if (!product) return <Navigate to={ROUTES.products} replace />

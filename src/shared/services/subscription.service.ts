@@ -1,14 +1,6 @@
 import { apiClient } from "@/app/api/client"
-import type { ApiResponse, PlanOption, SubscriptionDetail } from "@/shared/types/api"
+import type { PlanOption, SubscriptionDetail } from "@/shared/types/api"
 import type { SubscriptionPlan } from "@/shared/types/relay"
-
-async function unwrap<T>(promise: Promise<{ data: ApiResponse<T> }>) {
-  const { data } = await promise
-  if (!data.success) {
-    throw Object.assign(new Error(data.message || "Request failed"), { code: data.code })
-  }
-  return data.data
-}
 
 export function toApiPlan(plan: SubscriptionPlan): "SIX_MONTHS" | "YEARLY" {
   return plan === "yearly" ? "YEARLY" : "SIX_MONTHS"
@@ -22,29 +14,33 @@ export function fromApiPlan(plan: string | null | undefined): SubscriptionPlan |
 }
 
 export async function listPlans() {
-  return unwrap(apiClient.get<ApiResponse<PlanOption[]>>("/subscription/plans"))
+  const { data } = await apiClient.get<PlanOption[]>("/subscription/plans")
+  return data
 }
 
 export async function getCurrentSubscription() {
-  return unwrap(apiClient.get<ApiResponse<SubscriptionDetail>>("/subscription/me"))
+  const { data } = await apiClient.get<SubscriptionDetail>("/subscription/me")
+  return data
 }
 
 export async function subscribe(plan: SubscriptionPlan) {
-  return unwrap(
-    apiClient.post<ApiResponse<SubscriptionDetail>>("/subscription/subscribe", {
-      plan: toApiPlan(plan),
-    }),
-  )
+  const { data } = await apiClient.post<SubscriptionDetail>("/subscription/subscribe", {
+    plan: toApiPlan(plan),
+  })
+  return data
 }
 
 export async function cancelSubscription() {
-  return unwrap(apiClient.post<ApiResponse<SubscriptionDetail>>("/subscription/cancel"))
+  const { data } = await apiClient.post<SubscriptionDetail>("/subscription/cancel")
+  return data
 }
 
 export async function resumeSubscription() {
-  return unwrap(apiClient.post<ApiResponse<SubscriptionDetail>>("/subscription/resume"))
+  const { data } = await apiClient.post<SubscriptionDetail>("/subscription/resume")
+  return data
 }
 
 export async function subscriptionHistory() {
-  return unwrap(apiClient.get<ApiResponse<SubscriptionDetail[]>>("/subscription/history"))
+  const { data } = await apiClient.get<SubscriptionDetail[]>("/subscription/history")
+  return data
 }

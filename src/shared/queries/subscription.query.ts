@@ -3,8 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { authKeys } from "@/shared/queries/auth.query"
 import { workspaceKeys } from "@/shared/queries/workspace.query"
 import * as subscriptionService from "@/shared/services/subscription.service"
-import { startSubscription as mockStartSubscription } from "@/shared/services/workspace.service"
-import { env } from "@/app/config/env"
 import type { SubscriptionPlan } from "@/shared/types/relay"
 import { useSessionStore } from "@/shared/stores/session.store"
 
@@ -52,18 +50,7 @@ function invalidateBilling(queryClient: ReturnType<typeof useQueryClient>) {
 export function useSubscribeMutation() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (plan: SubscriptionPlan) => {
-      const token = useSessionStore.getState().accessToken
-      if (token) {
-        const detail = await subscriptionService.subscribe(plan)
-        // Keep mock workspace.sub in sync so product gates still work.
-        if (env.useMock) {
-          await mockStartSubscription(plan)
-        }
-        return detail
-      }
-      return mockStartSubscription(plan)
-    },
+    mutationFn: (plan: SubscriptionPlan) => subscriptionService.subscribe(plan),
     onSuccess: () => invalidateBilling(queryClient),
   })
 }

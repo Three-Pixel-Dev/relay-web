@@ -10,11 +10,6 @@ export const ProductsPage = pageLoader(
   "ProductsPage"
 )
 
-export const PartnersPage = pageLoader(
-  () => import("@/features/partners/pages/partners-page"),
-  "PartnersPage"
-)
-
 export const ConnectionsPage = pageLoader(
   () => import("@/features/connections/pages/connections-page"),
   "ConnectionsPage"
@@ -28,24 +23,4 @@ export const ProductOverviewPage = pageLoader(
 export const BuildPage = pageLoader(
   () => import("@/features/products/pages/build-page"),
   "BuildPage"
-)
-
-export const PublishPage = pageLoader(
-  () => import("@/features/products/pages/publish-page"),
-  "PublishPage"
-)
-
-export const DistributePage = pageLoader(
-  () => import("@/features/products/pages/distribute-page"),
-  "DistributePage"
-)
-
-export const PromotePage = pageLoader(
-  () => import("@/features/products/pages/promote-page"),
-  "PromotePage"
-)
-
-export const AdminPage = pageLoader(
-  () => import("@/features/admin/pages/admin-page"),
-  "AdminPage"
 )

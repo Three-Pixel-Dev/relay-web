@@ -367,27 +367,6 @@ export const BUILD_STEPS = [
 
 export const PLATFORMS = ["whop", "etsy", "gumroad", "payhip", "kdp"]
 
-export const OUTREACH_DEFAULT = {
-  subject: "{{first_name}}, your email list is missing one thing",
-  body: "Hi {{first_name}},\n\nI’ve followed your {{niche}} content for a while. You have an audience that trusts you and an email list, and as far as I can see no product of your own to offer them yet.\n\nI build digital products (guides, workbooks, planners) from a creator’s existing content. I’d write and design one from your videos, you approve every page, and we sell it to your list through one checkout and split the revenue {{split}}. No cost to you and no work beyond approving it.\n\nWant me to send a one-page outline of what I’d build for you? Reply “yes” and I’ll have it to you in two days.\n\n{{your_name}}",
-  f1: "Hi {{first_name}}, floating this back up. I sketched three product ideas from your last month of content. Want me to send them?",
-  f2: "Last note from me, {{first_name}}. If the timing is wrong, no problem. If you’d like the outline later, reply any time.",
-  split: 50,
-  cap: 30,
-}
-
-export const REPLIES = {
-  interested: [
-    "Hey! Funny timing, I’ve been meaning to make something for my list for a year. Send the outline over.",
-    "Yes, send it. What would the split look like after fees?",
-    "Interested. Can you show me one you’ve already built?",
-  ],
-  declined: [
-    "Thanks, but I’m working on my own course right now.",
-    "Not for me at the moment, appreciate you asking.",
-  ],
-}
-
 export function getCatalog(): RelayCatalog {
   return {
     services: SERVICE_CATALOG,

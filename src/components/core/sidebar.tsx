@@ -1,4 +1,4 @@
-import { BookOpen, Plug, Shield, Sparkles, Users } from "lucide-react"
+import { BookOpen, Plug, Sparkles } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { NavLink } from "react-router"
 
@@ -20,12 +20,8 @@ export function Sidebar() {
   }[] = [
     { to: ROUTES.start, key: "nav.start", icon: Sparkles, end: true },
     { to: ROUTES.products, key: "nav.products", icon: BookOpen, end: false, count: products.length },
-    { to: ROUTES.partners, key: "nav.partners", icon: Users, end: true },
     { to: ROUTES.connections, key: "nav.connections", icon: Plug, end: true },
   ]
-  if (workspace?.role === "admin") {
-    items.push({ to: ROUTES.admin, key: "nav.admin", icon: Shield, end: true })
-  }
 
   return (
     <aside className="rail">

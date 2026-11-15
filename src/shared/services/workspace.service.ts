@@ -1,5 +1,5 @@
 import { apiClient } from "@/app/api/client"
-import type { SubscriptionPlan, Workspace } from "@/shared/types/relay"
+import type { Workspace } from "@/shared/types/relay"
 
 export async function getWorkspace() {
   const { data } = await apiClient.get<Workspace>("/workspace")
@@ -8,11 +8,6 @@ export async function getWorkspace() {
 
 export async function markOnboarded() {
   const { data } = await apiClient.post<Workspace>("/workspace/onboard")
-  return data
-}
-
-export async function startSubscription(plan: SubscriptionPlan) {
-  const { data } = await apiClient.post<Workspace>("/workspace/subscription", { plan })
   return data
 }
 

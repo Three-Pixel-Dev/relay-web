@@ -1,42 +1,39 @@
 import { apiClient } from "@/app/api/client"
-import type { ApiResponse, AuthTokens, MeUser } from "@/shared/types/api"
-
-async function unwrap<T>(promise: Promise<{ data: ApiResponse<T> }>) {
-  const { data } = await promise
-  if (!data.success) {
-    throw Object.assign(new Error(data.message || "Request failed"), { code: data.code })
-  }
-  return data.data
-}
+import type { AuthTokens, MeUser } from "@/shared/types/api"
 
 export async function signup(input: { email: string; password: string; name: string }) {
-  return unwrap(apiClient.post<ApiResponse<AuthTokens>>("/auth/signup", input))
+  const { data } = await apiClient.post<AuthTokens>("/auth/signup", input)
+  return data
 }
 
 export async function login(input: { email: string; password: string }) {
-  return unwrap(apiClient.post<ApiResponse<AuthTokens>>("/auth/login", input))
+  const { data } = await apiClient.post<AuthTokens>("/auth/login", input)
+  return data
 }
 
 export async function loginWithGoogle(idToken: string) {
-  return unwrap(apiClient.post<ApiResponse<AuthTokens>>("/auth/google", { idToken }))
+  const { data } = await apiClient.post<AuthTokens>("/auth/google", { idToken })
+  return data
 }
 
 export async function refreshToken(refreshTokenValue: string) {
-  return unwrap(
-    apiClient.post<ApiResponse<AuthTokens>>("/auth/refresh-token", {
-      refreshToken: refreshTokenValue,
-    }),
-  )
+  const { data } = await apiClient.post<AuthTokens>("/auth/refresh-token", {
+    refreshToken: refreshTokenValue,
+  })
+  return data
 }
 
 export async function fetchMe() {
-  return unwrap(apiClient.get<ApiResponse<MeUser>>("/auth/me"))
+  const { data } = await apiClient.get<MeUser>("/auth/me")
+  return data
 }
 
 export async function updateProfile(name: string) {
-  return unwrap(apiClient.put<ApiResponse<MeUser>>("/auth/profile", { name }))
+  const { data } = await apiClient.put<MeUser>("/auth/profile", { name })
+  return data
 }
 
 export async function logout() {
-  return unwrap(apiClient.post<ApiResponse<{ message: string }>>("/auth/logout"))
+  const { data } = await apiClient.post<{ message: string }>("/auth/logout")
+  return data
 }

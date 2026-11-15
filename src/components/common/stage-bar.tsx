@@ -10,8 +10,6 @@ interface StageBarProps {
 export function StageBar({ product }: StageBarProps) {
   const { pathname } = useLocation()
   const built = product.stage !== "build" && product.stage !== "paused"
-  const liveCount = Object.keys(product.publish.live).length
-  const channelsOn = Object.values(product.distribute).filter((channel) => channel.on).length
   const items = [
     {
       to: ROUTES.build(product.id),
@@ -23,24 +21,22 @@ export function StageBar({ product }: StageBarProps) {
     {
       to: ROUTES.publish(product.id),
       label: "Publish",
-      sub: liveCount ? `${liveCount} live` : product.stage === "publish" ? "in progress" : "next",
-      locked: !built,
+      sub: "coming soon",
+      locked: true,
       done: false,
     },
     {
       to: ROUTES.distribute(product.id),
       label: "Distribute",
-      sub: channelsOn ? `${channelsOn} channels on` : "not started",
-      locked: !built,
+      sub: "coming soon",
+      locked: true,
       done: false,
     },
     {
       to: ROUTES.promote(product.id),
       label: "Promote",
-      sub: product.promote.videos.length
-        ? `${product.promote.videos.length} videos`
-        : "not started",
-      locked: !built,
+      sub: "coming soon",
+      locked: true,
       done: false,
     },
   ]

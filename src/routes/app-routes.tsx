@@ -1,15 +1,11 @@
 import type { RouteObject } from "react-router"
 
+import { ComingSoonPage } from "@/components/common/coming-soon-page"
 import {
-  AdminPage,
   BuildPage,
   ConnectionsPage,
-  DistributePage,
-  PartnersPage,
   ProductOverviewPage,
   ProductsPage,
-  PromotePage,
-  PublishPage,
   StartPage,
 } from "@/constants/lazyload"
 
@@ -18,10 +14,50 @@ export const appRoutes: RouteObject[] = [
   { path: "products", element: <ProductsPage /> },
   { path: "products/:id", element: <ProductOverviewPage /> },
   { path: "products/:id/build", element: <BuildPage /> },
-  { path: "products/:id/publish", element: <PublishPage /> },
-  { path: "products/:id/distribute", element: <DistributePage /> },
-  { path: "products/:id/promote", element: <PromotePage /> },
-  { path: "partners", element: <PartnersPage /> },
+  {
+    path: "products/:id/publish",
+    element: (
+      <ComingSoonPage
+        title="Publish — coming soon"
+        description="Storefront and marketplace publishing will be enabled in a future phase."
+      />
+    ),
+  },
+  {
+    path: "products/:id/distribute",
+    element: (
+      <ComingSoonPage
+        title="Distribute — coming soon"
+        description="Automated distribution channels will be enabled in a future phase."
+      />
+    ),
+  },
+  {
+    path: "products/:id/promote",
+    element: (
+      <ComingSoonPage
+        title="Promote — coming soon"
+        description="Promo video generation and scheduling will be enabled in a future phase."
+      />
+    ),
+  },
+  {
+    path: "partners",
+    element: (
+      <ComingSoonPage
+        title="Partners — coming soon"
+        description="Creator scouting and partnership outreach will be enabled in a future phase."
+      />
+    ),
+  },
   { path: "connections", element: <ConnectionsPage /> },
-  { path: "admin", element: <AdminPage /> },
+  {
+    path: "admin",
+    element: (
+      <ComingSoonPage
+        title="Admin — coming soon"
+        description="Workspace analytics and admin metrics will be enabled in a future phase."
+      />
+    ),
+  },
 ]

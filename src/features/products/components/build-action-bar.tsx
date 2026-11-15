@@ -36,7 +36,14 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
   function askSuggest() {
     openModal({
       title: "What should change?",
-      body: <SuggestForm onSend={(text) => { closeModal(); suggest.mutate({ id: product.id, text }) }} />,
+      body: (
+        <SuggestForm
+          onSend={(text) => {
+            closeModal()
+            suggest.mutate({ id: product.id, text })
+          }}
+        />
+      ),
     })
   }
 
@@ -50,8 +57,17 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
       ),
       actions: (
         <>
-          <button type="button" className="btn ghost" onClick={closeModal}>Keep going</button>
-          <button type="button" className="btn sun" onClick={() => { closeModal(); cancel.mutate(product.id) }}>
+          <button type="button" className="btn ghost" onClick={closeModal}>
+            Keep going
+          </button>
+          <button
+            type="button"
+            className="btn sun"
+            onClick={() => {
+              closeModal()
+              cancel.mutate(product.id)
+            }}
+          >
             Pause
           </button>
         </>
@@ -63,7 +79,9 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
     return (
       <div className="actionbar">
         <span className="hint">Paused. Everything is kept.</span>
-        <button type="button" className="btn sun" onClick={() => resume.mutate(product.id)}>Resume</button>
+        <button type="button" className="btn sun" onClick={() => resume.mutate(product.id)}>
+          Resume
+        </button>
       </div>
     )
   }
@@ -72,8 +90,23 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
     return (
       <div className="actionbar">
         <span className="hint">Built. {money(product.spend)} in AI.</span>
-        <Link to={ROUTES.product(product.id)} className="btn ghost">Product overview</Link>
-        <Link to={ROUTES.publish(product.id)} className="btn sun">Publish it</Link>
+        <Link to={ROUTES.product(product.id)} className="btn ghost">
+          Product overview
+        </Link>
+      </div>
+    )
+  }
+
+  // Gate build steps after Step 0 (Sources & Source summary)
+  if (i > 0) {
+    return (
+      <div className="actionbar">
+        <span className="hint">
+          Next steps coming soon — Step 1 (Sources &amp; Source summary) is complete.
+        </span>
+        <Link to={ROUTES.product(product.id)} className="btn soft">
+          Product overview
+        </Link>
       </div>
     )
   }
@@ -81,33 +114,12 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
   if (step.status === "running") {
     return (
       <div className="actionbar">
-        <span className="hint"><span className="spin" /> Relay is working on step {i + 1}.</span>
-        <button type="button" className="btn ghost" onClick={askCancel}>Stop</button>
-      </div>
-    )
-  }
-
-  if (step.status === "gate") {
-    return (
-      <div className="actionbar">
-        <span className="hint">Approve the voice and Relay writes the other {product.structure.length - 1} sections the same way.</span>
-        <button type="button" className="btn ghost danger" onClick={askCancel}>Cancel</button>
-        <button type="button" className="btn ghost" onClick={askSuggest}>Change the voice</button>
-        <button type="button" className="btn mint" onClick={() => approve.mutate(product.id)}>
-          <Check className="size-4" /> Voice is right, write the rest
+        <span className="hint">
+          <span className="spin" /> Relay is working on step {i + 1}.
+        </span>
+        <button type="button" className="btn ghost" onClick={askCancel}>
+          Stop
         </button>
-      </div>
-    )
-  }
-
-  if (step.status === "review" && (i === 1 || i === 2)) {
-    return (
-      <div className="actionbar">
-        <span className="hint">{i === 1 ? "Pick a pocket above." : "Pick a product type above."}</span>
-        <button type="button" className="btn ghost danger" onClick={askCancel}>Cancel</button>
-        {i === 1 ? (
-          <button type="button" className="btn ghost" onClick={askSuggest}>Different direction</button>
-        ) : null}
       </div>
     )
   }
@@ -116,8 +128,12 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
     return (
       <div className="actionbar">
         <span className="hint">Happy with it?</span>
-        <button type="button" className="btn ghost danger" onClick={askCancel}>Cancel</button>
-        <button type="button" className="btn ghost" onClick={askSuggest}>Suggest a change</button>
+        <button type="button" className="btn ghost danger" onClick={askCancel}>
+          Cancel
+        </button>
+        <button type="button" className="btn ghost" onClick={askSuggest}>
+          Suggest a change
+        </button>
         <button type="button" className="btn mint" onClick={() => approve.mutate(product.id)}>
           <Check className="size-4" /> Looks good, continue
         </button>
@@ -125,15 +141,7 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
     )
   }
 
-  const needs: Record<number, string | null> = {
-    0: product.sources.length && !product.profile ? "llm" : null,
-    1: "llm",
-    3: "llm",
-    4: "llm",
-    5: "img",
-    6: null,
-  }
-  const need = needs[i]
+  const need = product.sources.length && !product.profile ? "llm" : null
   const service = need ? catalog.services.find((item) => item.id === need) : undefined
   const missing = Boolean(need && !connected(need))
 
@@ -144,8 +152,12 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
           ? `Relay needs your ${service?.name} key for this step.`
           : `Relay will do step ${i + 1}: ${catalog.buildSteps[i].toLowerCase()}.`}
       </span>
-      <button type="button" className="btn ghost danger" onClick={askCancel}>Cancel</button>
-      <button type="button" className="btn ghost" onClick={askSuggest}>Suggest</button>
+      <button type="button" className="btn ghost danger" onClick={askCancel}>
+        Cancel
+      </button>
+      <button type="button" className="btn ghost" onClick={askSuggest}>
+        Suggest
+      </button>
       {missing && service ? (
         <button type="button" className="btn sun" onClick={() => openConnectModal(service)}>
           Add {service.name} key
@@ -164,7 +176,11 @@ function SuggestForm({ onSend }: { onSend: (text: string) => void }) {
     <>
       <textarea id="sg" placeholder="Warmer voice. Shorter sections." />
       <div className="actions">
-        <button type="button" className="btn ghost" onClick={() => useUiStore.getState().closeModal()}>
+        <button
+          type="button"
+          className="btn ghost"
+          onClick={() => useUiStore.getState().closeModal()}
+        >
           Cancel
         </button>
         <button

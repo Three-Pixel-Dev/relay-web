@@ -1,7 +1,6 @@
-import { apiClient } from "@/app/api/client"
+import { getCatalog as getStaticCatalog } from "@/shared/catalog/relay-catalog"
 import type { RelayCatalog } from "@/shared/types/relay"
 
-export async function getCatalog() {
-  const { data } = await apiClient.get<RelayCatalog>("/catalog")
-  return data
+export async function getCatalog(): Promise<RelayCatalog> {
+  return getStaticCatalog()
 }
