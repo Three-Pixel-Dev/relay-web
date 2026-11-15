@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { PlansPicker } from "@/components/common/plans-picker"
 import { ServiceMark } from "@/components/common/service-mark"
+import { BillingPanel } from "@/features/connections/components/billing-panel"
 import { openConnectModal } from "@/features/connections/components/connect-modal"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import {
@@ -39,7 +40,7 @@ export function ConnectionsPage() {
               {workspace.sub
                 ? workspace.sub === "yearly"
                   ? t("connections.plan_yearly")
-                  : t("connections.plan_monthly")
+                  : t("connections.plan_six_months")
                 : t("connections.not_started")}
             </p>
           </div>
@@ -53,6 +54,7 @@ export function ConnectionsPage() {
         <div style={{ marginTop: 14 }}>
           <PlansPicker selected={workspace.sub} />
         </div>
+        <BillingPanel />
       </div>
       {GROUPS.map((group) => (
         <ServiceGroup

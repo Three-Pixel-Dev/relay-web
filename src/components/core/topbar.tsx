@@ -1,18 +1,23 @@
 import { useTranslation } from "react-i18next"
-import { Link, useLocation } from "react-router"
+import { Link, useLocation, useNavigate } from "react-router"
 
 import { UI_LOCALES } from "@/app/config/i18n"
 import { Button } from "@/components/ui/button"
 import { ROUTES } from "@/constants/routes"
+import { useLogoutMutation } from "@/shared/queries/auth.query"
 import { useProductQuery } from "@/shared/queries/product.query"
 import { useWorkspaceQuery } from "@/shared/queries/workspace.query"
+import { useSessionStore } from "@/shared/stores/session.store"
 
 export function Topbar() {
   const { t, i18n } = useTranslation("common")
+  const navigate = useNavigate()
   const { pathname } = useLocation()
   const id = pathname.match(/^\/products\/([^/]+)/)?.[1]
   const { data: workspace } = useWorkspaceQuery()
   const { data: product } = useProductQuery(id)
+  const user = useSessionStore((s) => s.user)
+  const logout = useLogoutMutation()
   const connected = Object.values(workspace?.services ?? {}).filter(
     (service) => service.status === "connected"
   ).length
@@ -50,6 +55,13 @@ export function Topbar() {
     return <b>{t("nav.start")}</b>
   })()
 
+  const initials = (user?.name || user?.email || "YO")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("") || "YO"
+
   return (
     <header className="topbar">
       <div className="crumbs">{crumbs}</div>
@@ -60,8 +72,11 @@ export function Topbar() {
         >
           <i />
           {workspace?.sub
-            ? t("shell.plan_pill", { plan: workspace.sub, count: connected })
-            : t("shell.trial_cta")}
+            ? t("shell.plan_pill", {
+                plan: workspace.sub === "yearly" ? "Yearly" : "6 months",
+                count: connected,
+              })
+            : t("shell.choose_plan_cta")}
         </Link>
         <div
           className="flex overflow-hidden rounded-full border border-border bg-card"
@@ -87,9 +102,31 @@ export function Topbar() {
             </Button>
           ))}
         </div>
-        <Link to={ROUTES.connections} className="avatar" aria-label={t("shell.account")}>
-          {workspace?.role === "admin" ? "AD" : "YO"}
-        </Link>
+        {user?.avatarUrl ? (
+          <img
+            src={user.avatarUrl}
+            alt=""
+            className="avatar"
+            style={{ objectFit: "cover" }}
+            title={user.email}
+          />
+        ) : (
+          <Link to={ROUTES.connections} className="avatar" aria-label={t("shell.account")}>
+            {initials}
+          </Link>
+        )}
+        <button
+          type="button"
+          className="btn ghost"
+          disabled={logout.isPending}
+          onClick={() =>
+            logout.mutate(undefined, {
+              onSuccess: () => void navigate(ROUTES.login),
+            })
+          }
+        >
+          {t("shell.sign_out")}
+        </button>
       </div>
     </header>
   )

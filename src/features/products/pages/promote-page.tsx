@@ -37,7 +37,6 @@ export function PromotePage() {
   const connected = (sid: string) => workspace?.services[sid]?.status === "connected"
   const higgs = catalog.services.find((s) => s.id === "higgsfield")!
   const tiktok = catalog.services.find((s) => s.id === "tiktok")!
-  const palette = catalog.palettes[product.brand?.palette ?? 0]
   const reach = ["youtube", "tiktok", "instagram"].filter(connected)
 
   let bar

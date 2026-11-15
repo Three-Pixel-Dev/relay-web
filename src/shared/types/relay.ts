@@ -1,4 +1,4 @@
-export type SubscriptionPlan = "monthly" | "yearly"
+export type SubscriptionPlan = "six_months" | "yearly"
 export type UserRole = "user" | "admin"
 export type BuildMode = "guided" | "fast"
 export type ProductStage = "build" | "publish" | "distribute" | "paused"
@@ -65,7 +65,7 @@ export interface RelayCatalog {
   palettes: Palette[]
   buildSteps: string[]
   platforms: string[]
-  prices: { monthly: number; yearly: number }
+  prices: { six_months: number; yearly: number }
 }
 
 export interface SourceItem {
