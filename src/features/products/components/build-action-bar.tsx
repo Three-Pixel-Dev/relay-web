@@ -1,11 +1,14 @@
-import { Bolt, Check } from "lucide-react"
+import { Bolt, Check, Paperclip } from "lucide-react"
 import { Link } from "react-router"
 
 import { openConnectModal } from "@/features/connections/components/connect-modal"
+import { openSourceDialog } from "@/features/start/components/source-dialog"
 import { ROUTES } from "@/constants/routes"
 import {
+  useAddSourcesMutation,
   useApproveProductMutation,
   useCancelProductMutation,
+  useContinueQualityProductMutation,
   useProceedProductMutation,
   useResumeProductMutation,
   useSuggestProductMutation,
@@ -23,6 +26,8 @@ interface BuildActionBarProps {
 export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
   const { data: workspace } = useWorkspaceQuery()
   const proceed = useProceedProductMutation()
+  const continueQuality = useContinueQualityProductMutation()
+  const addSources = useAddSourcesMutation()
   const approve = useApproveProductMutation()
   const cancel = useCancelProductMutation()
   const resume = useResumeProductMutation()
@@ -119,6 +124,43 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
         </span>
         <button type="button" className="btn ghost" onClick={askCancel}>
           Stop
+        </button>
+      </div>
+    )
+  }
+
+  if (step.status === "quality_gate") {
+    const warningText =
+      product.qualityWarning ||
+      step.qualityWarning ||
+      "This source is too thin to build a product from. Add more sources or tell us what you know."
+    return (
+      <div className="actionbar">
+        <span className="hint">{warningText}</span>
+        <button
+          type="button"
+          className="btn soft"
+          onClick={() =>
+            openSourceDialog({
+              sources: product.sources,
+              onChange: (sources) => {
+                const added = sources.filter(
+                  (s) => !product.sources.some((p) => p.id === s.id)
+                )
+                if (added.length) addSources.mutate({ id: product.id, sources: added })
+              },
+            })
+          }
+        >
+          <Paperclip className="size-3.5" /> Add sources
+        </button>
+        <button
+          type="button"
+          className="btn sun"
+          disabled={continueQuality.isPending}
+          onClick={() => continueQuality.mutate(product.id)}
+        >
+          Continue anyway
         </button>
       </div>
     )

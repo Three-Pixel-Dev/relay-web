@@ -79,6 +79,11 @@ export async function proceedProduct(id: string) {
   return data
 }
 
+export async function continueDespiteQuality(id: string) {
+  const { data } = await apiClient.post<Product>(`/products/${id}/quality/continue`)
+  return data
+}
+
 export async function approveProductStep(id: string) {
   const { data } = await apiClient.post<Product>(`/products/${id}/approve`)
   return data

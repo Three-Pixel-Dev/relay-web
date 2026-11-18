@@ -2,7 +2,7 @@ export type SubscriptionPlan = "six_months" | "yearly"
 export type UserRole = "user" | "admin"
 export type BuildMode = "guided" | "fast"
 export type ProductStage = "build" | "publish" | "distribute" | "paused"
-export type StepStatus = "todo" | "running" | "review" | "gate" | "done"
+export type StepStatus = "todo" | "running" | "review" | "quality_gate" | "gate" | "done"
 export type SectionStatus = "todo" | "live" | "done"
 export type SourceKind = "file" | "youtube" | "instagram" | "web"
 export type ServiceKind = "oauth" | "key" | "guided"
@@ -83,7 +83,7 @@ export interface SourceProfile {
   read: { videos: number; docs: number; passages: number }
   niche: string
   transformation: string
-  themes: { t: string; d: string; level: string }[]
+  themes: { t: string; d: string; level: string; hits?: number }[]
   verdict: string
   audience: string
   voice: string
@@ -121,6 +121,7 @@ export interface ProductStep {
   note: string
   progress: string[] | null
   gatePassed?: boolean
+  qualityWarning?: string | null
 }
 
 export interface ThreadMessage {
@@ -195,6 +196,7 @@ export interface Product {
   promote: PromoteState
   metrics: { sales: number; revenue: number; leads: number; visits: number }
   spend: number
+  qualityWarning?: string | null
   cancelled?: boolean
   created: string
   updated: string

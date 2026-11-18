@@ -31,6 +31,11 @@ export function StepCard({ product, index, catalog }: StepCardProps) {
         <span className="spin" />
         Working
       </span>
+    ) : step.status === "quality_gate" ? (
+      <span className="chip sun">
+        <i />
+        Check sources
+      </span>
     ) : step.status === "review" || step.status === "gate" ? (
       <span className="chip sun">
         <i />
@@ -138,6 +143,13 @@ function StepBody({
           </button>
         ) : null}
         {step.progress ? <ProgressLines lines={step.progress} /> : null}
+        {step.status === "quality_gate" ? (
+          <p className="does" style={{ marginTop: 12 }}>
+            {product.qualityWarning ||
+              step.qualityWarning ||
+              "This source is too thin to build a product from. Add more sources or tell us what you know."}
+          </p>
+        ) : null}
         {product.profile ? (
           <div className="profile">
             <div className="between">

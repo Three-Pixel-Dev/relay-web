@@ -6,6 +6,7 @@ import {
   addProductSources,
   approveProductStep,
   cancelProduct,
+  continueDespiteQuality,
   createProduct,
   deleteProduct,
   getProduct,
@@ -119,6 +120,10 @@ export function useDeleteProductMutation() {
 
 export function useProceedProductMutation() {
   return useProductMutation((id: string) => proceedProduct(id))
+}
+
+export function useContinueQualityProductMutation() {
+  return useProductMutation((id: string) => continueDespiteQuality(id))
 }
 
 export function useApproveProductMutation() {
