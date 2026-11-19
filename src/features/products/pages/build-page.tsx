@@ -20,7 +20,7 @@ import {
   useProductEvents,
   useProductQuery,
 } from "@/shared/queries/product.query"
-import { money } from "@/util/format"
+import { money, pluralize } from "@/util/format"
 
 export function BuildPage() {
   const { id = "" } = useParams()
@@ -165,7 +165,7 @@ export function BuildPage() {
                 </div>
                 <p className="mt-2 text-xs text-dim">
                   {product.profile
-                    ? `${product.profile.read.passages.toLocaleString()} passages indexed. Sections cite them.`
+                    ? `${pluralize(product.profile.read.passages, "passage")} indexed. Sections cite them.`
                     : "Read at step 1."}
                 </p>
               </>

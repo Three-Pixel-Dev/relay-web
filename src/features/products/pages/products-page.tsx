@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import { useDeleteProductMutation, useProductsQuery } from "@/shared/queries/product.query"
 import { useUiStore } from "@/shared/stores/ui.store"
-import { formatDate, money } from "@/util/format"
+import { formatDate, money, pluralize } from "@/util/format"
 import type { Product } from "@/shared/types/relay"
 
 export function ProductsPage() {
@@ -70,9 +70,9 @@ export function ProductsPage() {
                   <h3 className="text-base">{title}</h3>
                   <div className="mt-0.5 text-[13px] text-muted-foreground">
                     {stageLabel(product)}
-                    {product.words ? ` · ${product.words.toLocaleString()} words` : ""}
+                    {product.words ? ` · ${pluralize(product.words, "word")}` : ""}
                     {product.metrics.sales
-                      ? ` · ${product.metrics.sales} sales · ${money(product.metrics.revenue)}`
+                      ? ` · ${pluralize(product.metrics.sales, "sale")} · ${money(product.metrics.revenue)}`
                       : ""}
                   </div>
                 </div>

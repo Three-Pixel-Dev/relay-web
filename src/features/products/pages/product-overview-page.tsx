@@ -10,7 +10,7 @@ import { ROUTES } from "@/constants/routes"
 import { cardClass, protoBtn, protoChip } from "@/lib/proto"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import { useProductEvents, useProductQuery } from "@/shared/queries/product.query"
-import { formatDate, money, pagesCount } from "@/util/format"
+import { formatDate, money, pagesCount, pluralize } from "@/util/format"
 
 export function ProductOverviewPage() {
   const { id = "" } = useParams()
@@ -51,7 +51,7 @@ export function ProductOverviewPage() {
           <h3>Files</h3>
           <p className="mt-2.5 text-[13px] text-muted-foreground">
             {product.structure.length
-              ? `${product.structure.length} sections · ${product.words.toLocaleString()} words · ${pagesCount(product.words, product.structure.length)} pages`
+              ? `${pluralize(product.structure.length, "section")} · ${pluralize(product.words, "word")} · ${pluralize(pagesCount(product.words, product.structure.length), "page")}`
               : "Exports (PDF, EPUB, DOCX, Mockups) coming soon after manuscript & branding steps."}
           </p>
         </div>

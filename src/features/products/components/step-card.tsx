@@ -11,6 +11,7 @@ import {
   useRemoveSourceMutation,
 } from "@/shared/queries/product.query"
 import type { Product, RelayCatalog } from "@/shared/types/relay"
+import { pluralize } from "@/util/format"
 
 interface StepCardProps {
   product: Product
@@ -165,11 +166,15 @@ function StepBody({
             <div className="flex flex-wrap items-center justify-between gap-3.5">
               <b>{product.forElse ? "Creator overview" : "What your sources say"}</b>
               <span className="text-[13px] text-muted-foreground">
-                {product.profile.read.videos
-                  ? `${product.profile.read.videos} videos · `
-                  : ""}
-                {product.profile.read.docs ? `${product.profile.read.docs} docs · ` : ""}
-                {product.profile.read.passages.toLocaleString()} passages
+                {[
+                  product.profile.read.videos
+                    ? pluralize(product.profile.read.videos, "video")
+                    : "",
+                  product.profile.read.docs ? pluralize(product.profile.read.docs, "doc") : "",
+                  pluralize(product.profile.read.passages, "passage"),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </span>
             </div>
             <div className={cn(kvClass, "items-start gap-4")}>
