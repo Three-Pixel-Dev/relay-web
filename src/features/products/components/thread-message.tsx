@@ -5,7 +5,7 @@ import { formatTime } from "@/util/format"
 interface ThreadMessageProps {
   who: "you" | "relay"
   text: string
-  at: number
+  at: string
 }
 
 export function ThreadMessage({ who, text, at }: ThreadMessageProps) {

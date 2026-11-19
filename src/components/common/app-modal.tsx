@@ -1,4 +1,3 @@
-import { protoBtn } from "@/lib/proto"
 import { cn } from "@/lib/utils"
 import { useUiStore } from "@/shared/stores/ui.store"
 
