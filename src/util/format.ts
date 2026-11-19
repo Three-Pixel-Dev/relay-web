@@ -22,6 +22,7 @@ export function pluralize(count: number, singular: string, plural = `${singular}
 
 export function productName(
   product?: {
+    name?: string | null
     brand?: { title?: string | null } | null
     input?: string | null
     profile?: { niche?: string | null } | null
@@ -30,6 +31,7 @@ export function productName(
 ) {
   if (!product) return "Untitled product"
   return (
+    product.name?.trim() ||
     product.brand?.title?.trim() ||
     product.input?.trim() ||
     product.profile?.niche?.trim() ||

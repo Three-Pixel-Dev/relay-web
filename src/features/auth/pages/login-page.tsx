@@ -13,7 +13,7 @@ import { apiError } from "@/util/api-error"
 
 const schema = z.object({
   email: z.email("Enter a valid email"),
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(8, "Use at least 8 characters"),
 })
 
 type FormValues = z.infer<typeof schema>

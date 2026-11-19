@@ -32,9 +32,11 @@ export function StartPage() {
   const openModal = useUiStore((state) => state.openModal)
   const closeModal = useUiStore((state) => state.closeModal)
   const [mode, setMode] = useState<BuildMode>("guided")
+  const [name, setName] = useState("")
   const [input, setInput] = useState("")
   const [sources, setSources] = useState<SourceItem[]>([])
   const [showTrend, setShowTrend] = useState(false)
+  const nameInputRef = useRef<HTMLInputElement>(null)
   const didPromptOnboard = useRef(false)
 
   useEffect(() => {
@@ -77,9 +79,19 @@ export function StartPage() {
     })
   }
 
-  function start(text: string, extra?: { forElse?: boolean; client?: string; sources?: SourceItem[] }) {
+  function start(
+    text: string,
+    extra?: { name?: string; forElse?: boolean; client?: string; sources?: SourceItem[] }
+  ) {
+    const resolvedName = (extra?.name ?? name).trim()
+    if (!resolvedName) {
+      showToast("Please enter a product name first.")
+      nameInputRef.current?.focus()
+      return
+    }
     createProduct.mutate(
       {
+        name: resolvedName,
         input: text,
         mode,
         forElse: extra?.forElse,
@@ -89,6 +101,7 @@ export function StartPage() {
       {
         onSuccess: (product) => {
           setSources([])
+          setName("")
           setInput("")
           navigate(ROUTES.build(product.id))
         },
@@ -116,8 +129,30 @@ export function StartPage() {
         or want to help people with?
       </h1>
       <div className="mt-[26px] mb-3 rounded-[18px] border-[1.5px] border-border-strong bg-card p-4 text-left">
+        <div className="mb-3 border-b border-border pb-3">
+          <label
+            htmlFor="start-product-name"
+            className="mb-1 block text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+          >
+            Product name <span className="text-primary">*</span>
+          </label>
+          <input
+            id="start-product-name"
+            ref={nameInputRef}
+            type="text"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                start(input.trim())
+              }
+            }}
+            placeholder="e.g. Reactive Dog Walking Guide"
+            className="w-full border-0 bg-transparent p-1 text-base font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-dim"
+          />
+        </div>
         <textarea
-          className="min-h-[70px] w-full resize-none border-0 bg-transparent p-1 text-base text-foreground outline-none"
+          className="min-h-[70px] w-full resize-none border-0 bg-transparent p-1 text-base text-foreground outline-none placeholder:text-dim"
           value={input}
           onChange={(event) => setInput(event.target.value)}
           onKeyDown={(event) => {
@@ -125,7 +160,7 @@ export function StartPage() {
               start(input.trim())
             }
           }}
-          placeholder="e.g. a skill or method you know, a group you understand, a problem you have solved"
+          placeholder="What is it about? (optional if you add sources — e.g. a skill or method you know, a group you understand, a problem you have solved)"
         />
         <div className="mt-1.5 flex items-center gap-2.5">
           <span className="inline-flex overflow-hidden rounded-full border border-border">
@@ -186,7 +221,7 @@ export function StartPage() {
                 type="button"
                 className="rounded-xl border border-border bg-muted px-3.5 py-3 text-left hover:border-primary"
                 key={idea.title}
-                onClick={() => start(idea.title)}
+                onClick={() => start(idea.title, { name: name.trim() || idea.title })}
               >
                 <b className="block text-[13.5px]">{idea.title}</b>
                 <small className="text-xs text-muted-foreground">{idea.stats}</small>
@@ -212,8 +247,8 @@ export function StartPage() {
         onClick={openAgency}
       />
       <p className="mt-[30px] text-xs text-dim">
-        Not sure where to start? Press the arrow with the box empty and Relay proposes a pocket
-        from what sells this month.
+        Enter a product name above, then describe what you know or attach your sources and press
+        Start.
       </p>
     </section>
   )
@@ -248,13 +283,14 @@ function StartOpt({ icon, title, body, onClick }: StartOptProps) {
 interface AgencyFormProps {
   onStart: (
     text: string,
-    extra: { forElse: boolean; client?: string; sources?: SourceItem[] }
+    extra: { name: string; forElse: boolean; client?: string; sources?: SourceItem[] }
   ) => void
 }
 
 function AgencyForm({ onStart }: AgencyFormProps) {
   const closeModal = useUiStore((state) => state.closeModal)
   const showToast = useUiStore((state) => state.showToast)
+  const [productName, setProductName] = useState("")
   const [client, setClient] = useState("")
   const [yt, setYt] = useState("")
   const [ig, setIg] = useState("")
@@ -267,6 +303,17 @@ function AgencyForm({ onStart }: AgencyFormProps) {
         then builds in their voice. The product lives in your workspace.
       </p>
       <div className="grid gap-3.5">
+        <div>
+          <label className={labelClass}>
+            Product name <span className="text-primary">*</span>
+          </label>
+          <input
+            className={fieldClass}
+            value={productName}
+            onChange={(e) => setProductName(e.target.value)}
+            placeholder="e.g. Creator Content Playbook"
+          />
+        </div>
         <div>
           <label className={labelClass}>Who is it for?</label>
           <input
@@ -309,6 +356,10 @@ function AgencyForm({ onStart }: AgencyFormProps) {
           type="button"
           className={protoBtn()}
           onClick={() => {
+            if (!productName.trim()) {
+              showToast("Please enter a product name first.")
+              return
+            }
             const sources: SourceItem[] = []
             for (const value of [yt, ig]) {
               const v = value.trim()
@@ -319,7 +370,12 @@ function AgencyForm({ onStart }: AgencyFormProps) {
               return
             }
             closeModal()
-            onStart(know.trim(), { forElse: true, client: client.trim(), sources })
+            onStart(know.trim(), {
+              name: productName.trim(),
+              forElse: true,
+              client: client.trim(),
+              sources,
+            })
           }}
         >
           Start

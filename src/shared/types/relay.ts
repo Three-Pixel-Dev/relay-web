@@ -173,6 +173,7 @@ export interface Order {
 
 export interface Product {
   id: string
+  name: string
   input: string
   mode: BuildMode
   forElse: boolean
@@ -257,6 +258,7 @@ export interface AdminStats {
 }
 
 export interface CreateProductInput {
+  name: string
   input: string
   mode: BuildMode
   forElse?: boolean
