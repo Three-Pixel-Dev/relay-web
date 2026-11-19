@@ -15,6 +15,11 @@ export const ConnectionsPage = pageLoader(
   "ConnectionsPage"
 )
 
+export const ProfilePage = pageLoader(
+  () => import("@/features/auth/pages/profile-page"),
+  "ProfilePage"
+)
+
 export const ProductOverviewPage = pageLoader(
   () => import("@/features/products/pages/product-overview-page"),
   "ProductOverviewPage"

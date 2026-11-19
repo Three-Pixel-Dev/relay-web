@@ -49,6 +49,7 @@ export function Topbar() {
     if (pathname === ROUTES.products) return <b className="text-foreground">My products</b>
     if (pathname === ROUTES.partners) return <b className="text-foreground">Partners</b>
     if (pathname === ROUTES.connections) return <b className="text-foreground">Connections</b>
+    if (pathname === ROUTES.profile) return <b className="text-foreground">Profile</b>
     if (pathname === ROUTES.admin) return <b className="text-foreground">Admin</b>
     return <b className="text-foreground">Start</b>
   })()
@@ -83,17 +84,14 @@ export function Topbar() {
             : "Choose a plan"}
         </Link>
         {user?.avatarUrl ? (
-          <img
-            src={user.avatarUrl}
-            alt=""
-            className="size-9 rounded-full object-cover"
-            title={user.email}
-          />
+          <Link to={ROUTES.profile} title={user.email} aria-label="Profile">
+            <img src={user.avatarUrl} alt="" className="size-9 rounded-full object-cover" />
+          </Link>
         ) : (
           <Link
-            to={ROUTES.connections}
+            to={ROUTES.profile}
             className="grid size-9 place-items-center rounded-full bg-linear-to-br from-lilac to-sky text-[13px] font-extrabold text-lilac-foreground"
-            aria-label="Account"
+            aria-label="Profile"
           >
             {initials}
           </Link>

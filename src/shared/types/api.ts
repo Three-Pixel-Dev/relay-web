@@ -30,6 +30,7 @@ export interface MeUser {
   role: string
   onboardSeen: boolean
   googleLinked: boolean
+  hasPassword: boolean
   avatarUrl: string | null
   currentSessionId: number | null
   createdAt: string
