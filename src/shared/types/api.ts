@@ -58,3 +58,11 @@ export interface SubscriptionDetail {
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
 }
+
+export interface CheckoutSession {
+  sessionId: string
+  clientSecret: string
+  publishableKey: string
+  plan: string
+  mode: string
+}
