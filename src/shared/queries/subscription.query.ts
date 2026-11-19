@@ -47,6 +47,21 @@ function invalidateBilling(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
 }
 
+export function useCreateCheckoutMutation() {
+  return useMutation({
+    mutationFn: (plan: SubscriptionPlan) => subscriptionService.createCheckout(plan),
+  })
+}
+
+export function useConfirmCheckoutMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (sessionId: string) => subscriptionService.confirmCheckout(sessionId),
+    onSuccess: () => invalidateBilling(queryClient),
+  })
+}
+
+/** Local free activate when Stripe keys are not set on the server. */
 export function useSubscribeMutation() {
   const queryClient = useQueryClient()
   return useMutation({
