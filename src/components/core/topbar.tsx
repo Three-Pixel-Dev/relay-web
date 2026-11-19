@@ -7,6 +7,7 @@ import { useLogoutMutation } from "@/shared/queries/auth.query"
 import { useProductQuery } from "@/shared/queries/product.query"
 import { useWorkspaceQuery } from "@/shared/queries/workspace.query"
 import { useSessionStore } from "@/shared/stores/session.store"
+import { productName } from "@/util/format"
 
 export function Topbar() {
   const navigate = useNavigate()
@@ -20,7 +21,7 @@ export function Topbar() {
     (service) => service.status === "connected"
   ).length
 
-  const productTitle = product?.brand?.title || product?.input || "My products"
+  const productTitle = productName(product)
   const stageCrumbs: Record<string, string> = {
     build: "Build",
     publish: "Publish",

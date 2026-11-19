@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import { useDeleteProductMutation, useProductsQuery } from "@/shared/queries/product.query"
 import { useUiStore } from "@/shared/stores/ui.store"
-import { formatDate, money, pluralize } from "@/util/format"
+import { formatDate, money, pluralize, productName } from "@/util/format"
 import type { Product } from "@/shared/types/relay"
 
 export function ProductsPage() {
@@ -44,7 +44,7 @@ export function ProductsPage() {
       {products.length ? (
         <div className="grid gap-3.5">
           {products.map((product) => {
-            const title = product.brand?.title || product.pocket?.niche || product.input || "New product"
+            const title = productName(product)
             const palette = catalog?.palettes[product.brand?.palette ?? 0]
             const href =
               product.stage === "build" || product.stage === "paused"

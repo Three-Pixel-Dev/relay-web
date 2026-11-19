@@ -19,3 +19,21 @@ export function pluralize(count: number, singular: string, plural = `${singular}
   const n = Number(count) || 0
   return `${n.toLocaleString()} ${n === 1 ? singular : plural}`
 }
+
+export function productName(
+  product?: {
+    brand?: { title?: string | null } | null
+    input?: string | null
+    profile?: { niche?: string | null } | null
+    pocket?: { niche?: string | null } | null
+  } | null
+) {
+  if (!product) return "Untitled product"
+  return (
+    product.brand?.title?.trim() ||
+    product.input?.trim() ||
+    product.profile?.niche?.trim() ||
+    product.pocket?.niche?.trim() ||
+    "Untitled product"
+  )
+}

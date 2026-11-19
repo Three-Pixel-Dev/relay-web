@@ -10,7 +10,7 @@ import { ROUTES } from "@/constants/routes"
 import { cardClass, protoBtn, protoChip } from "@/lib/proto"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import { useProductEvents, useProductQuery } from "@/shared/queries/product.query"
-import { formatDate, money, pagesCount, pluralize } from "@/util/format"
+import { formatDate, money, pagesCount, pluralize, productName } from "@/util/format"
 
 export function ProductOverviewPage() {
   const { id = "" } = useParams()
@@ -34,7 +34,7 @@ export function ProductOverviewPage() {
       <div className="mb-[18px] flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[13px] text-muted-foreground">{product.pocket?.niche || product.profile?.niche}</p>
-          <h1 className="text-[30px]">{product.brand?.title || product.input || "Untitled product"}</h1>
+          <h1 className="text-[30px]">{productName(product)}</h1>
         </div>
         <Link to={ROUTES.build(product.id)} className={protoBtn()}>
           Open build
