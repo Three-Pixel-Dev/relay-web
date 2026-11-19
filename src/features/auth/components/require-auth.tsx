@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { Navigate, Outlet, useLocation } from "react-router"
 
+import { Spin } from "@/components/common/spin"
 import { ROUTES } from "@/constants/routes"
 import { useMeQuery } from "@/shared/queries/auth.query"
 import { useSessionStore } from "@/shared/stores/session.store"
@@ -23,8 +24,8 @@ export function RequireAuth() {
 
   if (me.isLoading || me.isError) {
     return (
-      <div className="content" style={{ padding: 40 }}>
-        <span className="spin" />
+      <div className="p-10">
+        <Spin />
       </div>
     )
   }

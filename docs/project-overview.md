@@ -30,7 +30,7 @@ Every product has an **agent thread**. Relay posts what it will do next and what
 - Relay: **$19/month** or **$149/year**, 7-day trial, **Stripe only**
 - AI usage runs on the **user’s own provider keys**. Relay does not resell AI and takes no cut of sales
 - Whop and other marketplaces charge their own fees
-- Market: international, **English first**. This client is set up for i18n (`en`, `my`, `th`, `zh`); the UI language switcher starts with `en` and `my`
+- Market: international, **English only** (no language switcher)
 
 ## Main surfaces (from the prototype)
 
@@ -51,7 +51,7 @@ Every product has an **agent thread**. Relay posts what it will do next and what
 
 ## This frontend
 
-Vite + TypeScript + Tailwind CSS + shadcn/ui. React Router, TanStack Query, Axios, Zustand, react-hook-form + zod, Framer Motion, react-i18next.
+Vite + TypeScript + Tailwind CSS + shadcn/ui. React Router, TanStack Query, Axios, Zustand, react-hook-form + zod, Framer Motion.
 
 The visual system is a **single dark indigo theme** (Sora, sun / mint / coral / lilac). There is no light mode and no theme switcher. See [project-theme.md](./project-theme.md). Delivery order is in [project-plan.md](./project-plan.md).
 

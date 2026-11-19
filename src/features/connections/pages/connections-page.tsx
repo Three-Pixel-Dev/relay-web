@@ -1,10 +1,12 @@
 import { ShieldIcon } from "lucide-react"
-import { useTranslation } from "react-i18next"
 
+import { ChipDot } from "@/components/common/spin"
 import { PlansPicker } from "@/components/common/plans-picker"
 import { ServiceMark } from "@/components/common/service-mark"
 import { BillingPanel } from "@/features/connections/components/billing-panel"
 import { openConnectModal } from "@/features/connections/components/connect-modal"
+import { cardClass, noteClass, protoBtn, protoChip } from "@/lib/proto"
+import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import {
   useDisconnectServiceMutation,
@@ -16,7 +18,6 @@ import type { ServiceCatalogItem } from "@/shared/types/relay"
 const GROUPS = ["Sell", "Outreach", "Reach", "Leads", "AI (your keys)"] as const
 
 export function ConnectionsPage() {
-  const { t } = useTranslation("common")
   const { data: catalog } = useCatalogQuery()
   const { data: workspace } = useWorkspaceQuery()
   const disconnect = useDisconnectServiceMutation()
@@ -28,30 +29,30 @@ export function ConnectionsPage() {
 
   return (
     <>
-      <h1 style={{ fontSize: 32, marginBottom: 6 }}>{t("connections.title")}</h1>
-      <p className="muted" style={{ marginBottom: 22 }}>
-        {t("connections.subtitle")}
+      <h1 className="mb-1.5 text-[32px]">Connections</h1>
+      <p className="mb-[22px] text-muted-foreground">
+        Relay works through your accounts. Connect once; every product uses them.
       </p>
-      <div className="card" style={{ marginBottom: 22 }}>
-        <div className="between">
+      <div className={cn(cardClass, "mb-[22px]")}>
+        <div className="flex flex-wrap items-center justify-between gap-3.5">
           <div>
-            <h3>{t("connections.plan")}</h3>
-            <p className="small muted">
+            <h3>Relay plan</h3>
+            <p className="text-[13px] text-muted-foreground">
               {workspace.sub
                 ? workspace.sub === "yearly"
-                  ? t("connections.plan_yearly")
-                  : t("connections.plan_six_months")
-                : t("connections.not_started")}
+                  ? "$149 / year · no trial"
+                  : "$99 / 6 months · no trial"
+                : "Not started"}
             </p>
           </div>
           {workspace.sub ? (
-            <span className="chip mint">
-              <i />
-              {t("connections.active")}
+            <span className={protoChip({ variant: "mint" })}>
+              <ChipDot />
+              Active
             </span>
           ) : null}
         </div>
-        <div style={{ marginTop: 14 }}>
+        <div className="mt-3.5">
           <PlansPicker selected={workspace.sub} />
         </div>
         <BillingPanel />
@@ -65,14 +66,17 @@ export function ConnectionsPage() {
           onConnect={openConnectModal}
           onRemove={(id, name) =>
             disconnect.mutate(id, {
-              onSuccess: () => showToast(t("connections.removed", { name })),
+              onSuccess: () => showToast(`${name} removed.`),
             })
           }
         />
       ))}
-      <p className="note" style={{ marginTop: 18 }}>
-        <ShieldIcon className="size-4" />
-        <span>{t("connections.note")}</span>
+      <p className={cn(noteClass, "mt-[18px]")}>
+        <ShieldIcon className="size-4 shrink-0" />
+        <span>
+          Keys and OAuth tokens are stored for your account. Every action is logged on the product
+          thread. Marketplace fees belong to the connected providers.
+        </span>
       </p>
     </>
   )
@@ -87,56 +91,55 @@ interface ServiceGroupProps {
 }
 
 function ServiceGroup({ title, services, connected, onConnect, onRemove }: ServiceGroupProps) {
-  const { t } = useTranslation("common")
-
   return (
     <>
-      <h3 style={{ margin: "22px 0 10px" }}>{title}</h3>
-      <div className="stack">
+      <h3 className="mt-[22px] mb-2.5">{title}</h3>
+      <div className="grid gap-3.5">
         {services.map((service) => {
           const link = connected[service.id]
           const on = link?.status === "connected"
           return (
-            <div className="prov" key={service.id}>
+            <div
+              className="grid grid-cols-[44px_1fr_auto] items-center gap-3.5 rounded-lg border border-border bg-card p-4"
+              key={service.id}
+            >
               <ServiceMark service={service} size={44} />
               <div>
-                <b>
+                <b className="block text-[15px]">
                   {service.name}
                   {service.main ? (
-                    <span className="chip sun" style={{ marginLeft: 6 }}>
-                      {t("connections.main_store")}
+                    <span className={cn(protoChip({ variant: "sun" }), "ml-1.5")}>
+                      Main store
                     </span>
                   ) : null}
                 </b>
-                <small>{service.does}</small>
-                <small>{service.price}</small>
+                <small className="mt-0.5 block text-[12.5px] text-muted-foreground">{service.does}</small>
+                <small className="mt-0.5 block text-[12.5px] text-muted-foreground">{service.price}</small>
               </div>
-              <div className="st">
+              <div className="flex items-center gap-2.5">
                 {service.kind === "guided" ? (
-                  <span className="chip">{t("connections.guided")}</span>
+                  <span className={protoChip()}>Guided · no API</span>
                 ) : on ? (
                   <>
-                    <span className="chip mint">
-                      <i />
+                    <span className={protoChip({ variant: "mint" })}>
+                      <ChipDot />
                       {link.label}
                     </span>
                     <button
                       type="button"
-                      className="btn ghost"
+                      className={protoBtn({ variant: "ghost" })}
                       onClick={() => onRemove(service.id, service.name)}
                     >
-                      {t("connections.remove")}
+                      Remove
                     </button>
                   </>
                 ) : (
                   <button
                     type="button"
-                    className="btn soft"
+                    className={protoBtn({ variant: "soft" })}
                     onClick={() => onConnect(service)}
                   >
-                    {service.kind === "oauth"
-                      ? t("connections.connect")
-                      : t("connections.add_key")}
+                    {service.kind === "oauth" ? "Connect" : "Add key"}
                   </button>
                 )}
               </div>

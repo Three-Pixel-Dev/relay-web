@@ -1,6 +1,7 @@
 import { ShieldIcon } from "lucide-react"
 
 import { SourceChips } from "@/components/common/source-chips"
+import { fieldClass, labelClass, noteClass, protoBtn } from "@/lib/proto"
 import { uid } from "@/util/source"
 import { linkKind, linkName } from "@/util/source"
 import { useUiStore } from "@/shared/stores/ui.store"
@@ -18,7 +19,7 @@ export function openSourceDialog({ sources, late, onChange }: SourceDialogProps)
     title: "Add sources",
     body: <SourceDialogBody sources={sources} late={late} onChange={onChange} />,
     actions: (
-      <button type="button" className="btn sun" onClick={() => useUiStore.getState().closeModal()}>
+      <button type="button" className={protoBtn()} onClick={() => useUiStore.getState().closeModal()}>
         Done
       </button>
     ),
@@ -26,8 +27,6 @@ export function openSourceDialog({ sources, late, onChange }: SourceDialogProps)
 }
 
 function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
-  const samples = ["coaching-notes.pdf", "workshop-transcript.docx", "client-faq.txt"]
-
   function add(items: SourceItem[]) {
     onChange([...sources, ...items])
     openSourceDialog({ sources: [...sources, ...items], late, onChange })
@@ -41,17 +40,18 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
 
   return (
     <>
-      <p className="muted small" style={{ marginBottom: 14 }}>
+      <p className="mb-3.5 text-[13px] text-muted-foreground">
         Relay reads these, indexes every passage, and writes the product from them. Each section
         shows which source it came from.{" "}
         {late
           ? "Sources added now are used for sections written or regenerated from here on."
           : ""}
       </p>
-      <div className="stack">
+      <div className="grid gap-3.5">
         <div>
-          <label>Upload documents</label>
+          <label className={labelClass}>Upload documents</label>
           <input
+            className={fieldClass}
             type="file"
             multiple
             accept=".pdf,.docx,.txt,.md,.csv,.srt,.mp3,.mp4"
@@ -68,33 +68,21 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
               )
             }}
           />
-          <p className="tiny dim" style={{ marginTop: 6 }}>
-            PDF, Word, text, transcripts, audio or video.{" "}
-            <button
-              type="button"
-              className="link tiny"
-              onClick={() =>
-                add([
-                  {
-                    id: uid(),
-                    kind: "file",
-                    name: samples[sources.length % 3],
-                    size: 482000,
-                  },
-                ])
-              }
-            >
-              Add a sample document
-            </button>
+          <p className="mt-1.5 text-xs text-dim">
+            PDF, Word, text, transcripts, audio or video.
           </p>
         </div>
         <div>
-          <label>Or paste a link</label>
-          <div className="row">
-            <input id="src-link" placeholder="youtube.com/@channel, instagram.com/handle, or any page" />
+          <label className={labelClass}>Or paste a link</label>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <input
+              id="src-link"
+              className={fieldClass}
+              placeholder="youtube.com/@channel, instagram.com/handle, or any page"
+            />
             <button
               type="button"
-              className="btn soft"
+              className={protoBtn({ variant: "soft" })}
               onClick={() => {
                 const input = document.getElementById("src-link") as HTMLInputElement | null
                 const value = input?.value.trim()
@@ -107,15 +95,15 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
           </div>
         </div>
         <div>
-          <label>Added ({sources.length})</label>
+          <label className={labelClass}>Added ({sources.length})</label>
           {sources.length ? (
             <SourceChips sources={sources} onRemove={remove} />
           ) : (
-            <span className="dim small">Nothing yet.</span>
+            <span className="text-[13px] text-dim">Nothing yet.</span>
           )}
         </div>
-        <p className="note">
-          <ShieldIcon className="size-4" />
+        <p className={noteClass}>
+          <ShieldIcon className="size-4 shrink-0" />
           <span>
             Your sources are private to your account and never used to train anything. Instagram
             needs the account owner’s approval; YouTube and web pages are read from the link.

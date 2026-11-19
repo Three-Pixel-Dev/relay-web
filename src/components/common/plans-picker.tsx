@@ -1,7 +1,10 @@
 import { ShieldIcon } from "lucide-react"
 import { useCallback, useState } from "react"
 
+import { ChipDot } from "@/components/common/spin"
 import { StripeEmbeddedCheckout } from "@/features/connections/components/stripe-embedded-checkout"
+import { noteClass, protoChip } from "@/lib/proto"
+import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import {
   useConfirmCheckoutMutation,
@@ -120,35 +123,54 @@ export function PlansPicker({ selected = null, onPicked }: PlansPickerProps) {
 
   return (
     <>
-      <div className="sub-plans">
+      <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
         <button
           type="button"
-          className={`plan ${selected === "six_months" ? "on" : ""}`}
+          className={cn(
+            "relative cursor-pointer rounded-[22px] border-[1.5px] border-border bg-card p-[22px] text-left transition-colors hover:border-border-strong",
+            selected === "six_months" && "border-primary",
+          )}
           disabled={busy}
           onClick={() => pick("six_months")}
         >
           <h3>6 months</h3>
-          <div className="price">
-            ${sixMonthsPrice} <small>/ 6 months</small>
+          <div className="my-2 text-[26px] font-extrabold tracking-tight">
+            ${sixMonthsPrice}{" "}
+            <small className="text-[13px] font-medium tracking-normal text-muted-foreground">
+              / 6 months
+            </small>
           </div>
-          <p className="muted small">No trial. Pay by card. Unlimited products.</p>
+          <p className="text-[13px] text-muted-foreground">
+            No trial. Pay by card. Unlimited products.
+          </p>
         </button>
         <button
           type="button"
-          className={`plan ${selected === "yearly" ? "on" : ""}`}
+          className={cn(
+            "relative cursor-pointer rounded-[22px] border-[1.5px] border-border bg-card p-[22px] text-left transition-colors hover:border-border-strong",
+            selected === "yearly" && "border-primary",
+          )}
           disabled={busy}
           onClick={() => pick("yearly")}
         >
-          <span className="chip mint tag">Best value</span>
+          <span className={cn(protoChip({ variant: "mint" }), "absolute top-4 right-4")}>
+            <ChipDot />
+            Best value
+          </span>
           <h3>Yearly</h3>
-          <div className="price">
-            ${yearlyPrice} <small>/ year</small>
+          <div className="my-2 text-[26px] font-extrabold tracking-tight">
+            ${yearlyPrice}{" "}
+            <small className="text-[13px] font-medium tracking-normal text-muted-foreground">
+              / year
+            </small>
           </div>
-          <p className="muted small">Same everything, one card payment. No trial.</p>
+          <p className="text-[13px] text-muted-foreground">
+            Same everything, one card payment. No trial.
+          </p>
         </button>
       </div>
-      <p className="note" style={{ marginTop: 12 }}>
-        <ShieldIcon className="size-4" />
+      <p className={cn(noteClass, "mt-3")}>
+        <ShieldIcon className="size-4 shrink-0" />
         <span>
           AI usage runs on your own keys at the providers’ prices. Marketplace fees are theirs.
           Relay’s price is only Relay — paid by card through Stripe Checkout.

@@ -1,51 +1,68 @@
 import { BookOpen, Plug, Sparkles } from "lucide-react"
-import { useTranslation } from "react-i18next"
 import { NavLink } from "react-router"
 
 import { ROUTES } from "@/constants/routes"
 import { useProductsQuery } from "@/shared/queries/product.query"
 import { useWorkspaceQuery } from "@/shared/queries/workspace.query"
+import { cn } from "@/lib/utils"
 
 export function Sidebar() {
-  const { t } = useTranslation("common")
   const { data: workspace } = useWorkspaceQuery()
   const { data: products = [] } = useProductsQuery()
 
   const items: {
     to: string
-    key: string
+    label: string
     icon: typeof Sparkles
     end: boolean
     count?: number
   }[] = [
-    { to: ROUTES.start, key: "nav.start", icon: Sparkles, end: true },
-    { to: ROUTES.products, key: "nav.products", icon: BookOpen, end: false, count: products.length },
-    { to: ROUTES.connections, key: "nav.connections", icon: Plug, end: true },
+    { to: ROUTES.start, label: "Start", icon: Sparkles, end: true },
+    { to: ROUTES.products, label: "My products", icon: BookOpen, end: false, count: products.length },
+    { to: ROUTES.connections, label: "Connections", icon: Plug, end: true },
   ]
 
   return (
-    <aside className="rail">
-      <NavLink to={ROUTES.start} className="logo">
-        <i>R</i>
-        {t("app.name")}
+    <aside className="sticky top-0 flex h-full w-[232px] shrink-0 flex-col gap-1.5 border-r border-border bg-background px-4 py-5 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:z-20 max-md:h-auto max-md:w-full max-md:flex-row max-md:overflow-x-auto max-md:border-r-0 max-md:border-t max-md:p-2">
+      <NavLink
+        to={ROUTES.start}
+        className="mb-2 flex items-center gap-2.5 px-2.5 py-1.5 text-[22px] font-extrabold tracking-tight max-md:hidden"
+      >
+        <i className="grid size-[30px] place-items-center rounded-[9px] bg-primary text-base not-italic font-extrabold text-primary-foreground">
+          R
+        </i>
+        relay
       </NavLink>
-      <nav className="nav" aria-label={t("nav.aria_main")}>
-        {items.map(({ to, key, icon: Icon, end, count }) => (
+      <nav className="flex flex-col gap-0.5 max-md:w-full max-md:flex-row max-md:gap-0.5" aria-label="Main">
+        {items.map(({ to, label, icon: Icon, end, count }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
-            className={({ isActive }) => (isActive ? "on" : undefined)}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground max-md:min-w-16 max-md:flex-1 max-md:flex-col max-md:gap-1 max-md:px-1.5 max-md:py-2 max-md:text-[11px]",
+                isActive && "bg-card text-foreground"
+              )
+            }
           >
-            <Icon />
-            <span>{t(key)}</span>
-            {count ? <span className="count">{count}</span> : null}
+            <Icon className="size-[19px] shrink-0" />
+            <span>{label}</span>
+            {count ? (
+              <span className="ml-auto rounded-full bg-border px-2 py-0.5 text-[11px] text-foreground max-md:hidden">
+                {count}
+              </span>
+            ) : null}
           </NavLink>
         ))}
       </nav>
-      <div className="rail-foot">
-        <b>{workspace?.sub ? t("shell.plan_on_title") : t("app.tagline")}</b>
-        {workspace?.sub ? t("shell.plan_on_body") : t("shell.plan_trial")}
+      <div className="mt-auto rounded-lg border border-dashed border-border-strong p-3.5 text-[13px] text-muted-foreground max-md:hidden">
+        <b className="mb-1 block text-foreground">
+          {workspace?.sub ? "Relay is on" : "Build, sell, get seen"}
+        </b>
+        {workspace?.sub
+          ? "Your AI keys and connected accounts do the work."
+          : "$99 / 6 months or $149 / year. No trial."}
       </div>
     </aside>
   )

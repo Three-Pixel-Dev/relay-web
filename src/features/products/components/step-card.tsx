@@ -1,12 +1,17 @@
 import { Check, Paperclip } from "lucide-react"
 
+import { ChipDot, Spin } from "@/components/common/spin"
 import { SourceChips } from "@/components/common/source-chips"
+import { followThreadToEnd } from "@/features/products/components/thread-pane"
 import { openSourceDialog } from "@/features/start/components/source-dialog"
+import { kvClass, protoBtn, protoChip } from "@/lib/proto"
+import { cn } from "@/lib/utils"
 import {
   useAddSourcesMutation,
   useRemoveSourceMutation,
 } from "@/shared/queries/product.query"
 import type { Product, RelayCatalog } from "@/shared/types/relay"
+import { pluralize } from "@/util/format"
 
 interface StepCardProps {
   product: Product
@@ -20,48 +25,52 @@ export function StepCard({ product, index, catalog }: StepCardProps) {
   const title = catalog.buildSteps[index]
   const status =
     index > 0 ? (
-      <span className="chip outline">Coming soon</span>
+      <span className={protoChip({ variant: "outline" })}>Coming soon</span>
     ) : step.status === "done" ? (
-      <span className="chip mint">
-        <i />
+      <span className={protoChip({ variant: "mint" })}>
+        <ChipDot />
         Done
       </span>
     ) : step.status === "running" ? (
-      <span className="chip sun">
-        <span className="spin" />
+      <span className={protoChip({ variant: "sun" })}>
+        <Spin />
         Working
       </span>
     ) : step.status === "quality_gate" ? (
-      <span className="chip sun">
-        <i />
+      <span className={protoChip({ variant: "sun" })}>
+        <ChipDot />
         Check sources
       </span>
     ) : step.status === "review" || step.status === "gate" ? (
-      <span className="chip sun">
-        <i />
+      <span className={protoChip({ variant: "sun" })}>
+        <ChipDot />
         Your call
       </span>
     ) : live ? (
-      <span className="chip sun">
-        <i />
+      <span className={protoChip({ variant: "sun" })}>
+        <ChipDot />
         Waiting for you
       </span>
     ) : (
-      <span className="chip">Up next</span>
+      <span className={protoChip()}>Up next</span>
     )
 
   return (
     <div
-      className={`stepcard ${step.status === "done" ? "done" : live ? "live" : ""}`}
+      className={cn(
+        "max-w-[min(100%,42rem)] overflow-hidden rounded-lg border-[1.5px] border-border-strong bg-card",
+        step.status === "done" && "border-border",
+        live && "border-primary"
+      )}
       id={`step-${index}`}
     >
-      <header>
-        <b>
+      <header className="flex items-center justify-between gap-2.5 border-b border-border bg-muted px-4 py-3">
+        <b className="text-sm">
           {index + 1}. {title}
         </b>
         {status}
       </header>
-      <div className="body">
+      <div className="p-4">
         <StepBody product={product} index={index} />
       </div>
     </div>
@@ -70,15 +79,15 @@ export function StepCard({ product, index, catalog }: StepCardProps) {
 
 function ProgressLines({ lines }: { lines: string[] }) {
   return (
-    <div className="progress-lines">
+    <div className="mt-3 grid gap-1.5 text-[13px] text-muted-foreground">
       {lines.map((line, index) => (
-        <div key={`${line}-${index}`}>
+        <div className="flex items-center gap-2" key={`${line}-${index}`}>
           {index < lines.length - 1 ? (
-            <span className="ok">
+            <span className="text-success">
               <Check className="size-3" />
             </span>
           ) : (
-            <span className="spin" />
+            <Spin />
           )}
           {line}
         </div>
@@ -101,13 +110,13 @@ function StepBody({
   if (index === 0) {
     return (
       <>
-        <p className="does">
+        <p className="text-[13.5px] leading-relaxed text-muted-foreground">
           {product.input ||
             (product.sources.length
               ? "Relay takes the subject from the sources."
               : "No input given; Relay proposes from what sells.")}
           {product.forElse ? (
-            <span className="chip lilac" style={{ marginLeft: 6 }}>
+            <span className={cn(protoChip({ variant: "lilac" }), "ml-1.5")}>
               Built for {product.client || "a client"}
             </span>
           ) : null}
@@ -125,8 +134,7 @@ function StepBody({
         {step.status !== "done" && step.status !== "running" ? (
           <button
             type="button"
-            className="btn soft"
-            style={{ marginTop: 10 }}
+            className={cn(protoBtn({ variant: "soft" }), "mt-2.5")}
             onClick={() =>
               openSourceDialog({
                 sources: product.sources,
@@ -134,7 +142,10 @@ function StepBody({
                   const added = sources.filter(
                     (s) => !product.sources.some((p) => p.id === s.id)
                   )
-                  if (added.length) addSources.mutate({ id: product.id, sources: added })
+                  if (added.length) {
+                    followThreadToEnd()
+                    addSources.mutate({ id: product.id, sources: added })
+                  }
                 },
               })
             }
@@ -144,64 +155,78 @@ function StepBody({
         ) : null}
         {step.progress ? <ProgressLines lines={step.progress} /> : null}
         {step.status === "quality_gate" ? (
-          <p className="does" style={{ marginTop: 12 }}>
+          <p className="mt-3 text-[13.5px] leading-relaxed text-muted-foreground">
             {product.qualityWarning ||
               step.qualityWarning ||
               "This source is too thin to build a product from. Add more sources or tell us what you know."}
           </p>
         ) : null}
         {product.profile ? (
-          <div className="profile">
-            <div className="between">
+          <div className="mt-3.5 grid gap-2.5 rounded-md border border-border-strong bg-muted p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3.5">
               <b>{product.forElse ? "Creator overview" : "What your sources say"}</b>
-              <span className="small muted">
-                {product.profile.read.videos
-                  ? `${product.profile.read.videos} videos · `
-                  : ""}
-                {product.profile.read.docs ? `${product.profile.read.docs} docs · ` : ""}
-                {product.profile.read.passages.toLocaleString()} passages
+              <span className="text-[13px] text-muted-foreground">
+                {[
+                  product.profile.read.videos
+                    ? pluralize(product.profile.read.videos, "video")
+                    : "",
+                  product.profile.read.docs ? pluralize(product.profile.read.docs, "doc") : "",
+                  pluralize(product.profile.read.passages, "passage"),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </span>
             </div>
-            <div className="kv">
-              <span>Niche</span>
-              <b>{product.profile.niche}</b>
+            <div className={cn(kvClass, "items-start gap-4")}>
+              <span className="w-[118px] shrink-0 text-muted-foreground max-md:w-auto">Niche</span>
+              <b className="flex-1 text-left font-medium leading-relaxed">{product.profile.niche}</b>
             </div>
-            <div className="kv">
-              <span>Transformation</span>
-              <b>{product.profile.transformation}</b>
+            <div className={cn(kvClass, "items-start gap-4")}>
+              <span className="w-[118px] shrink-0 text-muted-foreground max-md:w-auto">
+                Transformation
+              </span>
+              <b className="flex-1 text-left font-medium leading-relaxed">
+                {product.profile.transformation}
+              </b>
             </div>
-            <div className="themes">
+            <div className="grid gap-2">
               {product.profile.themes.map((theme) => (
-                <div key={theme.t}>
-                  <div className="between">
+                <div
+                  key={theme.t}
+                  className="rounded-xl border border-border bg-foreground/3 px-3.5 py-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3.5">
                     <b>{theme.t}</b>
                     <span
-                      className={`chip ${
-                        theme.level === "High"
-                          ? "mint"
-                          : theme.level === "Medium"
-                            ? "outline"
-                            : "sun"
-                      }`}
+                      className={protoChip({
+                        variant:
+                          theme.level === "High"
+                            ? "mint"
+                            : theme.level === "Medium"
+                              ? "outline"
+                              : "sun",
+                      })}
                     >
                       {theme.level}
                     </span>
                   </div>
-                  <small>{theme.d}</small>
+                  <small className="mt-1 block text-[12.5px] leading-relaxed text-muted-foreground">
+                    {theme.d}
+                  </small>
                 </div>
               ))}
             </div>
-            <div className="kv">
-              <span>Verdict</span>
-              <b>{product.profile.verdict}</b>
+            <div className={cn(kvClass, "items-start gap-4")}>
+              <span className="w-[118px] shrink-0 text-muted-foreground max-md:w-auto">Verdict</span>
+              <b className="flex-1 text-left font-medium leading-relaxed">{product.profile.verdict}</b>
             </div>
-            <div className="kv">
-              <span>Audience</span>
-              <b>{product.profile.audience}</b>
+            <div className={cn(kvClass, "items-start gap-4")}>
+              <span className="w-[118px] shrink-0 text-muted-foreground max-md:w-auto">Audience</span>
+              <b className="flex-1 text-left font-medium leading-relaxed">{product.profile.audience}</b>
             </div>
-            <div className="kv">
-              <span>Voice</span>
-              <b>{product.profile.voice}</b>
+            <div className={cn(kvClass, "items-start gap-4")}>
+              <span className="w-[118px] shrink-0 text-muted-foreground max-md:w-auto">Voice</span>
+              <b className="flex-1 text-left font-medium leading-relaxed">{product.profile.voice}</b>
             </div>
           </div>
         ) : null}
@@ -210,7 +235,7 @@ function StepBody({
   }
 
   return (
-    <p className="does muted">
+    <p className="text-[13.5px] leading-relaxed text-muted-foreground">
       Coming soon — this build step is not enabled on the server yet. Your indexed sources and
       source summary from Step 1 are saved and ready.
     </p>

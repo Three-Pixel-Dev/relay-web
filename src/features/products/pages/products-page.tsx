@@ -3,10 +3,12 @@ import { Link, useNavigate } from "react-router"
 
 import { CoverArt, PosterLite } from "@/components/common/cover-art"
 import { ROUTES } from "@/constants/routes"
+import { protoBtn } from "@/lib/proto"
+import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import { useDeleteProductMutation, useProductsQuery } from "@/shared/queries/product.query"
 import { useUiStore } from "@/shared/stores/ui.store"
-import { formatDate, money } from "@/util/format"
+import { formatDate, money, pluralize } from "@/util/format"
 import type { Product } from "@/shared/types/relay"
 
 export function ProductsPage() {
@@ -30,17 +32,17 @@ export function ProductsPage() {
 
   return (
     <>
-      <div className="between" style={{ marginBottom: 18 }}>
+      <div className="mb-[18px] flex flex-wrap items-center justify-between gap-3.5">
         <div>
-          <h1 style={{ fontSize: 32 }}>My products</h1>
-          <p className="muted">Everything you’ve built, where it sells, what it earns.</p>
+          <h1 className="text-[32px]">My products</h1>
+          <p className="text-muted-foreground">Everything you’ve built, where it sells, what it earns.</p>
         </div>
-        <Link to={ROUTES.start} className="btn sun">
+        <Link to={ROUTES.start} className={protoBtn()}>
           Build a new one
         </Link>
       </div>
       {products.length ? (
-        <div className="stack">
+        <div className="grid gap-3.5">
           {products.map((product) => {
             const title = product.brand?.title || product.pocket?.niche || product.input || "New product"
             const palette = catalog?.palettes[product.brand?.palette ?? 0]
@@ -49,8 +51,11 @@ export function ProductsPage() {
                 ? ROUTES.build(product.id)
                 : ROUTES.product(product.id)
             return (
-              <div className="proj" key={product.id}>
-                <div className="poster" style={{ aspectRatio: "3/4" }}>
+              <div
+                className="grid grid-cols-[90px_1fr_auto_auto] items-center gap-[18px] rounded-lg border border-border bg-card p-3.5 max-md:grid-cols-[70px_1fr]"
+                key={product.id}
+              >
+                <div className="relative isolate aspect-3/4 overflow-hidden rounded-[10px] bg-secondary">
                   {product.brand && palette ? (
                     <CoverArt
                       palette={palette}
@@ -62,23 +67,27 @@ export function ProductsPage() {
                   )}
                 </div>
                 <div>
-                  <h3>{title}</h3>
-                  <div className="sub">
+                  <h3 className="text-base">{title}</h3>
+                  <div className="mt-0.5 text-[13px] text-muted-foreground">
                     {stageLabel(product)}
-                    {product.words ? ` · ${product.words.toLocaleString()} words` : ""}
+                    {product.words ? ` · ${pluralize(product.words, "word")}` : ""}
                     {product.metrics.sales
-                      ? ` · ${product.metrics.sales} sales · ${money(product.metrics.revenue)}`
+                      ? ` · ${pluralize(product.metrics.sales, "sale")} · ${money(product.metrics.revenue)}`
                       : ""}
                   </div>
                 </div>
-                <div className="money">
+                <div className="text-right font-bold max-md:col-span-2">
                   {money(product.spend)}
-                  <small>AI · {formatDate(product.updated)}</small>
+                  <small className="block text-xs font-medium text-muted-foreground">
+                    AI · {formatDate(product.updated)}
+                  </small>
                 </div>
-                <div className="row">
+                <div className="flex flex-wrap items-center gap-2.5 max-md:col-span-2">
                   <button
                     type="button"
-                    className={`btn ${product.stage === "build" ? "sun" : "soft"}`}
+                    className={protoBtn({
+                      variant: product.stage === "build" ? "sun" : "soft",
+                    })}
                     onClick={() => navigate(href)}
                   >
                     {product.stage === "build"
@@ -89,25 +98,25 @@ export function ProductsPage() {
                   </button>
                   <button
                     type="button"
-                    className="btn danger"
+                    className={protoBtn({ variant: "danger" })}
                     aria-label="Delete"
                     onClick={() =>
                       openModal({
                         title: "Delete this product?",
                         body: (
-                          <p className="muted">
+                          <p className="text-muted-foreground">
                             Removed from this browser. Listings already created in your connected
                             accounts stay there.
                           </p>
                         ),
                         actions: (
                           <>
-                            <button type="button" className="btn ghost" onClick={closeModal}>
+                            <button type="button" className={protoBtn({ variant: "ghost" })} onClick={closeModal}>
                               Keep it
                             </button>
                             <button
                               type="button"
-                              className="btn sun"
+                              className={protoBtn()}
                               onClick={() => {
                                 remove.mutate(product.id)
                                 closeModal()
@@ -128,10 +137,12 @@ export function ProductsPage() {
           })}
         </div>
       ) : (
-        <div className="empty">
-          <h2>No products yet.</h2>
-          <p>Tell Relay what you know and it finds the pocket, writes and designs the product.</p>
-          <Link to={ROUTES.start} className="btn sun big">
+        <div className="rounded-[22px] border-[1.5px] border-dashed border-border-strong px-5 py-[60px] text-center">
+          <h2 className="mb-2">No products yet.</h2>
+          <p className="mb-[18px] text-muted-foreground">
+            Tell Relay what you know and it finds the pocket, writes and designs the product.
+          </p>
+          <Link to={ROUTES.start} className={cn(protoBtn({ size: "big" }))}>
             Start
           </Link>
         </div>

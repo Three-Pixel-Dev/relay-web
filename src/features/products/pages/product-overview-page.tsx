@@ -1,14 +1,16 @@
 import { ExternalLink } from "lucide-react"
 import { Link, Navigate, useParams } from "react-router"
 
+import { ChipDot } from "@/components/common/spin"
 import { CoverArt } from "@/components/common/cover-art"
 import { ServiceLabel } from "@/components/common/service-mark"
 import { SourceChips } from "@/components/common/source-chips"
 import { StageBar } from "@/components/common/stage-bar"
 import { ROUTES } from "@/constants/routes"
+import { cardClass, protoBtn, protoChip } from "@/lib/proto"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import { useProductEvents, useProductQuery } from "@/shared/queries/product.query"
-import { formatDate, money, pagesCount } from "@/util/format"
+import { formatDate, money, pagesCount, pluralize } from "@/util/format"
 
 export function ProductOverviewPage() {
   const { id = "" } = useParams()
@@ -29,118 +31,109 @@ export function ProductOverviewPage() {
   return (
     <>
       <StageBar product={product} />
-      <div className="run-head">
+      <div className="mb-[18px] flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="small muted">{product.pocket?.niche || product.profile?.niche}</p>
-          <h1>{product.brand?.title || product.input || "Untitled product"}</h1>
+          <p className="text-[13px] text-muted-foreground">{product.pocket?.niche || product.profile?.niche}</p>
+          <h1 className="text-[30px]">{product.brand?.title || product.input || "Untitled product"}</h1>
         </div>
-        <Link to={ROUTES.build(product.id)} className="btn sun">
+        <Link to={ROUTES.build(product.id)} className={protoBtn()}>
           Open build
         </Link>
       </div>
-      <div className="metrics">
-        <div>
-          <span>Sales</span>
-          <b>{m.sales}</b>
-          <small>from connected shops</small>
-        </div>
-        <div>
-          <span>Revenue</span>
-          <b>{money(m.revenue)}</b>
-          <small>before fees</small>
-        </div>
-        <div>
-          <span>Leads</span>
-          <b>{m.leads}</b>
-          <small>email subscribers</small>
-        </div>
-        <div>
-          <span>Visits</span>
-          <b>{m.visits.toLocaleString()}</b>
-          <small>all channels, 30 days</small>
-        </div>
+      <div className="mb-[18px] grid grid-cols-4 gap-2.5 max-md:grid-cols-2">
+        <Metric label="Sales" value={String(m.sales)} hint="from connected shops" />
+        <Metric label="Revenue" value={money(m.revenue)} hint="before fees" />
+        <Metric label="Leads" value={String(m.leads)} hint="email subscribers" />
+        <Metric label="Visits" value={m.visits.toLocaleString()} hint="all channels, 30 days" />
       </div>
-      <div className="grid-2">
-        <div className="card">
+      <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
+        <div className={cardClass}>
           <h3>Files</h3>
-          <p className="small muted" style={{ marginTop: 10 }}>
+          <p className="mt-2.5 text-[13px] text-muted-foreground">
             {product.structure.length
-              ? `${product.structure.length} sections · ${product.words.toLocaleString()} words · ${pagesCount(product.words, product.structure.length)} pages`
+              ? `${pluralize(product.structure.length, "section")} · ${pluralize(product.words, "word")} · ${pluralize(pagesCount(product.words, product.structure.length), "page")}`
               : "Exports (PDF, EPUB, DOCX, Mockups) coming soon after manuscript & branding steps."}
           </p>
         </div>
-        <div className="card">
+        <div className={cardClass}>
           <h3>Where it is</h3>
-          <div className="stack" style={{ marginTop: 10, gap: 8 }}>
+          <div className="mt-2.5 grid gap-2">
             {Object.entries(product.publish.live).length ? (
               Object.entries(product.publish.live).map(([key, url]) => {
                 const service = catalog.services.find((s) => s.id === key)
                 return (
-                  <div className="between small" key={key}>
+                  <div className="flex flex-wrap items-center justify-between gap-3.5 text-[13px]" key={key}>
                     {service ? <ServiceLabel service={service} /> : key}
-                    <span className="live-link">
+                    <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-success">
                       {url} <ExternalLink className="size-3" />
                     </span>
                   </div>
                 )
               })
             ) : (
-              <span className="dim small">Not listed yet (publishing coming soon).</span>
+              <span className="text-[13px] text-dim">Not listed yet (publishing coming soon).</span>
             )}
           </div>
         </div>
       </div>
-      <div className="grid-2" style={{ marginTop: 14 }}>
+      <div className="mt-3.5 grid grid-cols-2 gap-4 max-md:grid-cols-1">
         {whop ? (
-          <div className="card">
-            <div className="between">
+          <div className={cardClass}>
+            <div className="flex flex-wrap items-center justify-between gap-3.5">
               <h3>Whop store</h3>
-              <span className="chip mint">
-                <i />
+              <span className={protoChip({ variant: "mint" })}>
+                <ChipDot />
                 Sales sync on
               </span>
             </div>
-            <p className="small" style={{ marginTop: 10 }}>
-              Checkout link <span className="live-link">{whop}/checkout</span>
+            <p className="mt-2.5 text-[13px]">
+              Checkout link{" "}
+              <span className="inline-flex items-center gap-1.5 font-semibold text-success">
+                {whop}/checkout
+              </span>
             </p>
             {product.orders.length ? (
-              <table className="tbl" style={{ marginTop: 10 }}>
+              <table className="mt-2.5 w-full border-collapse text-[13.5px]">
                 <thead>
                   <tr>
-                    <th>When</th>
-                    <th>Amount</th>
-                    <th>Came from</th>
+                    <th className="border-b border-border px-2.5 py-2 text-left font-semibold text-muted-foreground">
+                      When
+                    </th>
+                    <th className="border-b border-border px-2.5 py-2 text-left font-semibold text-muted-foreground">
+                      Amount
+                    </th>
+                    <th className="border-b border-border px-2.5 py-2 text-left font-semibold text-muted-foreground">
+                      Came from
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {product.orders.slice(0, 6).map((order) => (
                     <tr key={order.t}>
-                      <td>{formatDate(order.t)}</td>
-                      <td>{money(order.amt)}</td>
-                      <td>{order.via}</td>
+                      <td className="border-b border-border p-2.5 last:border-0">{formatDate(order.t)}</td>
+                      <td className="border-b border-border p-2.5">{money(order.amt)}</td>
+                      <td className="border-b border-border p-2.5">{order.via}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <p className="small muted" style={{ marginTop: 10 }}>
-                No orders yet.
-              </p>
+              <p className="mt-2.5 text-[13px] text-muted-foreground">No orders yet.</p>
             )}
           </div>
         ) : null}
         {product.sources.length ? (
-          <div className="card">
+          <div className={cardClass}>
             <h3>Sources</h3>
-            <div style={{ marginTop: 10 }}>
+            <div className="mt-2.5">
               <SourceChips sources={product.sources} />
             </div>
           </div>
         ) : null}
         {product.brand && palette ? (
-          <div className="card">
+          <div className={cardClass}>
             <h3>{product.brand.title}</h3>
-            <div className="cover" style={{ width: 120, margin: "10px 0" }}>
+            <div className="relative my-2.5 aspect-3/4 w-[120px] overflow-hidden rounded-[10px]">
               <CoverArt
                 palette={palette}
                 variant={product.brand.cover}
@@ -151,5 +144,15 @@ export function ProductOverviewPage() {
         ) : null}
       </div>
     </>
+  )
+}
+
+function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-card px-3.5 py-3">
+      <span className="mb-0.5 block text-xs text-muted-foreground">{label}</span>
+      <b className="text-[22px] tracking-tight">{value}</b>
+      <small className="mt-0.5 block text-[11.5px] text-dim">{hint}</small>
+    </div>
   )
 }

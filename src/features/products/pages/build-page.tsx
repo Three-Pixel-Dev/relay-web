@@ -3,20 +3,24 @@ import { Navigate, useParams } from "react-router"
 
 import type { ReactNode } from "react"
 
+import { JumpScroll } from "@/components/common/jump-scroll"
+import { SourceChips } from "@/components/common/source-chips"
 import { StageBar } from "@/components/common/stage-bar"
-import { ThreadText } from "@/components/common/thread-text"
 import { ROUTES } from "@/constants/routes"
 import { BuildActionBar } from "@/features/products/components/build-action-bar"
 import { StepCard } from "@/features/products/components/step-card"
+import { ThreadMessage } from "@/features/products/components/thread-message"
+import { followThreadToEnd, ThreadPane } from "@/features/products/components/thread-pane"
 import { openSourceDialog } from "@/features/start/components/source-dialog"
+import { cardClass, kvClass, protoChip, linkClass } from "@/lib/proto"
+import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import {
   useAddSourcesMutation,
   useProductEvents,
   useProductQuery,
 } from "@/shared/queries/product.query"
-import { formatTime, money } from "@/util/format"
-import { SOURCE_KINDS } from "@/util/source"
+import { money, pluralize } from "@/util/format"
 
 export function BuildPage() {
   const { id = "" } = useParams()
@@ -37,13 +41,7 @@ export function BuildPage() {
     thread.push({
       key: `${message.t}-${message.text.slice(0, 12)}`,
       node: (
-        <div className={`msg ${message.who}`}>
-          <span className="av">{message.who === "you" ? "YO" : "R"}</span>
-          <div className="bubble">
-            <ThreadText text={message.text} />
-            <small>{formatTime(message.t)}</small>
-          </div>
-        </div>
+        <ThreadMessage who={message.who} text={message.text} at={message.t} />
       ),
     })
     if (message.who !== "relay") continue
@@ -61,56 +59,98 @@ export function BuildPage() {
   }
 
   const typeName = catalog.types.find((item) => item.id === product.type)?.name
+  const lastMessage = product.thread.at(-1)
+  const pinToEnd = lastMessage?.who === "you"
+
+  const scrollKey = `${product.thread.length}-${product.updated}-${product.steps[product.cur]?.status}`
 
   return (
-    <>
+    <div className="product-run flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <StageBar product={product} />
-      <div className="runwrap">
-        <div>
-          <div className="thread">
-            {thread.map((item) => (
-              <div key={item.key}>{item.node}</div>
-            ))}
-          </div>
-          <BuildActionBar product={product} catalog={catalog} />
-        </div>
-        <aside className="sidecol">
-          <div className="card">
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_340px] grid-rows-[minmax(0,1fr)] items-stretch gap-6 overflow-hidden max-md:grid-cols-1 max-md:grid-rows-[minmax(0,1fr)_minmax(0,auto)]">
+        <ThreadPane
+          scrollKey={scrollKey}
+          pinToEnd={pinToEnd}
+          footer={<BuildActionBar product={product} catalog={catalog} />}
+        >
+          {thread.map((item) => (
+            <div key={item.key}>{item.node}</div>
+          ))}
+        </ThreadPane>
+        <JumpScroll
+          className="h-full min-h-0 max-md:h-auto max-md:max-h-[40svh]"
+          scrollKey={`${product.sources.length}-${product.updated}`}
+        >
+          <div className={cn(cardClass, "mb-3.5")}>
             <h3>Plan</h3>
-            <div className="plan-mini" style={{ marginTop: 10 }}>
+            <div className="mt-2.5 grid gap-1">
               {catalog.buildSteps.map((label, i) => {
                 const status = product.steps[i].status
-                const cls = status === "done" ? "done" : i === product.cur && product.stage === "build" ? "cur" : ""
-                const who = i === 0 ? (product.sources.length ? "Text model" : "you") : i === 2 ? "you" : i === 5 ? "Image model" : i === 6 ? "Relay" : "Text model"
+                const isCur = i === product.cur && product.stage === "build"
+                const who =
+                  i === 0
+                    ? product.sources.length
+                      ? "Text model"
+                      : "you"
+                    : i === 2
+                      ? "you"
+                      : i === 5
+                        ? "Image model"
+                        : i === 6
+                          ? "Relay"
+                          : "Text model"
                 return (
-                  <div className={cls} key={label}>
-                    <span className="dot">{status === "done" ? <Check className="size-2.5" /> : i + 1}</span>
+                  <div
+                    className={cn(
+                      "grid grid-cols-[22px_1fr_auto] items-center gap-2 rounded-md px-2 py-1.5 text-[13px]",
+                      isCur && "bg-muted"
+                    )}
+                    key={label}
+                  >
+                    <span
+                      className={cn(
+                        "grid size-[18px] place-items-center rounded-full text-[10px] bg-secondary text-muted-foreground",
+                        status === "done" && "bg-success/20 text-success",
+                        isCur && "bg-primary text-primary-foreground"
+                      )}
+                    >
+                      {status === "done" ? <Check className="size-2.5" /> : i + 1}
+                    </span>
                     <span>{label}</span>
-                    <small>{who}</small>
+                    <small className="text-[11.5px] text-dim">{who}</small>
                   </div>
                 )
               })}
             </div>
           </div>
-          <div className="card budget">
+          <div className={cn(cardClass, "mb-3.5")}>
             <h3>Spend</h3>
-            <div className="kv"><span>AI so far</span><b>{money(product.spend)}</b></div>
-            <div className="kv"><span>Estimate to Ready</span><b>{money(1.8 + (product.structure.length || 9) * 0.08)}</b></div>
-            <p className="tiny dim" style={{ marginTop: 8 }}>Billed by your providers at their price.</p>
+            <div className={kvClass}>
+              <span className="text-muted-foreground">AI so far</span>
+              <b>{money(product.spend)}</b>
+            </div>
+            <div className={kvClass}>
+              <span className="text-muted-foreground">Estimate to Ready</span>
+              <b>{money(1.8 + (product.structure.length || 9) * 0.08)}</b>
+            </div>
+            <p className="mt-2 text-xs text-dim">Billed by your providers at their price.</p>
           </div>
-          <div className="card">
-            <div className="between">
+          <div className={cn(cardClass, "mb-3.5 min-w-0 overflow-hidden")}>
+            <div className="flex flex-wrap items-center justify-between gap-3.5">
               <h3>Sources</h3>
               <button
                 type="button"
-                className="link small"
+                className={linkClass}
                 onClick={() =>
                   openSourceDialog({
                     sources: product.sources,
                     late: product.cur > 0,
                     onChange: (sources) => {
                       const added = sources.filter((s) => !product.sources.some((p) => p.id === s.id))
-                      if (added.length) addSources.mutate({ id: product.id, sources: added })
+                      if (added.length) {
+                        followThreadToEnd()
+                        addSources.mutate({ id: product.id, sources: added })
+                      }
                     },
                   })
                 }
@@ -120,33 +160,34 @@ export function BuildPage() {
             </div>
             {product.sources.length ? (
               <>
-                <div className="stack" style={{ marginTop: 10, gap: 6 }}>
-                  {product.sources.map((source) => (
-                    <div className="small" key={source.id} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                      <span className="chip outline" style={{ flex: "none" }}>{SOURCE_KINDS[source.kind].short}</span>
-                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{source.name}</span>
-                    </div>
-                  ))}
+                <div className="mt-2.5">
+                  <SourceChips sources={product.sources} />
                 </div>
-                <p className="tiny dim" style={{ marginTop: 8 }}>
+                <p className="mt-2 text-xs text-dim">
                   {product.profile
-                    ? `${product.profile.read.passages.toLocaleString()} passages indexed. Sections cite them.`
+                    ? `${pluralize(product.profile.read.passages, "passage")} indexed. Sections cite them.`
                     : "Read at step 1."}
                 </p>
               </>
             ) : (
-              <p className="small muted" style={{ marginTop: 8 }}>None. Relay writes from research and what you typed.</p>
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                None. Relay writes from research and what you typed.
+              </p>
             )}
           </div>
           {product.pocket ? (
-            <div className="card">
+            <div className={cn(cardClass, "mb-3.5")}>
               <h3>Pocket</h3>
-              <p className="small muted" style={{ marginTop: 8 }}>{product.pocket.h}</p>
-              {typeName ? <p className="small" style={{ marginTop: 8 }}><span className="chip outline">{typeName}</span></p> : null}
+              <p className="mt-2 text-[13px] text-muted-foreground">{product.pocket.h}</p>
+              {typeName ? (
+                <p className="mt-2 text-[13px]">
+                  <span className={protoChip({ variant: "outline" })}>{typeName}</span>
+                </p>
+              ) : null}
             </div>
           ) : null}
-        </aside>
+        </JumpScroll>
       </div>
-    </>
+    </div>
   )
 }

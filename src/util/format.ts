@@ -14,3 +14,8 @@ export function formatTime(value: string) {
 export function pagesCount(words: number, sections: number) {
   return Math.max(4, Math.round(words / 320) + sections + 2)
 }
+
+export function pluralize(count: number, singular: string, plural = `${singular}s`) {
+  const n = Number(count) || 0
+  return `${n.toLocaleString()} ${n === 1 ? singular : plural}`
+}
