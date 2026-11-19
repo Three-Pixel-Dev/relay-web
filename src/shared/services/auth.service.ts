@@ -33,6 +33,11 @@ export async function updateProfile(name: string) {
   return data
 }
 
+export async function setPassword(input: { currentPassword?: string; newPassword: string }) {
+  const { data } = await apiClient.put<MeUser>("/auth/password", input)
+  return data
+}
+
 export async function logout() {
   const { data } = await apiClient.post<{ message: string }>("/auth/logout")
   return data

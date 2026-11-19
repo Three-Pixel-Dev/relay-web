@@ -6,11 +6,13 @@ import {
   ConnectionsPage,
   ProductOverviewPage,
   ProductsPage,
+  ProfilePage,
   StartPage,
 } from "@/constants/lazyload"
 
 export const appRoutes: RouteObject[] = [
   { index: true, element: <StartPage /> },
+  { path: "profile", element: <ProfilePage /> },
   { path: "products", element: <ProductsPage /> },
   { path: "products/:id", element: <ProductOverviewPage /> },
   { path: "products/:id/build", element: <BuildPage /> },

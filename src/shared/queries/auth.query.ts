@@ -56,6 +56,30 @@ export function useGoogleLoginMutation() {
   })
 }
 
+export function useUpdateProfileMutation() {
+  const queryClient = useQueryClient()
+  const setUser = useSessionStore((s) => s.setUser)
+  return useMutation({
+    mutationFn: (name: string) => authService.updateProfile(name),
+    onSuccess: (me) => {
+      setUser(me)
+      void queryClient.invalidateQueries({ queryKey: authKeys.me })
+    },
+  })
+}
+
+export function useSetPasswordMutation() {
+  const queryClient = useQueryClient()
+  const setUser = useSessionStore((s) => s.setUser)
+  return useMutation({
+    mutationFn: authService.setPassword,
+    onSuccess: (me) => {
+      setUser(me)
+      void queryClient.invalidateQueries({ queryKey: authKeys.me })
+    },
+  })
+}
+
 export function useLogoutMutation() {
   const clear = useSessionStore((s) => s.clear)
   const queryClient = useQueryClient()

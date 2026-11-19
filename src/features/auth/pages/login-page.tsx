@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Link, useNavigate } from "react-router"
+import { useNavigate } from "react-router"
 import { z } from "zod"
 
 import { Spin } from "@/components/common/spin"
@@ -41,7 +41,8 @@ export function LoginPage() {
     <div>
       <h1 className="mb-1.5 text-2xl">Sign in</h1>
       <p className="mb-[18px] text-[13px] text-muted-foreground">
-        Use email/password or Google. No trial — pick a plan after you sign in.
+        Email/password or Google. New here? Continue with Google — you can set a password later in
+        Profile. No trial.
       </p>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
@@ -76,13 +77,6 @@ export function LoginPage() {
 
       <div className="my-[18px] text-center text-[13px] text-muted-foreground">or</div>
       <GoogleSignInButton onSuccess={() => void navigate(ROUTES.start)} />
-
-      <p className="mt-[18px] text-center text-[13px] text-muted-foreground">
-        New here?{" "}
-        <Link to={ROUTES.signup} className="font-semibold text-primary">
-          Create an account
-        </Link>
-      </p>
     </div>
   )
 }
