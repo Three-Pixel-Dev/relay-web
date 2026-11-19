@@ -1,11 +1,14 @@
 import { ArrowUp, ArrowRight, Paperclip, Flame, User } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router"
 
+import { ChipDot } from "@/components/common/spin"
 import { PlansPicker } from "@/components/common/plans-picker"
 import { SourceChips } from "@/components/common/source-chips"
 import { ROUTES } from "@/constants/routes"
 import { openSourceDialog } from "@/features/start/components/source-dialog"
+import { fieldClass, labelClass, protoBtn, protoChip } from "@/lib/proto"
+import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import { useCreateProductMutation } from "@/shared/queries/product.query"
 import {
@@ -32,15 +35,18 @@ export function StartPage() {
   const [input, setInput] = useState("")
   const [sources, setSources] = useState<SourceItem[]>([])
   const [showTrend, setShowTrend] = useState(false)
+  const didPromptOnboard = useRef(false)
 
   useEffect(() => {
-    if (!workspace || workspace.seen.onboard || workspace.sub) return
+    if (didPromptOnboard.current) return
+    if (!workspace || workspace.seen?.onboard || workspace.sub) return
+    didPromptOnboard.current = true
     markOnboarded.mutate()
     openModal({
       title: "One price. Your product, built, listed and seen.",
       body: (
         <>
-          <p className="muted" style={{ marginBottom: 16 }}>
+          <p className="mb-4 text-muted-foreground">
             Tell Relay what you know. Add your documents or a creator’s YouTube or Instagram
             link. It finds the profitable pocket, writes and designs the product from those
             sources, sells it through Whop, and runs the channels that bring people. You
@@ -50,12 +56,12 @@ export function StartPage() {
         </>
       ),
       actions: (
-        <button type="button" className="btn ghost" onClick={closeModal}>
+        <button type="button" className={protoBtn({ variant: "ghost" })} onClick={closeModal}>
           Look around first
         </button>
       ),
     })
-  }, [workspace, markOnboarded, openModal, closeModal, showToast])
+  }, [workspace, markOnboarded, openModal, closeModal])
 
   function requireSub() {
     openModal({
@@ -64,7 +70,7 @@ export function StartPage() {
         <PlansPicker onPicked={closeModal} />
       ),
       actions: (
-        <button type="button" className="btn ghost" onClick={closeModal}>
+        <button type="button" className={protoBtn({ variant: "ghost" })} onClick={closeModal}>
           Not now
         </button>
       ),
@@ -103,14 +109,15 @@ export function StartPage() {
   }
 
   return (
-    <section className="start">
-      <h1>
+    <section className="mx-auto mt-10 max-w-[760px] text-center">
+      <h1 className="text-[40px] leading-[1.08] tracking-tight max-md:text-[30px]">
         What do you know, care about,
         <br />
         or want to help people with?
       </h1>
-      <div className="ask">
+      <div className="mt-[26px] mb-3 rounded-[18px] border-[1.5px] border-border-strong bg-card p-4 text-left">
         <textarea
+          className="min-h-[70px] w-full resize-none border-0 bg-transparent p-1 text-base text-foreground outline-none"
           value={input}
           onChange={(event) => setInput(event.target.value)}
           onKeyDown={(event) => {
@@ -120,82 +127,121 @@ export function StartPage() {
           }}
           placeholder="e.g. a skill or method you know, a group you understand, a problem you have solved"
         />
-        <div className="bar">
-          <span className="mode">
-            <button type="button" className={mode === "guided" ? "on" : ""} onClick={() => setMode("guided")}>
+        <div className="mt-1.5 flex items-center gap-2.5">
+          <span className="inline-flex overflow-hidden rounded-full border border-border">
+            <button
+              type="button"
+              className={cn(
+                "px-3 py-1.5 text-[12.5px] font-semibold text-muted-foreground",
+                mode === "guided" && "bg-foreground text-background"
+              )}
+              onClick={() => setMode("guided")}
+            >
               Guided
             </button>
-            <button type="button" className={mode === "fast" ? "on" : ""} onClick={() => setMode("fast")}>
+            <button
+              type="button"
+              className={cn(
+                "px-3 py-1.5 text-[12.5px] font-semibold text-muted-foreground",
+                mode === "fast" && "bg-foreground text-background"
+              )}
+              onClick={() => setMode("fast")}
+            >
               Fast
             </button>
           </span>
-          <span className="small muted">
+          <span className="text-[13px] text-muted-foreground">
             {mode === "guided" ? "Relay asks before each step" : "Relay runs to the first draft, then asks"}
           </span>
-          <button type="button" className="send" aria-label="Start" onClick={() => start(input.trim())}>
+          <button
+            type="button"
+            className="ml-auto grid size-10 place-items-center rounded-full bg-primary text-primary-foreground"
+            aria-label="Start"
+            onClick={() => start(input.trim())}
+          >
             <ArrowUp className="size-[18px]" />
           </button>
         </div>
       </div>
-      <div className="srcs" style={{ margin: "10px 0 0" }}>
+      <div className="mt-2.5 flex flex-wrap justify-center gap-2">
         <SourceChips sources={sources} onRemove={(id) => setSources((list) => list.filter((s) => s.id !== id))} />
       </div>
-      <button type="button" className="opt" onClick={() => openSourceDialog({ sources, onChange: setSources })}>
-        <Paperclip className="size-[18px]" />
-        <div>
-          <b>Add sources</b>
-          <small>
-            Upload documents, notes or transcripts, or paste a YouTube, Instagram or web link.
-            Relay writes from them and cites them.
-          </small>
-        </div>
-        <span className="arr">
-          <ArrowRight className="size-4" />
-        </span>
-      </button>
-      <button type="button" className="opt" onClick={() => setShowTrend((value) => !value)}>
-        <Flame className="size-[18px]" />
-        <div>
-          <b>Trending ideas</b>
-          <small>What people are searching for this month, with numbers. Pick one if you have nothing to say yet.</small>
-        </div>
-        <span className="arr">
-          <ArrowRight className="size-4" />
-        </span>
-      </button>
+      <StartOpt
+        icon={<Paperclip className="size-[18px]" />}
+        title="Add sources"
+        body="Upload documents, notes or transcripts, or paste a YouTube, Instagram or web link. Relay writes from them and cites them."
+        onClick={() => openSourceDialog({ sources, onChange: setSources })}
+      />
+      <StartOpt
+        icon={<Flame className="size-[18px]" />}
+        title="Trending ideas"
+        body="What people are searching for this month, with numbers. Pick one if you have nothing to say yet."
+        onClick={() => setShowTrend((value) => !value)}
+      />
       {showTrend ? (
-        <div className="trend">
-          {catalog?.trending.map((idea) => (
-            <button type="button" key={idea.title} onClick={() => start(idea.title)}>
-              <b>{idea.title}</b>
-              <small>{idea.stats}</small>
-            </button>
-          ))}
-        </div>
+        catalog?.trending.length ? (
+          <div className="mt-3.5 grid grid-cols-3 gap-2.5 text-left max-md:grid-cols-1">
+            {catalog.trending.map((idea) => (
+              <button
+                type="button"
+                className="rounded-xl border border-border bg-muted px-3.5 py-3 text-left hover:border-primary"
+                key={idea.title}
+                onClick={() => start(idea.title)}
+              >
+                <b className="block text-[13.5px]">{idea.title}</b>
+                <small className="text-xs text-muted-foreground">{idea.stats}</small>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3.5 text-[13px] text-muted-foreground">No trending ideas yet.</p>
+        )
       ) : null}
-      <button type="button" className="opt" onClick={openAgency}>
-        <User className="size-[18px]" />
-        <div>
-          <b>
+      <StartOpt
+        icon={<User className="size-[18px]" />}
+        title={
+          <>
             I’m building for someone else{" "}
-            <span className="chip lilac" style={{ marginLeft: 6 }}>
+            <span className={cn(protoChip({ variant: "lilac" }), "ml-1.5")}>
+              <ChipDot />
               Agency mode
             </span>
-          </b>
-          <small>
-            Paste a creator’s YouTube or Instagram link. Relay studies their content and builds
-            the product in their voice.
-          </small>
-        </div>
-        <span className="arr">
-          <ArrowRight className="size-4" />
-        </span>
-      </button>
-      <p className="tiny dim" style={{ marginTop: 30 }}>
+          </>
+        }
+        body="Paste a creator’s YouTube or Instagram link. Relay studies their content and builds the product in their voice."
+        onClick={openAgency}
+      />
+      <p className="mt-[30px] text-xs text-dim">
         Not sure where to start? Press the arrow with the box empty and Relay proposes a pocket
         from what sells this month.
       </p>
     </section>
+  )
+}
+
+interface StartOptProps {
+  icon: React.ReactNode
+  title: React.ReactNode
+  body: string
+  onClick: () => void
+}
+
+function StartOpt({ icon, title, body, onClick }: StartOptProps) {
+  return (
+    <button
+      type="button"
+      className="mt-2.5 flex w-full cursor-pointer items-center gap-3 rounded-[14px] border border-border bg-card px-4 py-3.5 text-left hover:border-border-strong"
+      onClick={onClick}
+    >
+      {icon}
+      <div>
+        <b className="block text-sm">{title}</b>
+        <small className="text-[12.5px] text-muted-foreground">{body}</small>
+      </div>
+      <span className="ml-auto text-muted-foreground">
+        <ArrowRight className="size-4" />
+      </span>
+    </button>
   )
 }
 
@@ -216,37 +262,52 @@ function AgencyForm({ onStart }: AgencyFormProps) {
 
   return (
     <>
-      <p className="muted small" style={{ marginBottom: 12 }}>
+      <p className="mb-3 text-[13px] text-muted-foreground">
         Add at least one link or document. Relay studies their content, shows you what it found,
         then builds in their voice. The product lives in your workspace.
       </p>
-      <div className="stack">
+      <div className="grid gap-3.5">
         <div>
-          <label>Who is it for?</label>
-          <input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Hana, @slowmotherhood.hana" />
+          <label className={labelClass}>Who is it for?</label>
+          <input
+            className={fieldClass}
+            value={client}
+            onChange={(e) => setClient(e.target.value)}
+            placeholder="Name or handle"
+          />
         </div>
-        <div className="grid-2" style={{ gap: 10 }}>
+        <div className="grid grid-cols-2 gap-2.5 max-md:grid-cols-1">
           <div>
-            <label>Their YouTube</label>
-            <input value={yt} onChange={(e) => setYt(e.target.value)} placeholder="youtube.com/@channel" />
+            <label className={labelClass}>Their YouTube</label>
+            <input
+              className={fieldClass}
+              value={yt}
+              onChange={(e) => setYt(e.target.value)}
+              placeholder="youtube.com/@channel"
+            />
           </div>
           <div>
-            <label>Their Instagram</label>
-            <input value={ig} onChange={(e) => setIg(e.target.value)} placeholder="instagram.com/handle" />
+            <label className={labelClass}>Their Instagram</label>
+            <input
+              className={fieldClass}
+              value={ig}
+              onChange={(e) => setIg(e.target.value)}
+              placeholder="instagram.com/handle"
+            />
           </div>
         </div>
         <div>
-          <label>What do they teach? (optional)</label>
-          <textarea value={know} onChange={(e) => setKnow(e.target.value)} />
+          <label className={labelClass}>What do they teach? (optional)</label>
+          <textarea className={fieldClass} value={know} onChange={(e) => setKnow(e.target.value)} />
         </div>
       </div>
-      <div className="actions">
-        <button type="button" className="btn ghost" onClick={closeModal}>
+      <div className="mt-[22px] flex flex-wrap justify-end gap-2.5">
+        <button type="button" className={protoBtn({ variant: "ghost" })} onClick={closeModal}>
           Cancel
         </button>
         <button
           type="button"
-          className="btn sun"
+          className={protoBtn()}
           onClick={() => {
             const sources: SourceItem[] = []
             for (const value of [yt, ig]) {

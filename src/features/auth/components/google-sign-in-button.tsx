@@ -99,11 +99,11 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
 
   if (!env.googleClientId) {
     return (
-      <p className="muted small" style={{ textAlign: "center" }}>
+      <p className="text-center text-[13px] text-muted-foreground">
         Set <code>VITE_GOOGLE_CLIENT_ID</code> to enable Google Sign-In.
       </p>
     )
   }
 
-  return <div ref={hostRef} style={{ display: "flex", justifyContent: "center" }} />
+  return <div ref={hostRef} className="flex justify-center" />
 }

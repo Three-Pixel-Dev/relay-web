@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router"
 
 import { ROUTES } from "@/constants/routes"
+import { cn } from "@/lib/utils"
 import type { Product } from "@/shared/types/relay"
 
 interface StageBarProps {
@@ -42,16 +43,21 @@ export function StageBar({ product }: StageBarProps) {
   ]
 
   return (
-    <div className="stages">
+    <div className="mb-4 flex gap-1.5 max-md:flex-wrap">
       {items.map((item) => (
         <Link
           key={item.to}
           to={item.to}
-          className={`${pathname === item.to ? "on" : ""} ${item.done ? "done" : ""}`}
+          className={cn(
+            "flex-1 rounded-xl border border-border bg-muted px-3 py-2.5 text-[13px] font-semibold text-muted-foreground max-md:min-w-[45%] hover:bg-card hover:text-foreground",
+            pathname === item.to && "border-primary bg-card text-foreground",
+            pathname === item.to && "[&_small]:text-primary [&_small]:opacity-100",
+            item.done && "border-success/35 text-success"
+          )}
           style={item.locked ? { opacity: 0.45, pointerEvents: "none" } : undefined}
         >
           {item.label}
-          <small>{item.sub}</small>
+          <small className="mt-0.5 block text-[11.5px] font-medium opacity-80">{item.sub}</small>
         </Link>
       ))}
     </div>

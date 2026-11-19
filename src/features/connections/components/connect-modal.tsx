@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import { Spin } from "@/components/common/spin"
+import { fieldClass, kvClass, labelClass, protoBtn } from "@/lib/proto"
 import { useConnectServiceMutation } from "@/shared/queries/workspace.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import type { ServiceCatalogItem } from "@/shared/types/relay"
@@ -51,35 +53,37 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
     )
   }
 
+  const actionsClass = "mt-[22px] flex flex-wrap justify-end gap-2.5"
+
   if (service.kind === "oauth") {
     return (
       <>
-        <p className="muted small" style={{ marginBottom: 14 }}>
+        <p className="mb-3.5 text-[13px] text-muted-foreground">
           {service.does} You’ll be sent to {service.name} to approve Relay.
         </p>
-        <div className="kv">
-          <span>Relay can</span>
+        <div className={kvClass}>
+          <span className="text-muted-foreground">Relay can</span>
           <b>{can}</b>
         </div>
-        <div className="kv">
-          <span>Relay cannot</span>
+        <div className={kvClass}>
+          <span className="text-muted-foreground">Relay cannot</span>
           <b>{cannot}</b>
         </div>
-        <div className="kv">
-          <span>Their fee</span>
+        <div className={kvClass}>
+          <span className="text-muted-foreground">Their fee</span>
           <b>{service.price}</b>
         </div>
-        <div className="actions">
-          <button type="button" className="btn ghost" onClick={closeModal}>
+        <div className={actionsClass}>
+          <button type="button" className={protoBtn({ variant: "ghost" })} onClick={closeModal}>
             Cancel
           </button>
           <button
             type="button"
-            className="btn sun"
+            className={protoBtn()}
             disabled={connect.isPending}
             onClick={() => finish("Connected")}
           >
-            {connect.isPending ? <span className="spin" /> : null} Continue to {service.name}
+            {connect.isPending ? <Spin /> : null} Continue to {service.name}
           </button>
         </div>
       </>
@@ -88,29 +92,32 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
 
   return (
     <>
-      <p className="muted small" style={{ marginBottom: 14 }}>
+      <p className="mb-3.5 text-[13px] text-muted-foreground">
         {service.does} Billed by your provider at {service.price.toLowerCase()}.{" "}
         {service.id === "llm"
           ? "Paste a Google Gemini API key (starts with AIza…) so Relay can embed your sources and generate summaries."
           : "Paste your provider API key below."}
       </p>
       <div>
-        <label htmlFor="k1">{service.id === "llm" ? "Gemini API key" : "API key"}</label>
+        <label className={labelClass} htmlFor="k1">
+          {service.id === "llm" ? "Gemini API key" : "API key"}
+        </label>
         <input
           id="k1"
+          className={fieldClass}
           type="password"
           placeholder={service.id === "llm" ? "AIza…" : "sk-…"}
           value={keyValue}
           onChange={(event) => setKeyValue(event.target.value)}
         />
       </div>
-      <div className="actions">
-        <button type="button" className="btn ghost" onClick={closeModal}>
+      <div className={actionsClass}>
+        <button type="button" className={protoBtn({ variant: "ghost" })} onClick={closeModal}>
           Cancel
         </button>
         <button
           type="button"
-          className="btn sun"
+          className={protoBtn()}
           disabled={connect.isPending}
           onClick={() => {
             const trimmed = keyValue.trim()
@@ -127,7 +134,7 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
             finish(`${trimmed.slice(0, 3)}••••${trimmed.slice(-3)}`, trimmed)
           }}
         >
-          {connect.isPending ? <span className="spin" /> : null} Test and save
+          {connect.isPending ? <Spin /> : null} Test and save
         </button>
       </div>
     </>

@@ -1,3 +1,4 @@
+import { protoBtn } from "@/lib/proto"
 import { fromApiPlan } from "@/shared/services/subscription.service"
 import {
   useCancelSubscriptionMutation,
@@ -18,36 +19,36 @@ export function BillingPanel() {
   const showToast = useUiStore((s) => s.showToast)
 
   if (!accessToken) {
-    return <p className="muted small">Sign in to manage billing.</p>
+    return <p className="text-[13px] text-muted-foreground">Sign in to manage billing.</p>
   }
 
   if (current.isLoading) {
-    return <p className="muted small">Loading billing…</p>
+    return <p className="text-[13px] text-muted-foreground">Loading billing…</p>
   }
 
   const sub = current.data
   const planLabel = fromApiPlan(sub?.plan)
 
   return (
-    <div style={{ marginTop: 16 }}>
-      <h4 style={{ marginBottom: 8 }}>Billing management</h4>
+    <div className="mt-4">
+      <h4 className="mb-2">Billing management</h4>
       {sub ? (
-        <div className="stack" style={{ gap: 8 }}>
-          <p className="small">
+        <div className="grid gap-2">
+          <p className="text-[13px]">
             Plan: <b>{planLabel === "yearly" ? "Yearly" : "6 months"}</b> · Status:{" "}
             <b>{sub.status}</b>
           </p>
           {sub.currentPeriodEnd ? (
-            <p className="small muted">
+            <p className="text-[13px] text-muted-foreground">
               Current period ends {new Date(sub.currentPeriodEnd).toLocaleDateString()}
               {sub.cancelAtPeriodEnd ? " · cancels at period end" : ""}
             </p>
           ) : null}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div className="flex flex-wrap gap-2">
             {!sub.cancelAtPeriodEnd ? (
               <button
                 type="button"
-                className="btn"
+                className={protoBtn({ variant: "ghost" })}
                 disabled={cancel.isPending}
                 onClick={() =>
                   cancel.mutate(undefined, {
@@ -61,7 +62,7 @@ export function BillingPanel() {
             ) : (
               <button
                 type="button"
-                className="btn sun"
+                className={protoBtn()}
                 disabled={resume.isPending}
                 onClick={() =>
                   resume.mutate(undefined, {
@@ -76,15 +77,15 @@ export function BillingPanel() {
           </div>
         </div>
       ) : (
-        <p className="small muted">No active subscription yet. Pick a plan above.</p>
+        <p className="text-[13px] text-muted-foreground">No active subscription yet. Pick a plan above.</p>
       )}
 
       {history.data && history.data.length > 0 ? (
-        <div style={{ marginTop: 14 }}>
-          <h4 style={{ marginBottom: 8 }}>History</h4>
-          <ul className="stack" style={{ gap: 6, paddingLeft: 18 }}>
+        <div className="mt-3.5">
+          <h4 className="mb-2">History</h4>
+          <ul className="grid list-disc gap-1.5 pl-[18px]">
             {history.data.map((row) => (
-              <li key={row.id} className="small muted">
+              <li key={row.id} className="text-[13px] text-muted-foreground">
                 {fromApiPlan(row.plan) === "yearly" ? "Yearly" : "6 months"} · {row.status}
                 {row.createdAt ? ` · ${new Date(row.createdAt).toLocaleDateString()}` : ""}
               </li>

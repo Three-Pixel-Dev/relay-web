@@ -7,8 +7,8 @@ This client follows `.cursor/rules/frontend-rule.mdc`. The API is the source of 
 ## Current baseline (done in this setup)
 
 - Vite + React + TypeScript + Tailwind v4 + shadcn/ui
-- Folder layout: `components/{core,common,layouts,ui}`, `shared/{hooks,services,queries,stores}`, `features/*`, `app/{config,api}`, `routes`, `locales`, `styles`
-- Providers: React Router, TanStack Query, Axios instance, i18n
+- Folder layout: `components/{core,common,layouts,ui}`, `shared/{hooks,services,queries,stores}`, `features/*`, `app/{config,api}`, `routes`, `styles`
+- Providers: React Router, TanStack Query, Axios instance
 - **Fixed dark theme** (Sora + prototype tokens); ThemeProvider removed
 - Shell routes: Start, My products, Partners, Connections
 

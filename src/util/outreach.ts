@@ -5,8 +5,8 @@ export function fillMessage(
   creator: Partner | ScoutResult | undefined,
   outreach: OutreachTemplate
 ) {
-  const first = (creator?.name || "Hana").split(" ")[0]
-  const niche = creator?.niche || "motherhood"
+  const first = (creator?.name || "there").split(" ")[0]
+  const niche = creator?.niche || "your niche"
   return template
     .replaceAll("{{first_name}}", first)
     .replaceAll("{{niche}} ", creator && !creator.niche ? "" : `${niche.toLowerCase()} `)

@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
+import { authKeys } from "@/shared/queries/auth.query"
 import { useCurrentSubscriptionQuery, useSubscribeMutation } from "@/shared/queries/subscription.query"
 import { fromApiPlan } from "@/shared/services/subscription.service"
 import {
@@ -39,7 +40,7 @@ export function useWorkspaceQuery() {
   }
 }
 
-/** Prefer live billing when authenticated; falls back to mock workspace subscription. */
+/** Start a Relay plan through the billing API. */
 export function useStartSubscriptionMutation() {
   return useSubscribeMutation()
 }
@@ -48,8 +49,9 @@ export function useMarkOnboardedMutation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: markOnboarded,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
+    onSuccess: (workspace) => {
+      queryClient.setQueryData(workspaceKeys.all, workspace)
+      void queryClient.invalidateQueries({ queryKey: authKeys.me })
     },
   })
 }

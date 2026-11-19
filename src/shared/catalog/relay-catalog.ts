@@ -181,32 +181,7 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
   },
 ]
 
-export const TRENDING: TrendingIdea[] = [
-  {
-    title: "ADHD daily planners for adults",
-    stats: "Etsy searches up 38% in 90 days · 4,100 listings · $4–9",
-  },
-  {
-    title: "Reactive-dog walking guides",
-    stats: "High pain, few products · 620 listings · $7–15",
-  },
-  {
-    title: "Teacher sub plans and classroom printables",
-    stats: "Seasonal peak Aug–Sep · 12,000 listings · $3–8",
-  },
-  {
-    title: "Budget planners for single-income households",
-    stats: "Steady · 6,400 listings · $4–12",
-  },
-  {
-    title: "Wedding planning checklists",
-    stats: "High purchasing power · 9,800 listings · $5–14",
-  },
-  {
-    title: "Exam-recall workbooks for college finals",
-    stats: "Low competition · 410 listings · $6–12",
-  },
-]
+export const TRENDING: TrendingIdea[] = []
 
 export const PRODUCT_TYPES: ProductType[] = [
   {

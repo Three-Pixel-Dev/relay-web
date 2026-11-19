@@ -1,9 +1,13 @@
 import { Bolt, Check, Paperclip } from "lucide-react"
 import { Link } from "react-router"
 
+import { Spin } from "@/components/common/spin"
 import { openConnectModal } from "@/features/connections/components/connect-modal"
+import { followThreadToEnd } from "@/features/products/components/thread-pane"
 import { openSourceDialog } from "@/features/start/components/source-dialog"
 import { ROUTES } from "@/constants/routes"
+import { actionBarClass, fieldClass, protoBtn } from "@/lib/proto"
+import { cn } from "@/lib/utils"
 import {
   useAddSourcesMutation,
   useApproveProductMutation,
@@ -22,6 +26,9 @@ interface BuildActionBarProps {
   product: Product
   catalog: RelayCatalog
 }
+
+const hintClass = "mr-auto text-[13px] text-muted-foreground"
+const modalActionsClass = "mt-[22px] flex flex-wrap justify-end gap-2.5"
 
 export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
   const { data: workspace } = useWorkspaceQuery()
@@ -45,6 +52,7 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
         <SuggestForm
           onSend={(text) => {
             closeModal()
+            followThreadToEnd()
             suggest.mutate({ id: product.id, text })
           }}
         />
@@ -56,20 +64,21 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
     openModal({
       title: "Pause this product?",
       body: (
-        <p className="muted">
+        <p className="text-muted-foreground">
           Everything made so far is kept. {money(product.spend)} already spent on AI is not refunded.
         </p>
       ),
       actions: (
         <>
-          <button type="button" className="btn ghost" onClick={closeModal}>
+          <button type="button" className={protoBtn({ variant: "ghost" })} onClick={closeModal}>
             Keep going
           </button>
           <button
             type="button"
-            className="btn sun"
+            className={protoBtn()}
             onClick={() => {
               closeModal()
+              followThreadToEnd()
               cancel.mutate(product.id)
             }}
           >
@@ -82,9 +91,9 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
 
   if (product.stage === "paused") {
     return (
-      <div className="actionbar">
-        <span className="hint">Paused. Everything is kept.</span>
-        <button type="button" className="btn sun" onClick={() => resume.mutate(product.id)}>
+      <div className={actionBarClass}>
+        <span className={hintClass}>Paused. Everything is kept.</span>
+        <button type="button" className={protoBtn()} onClick={() => { followThreadToEnd(); resume.mutate(product.id) }}>
           Resume
         </button>
       </div>
@@ -93,23 +102,22 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
 
   if (product.stage !== "build") {
     return (
-      <div className="actionbar">
-        <span className="hint">Built. {money(product.spend)} in AI.</span>
-        <Link to={ROUTES.product(product.id)} className="btn ghost">
+      <div className={actionBarClass}>
+        <span className={hintClass}>Built. {money(product.spend)} in AI.</span>
+        <Link to={ROUTES.product(product.id)} className={protoBtn({ variant: "ghost" })}>
           Product overview
         </Link>
       </div>
     )
   }
 
-  // Gate build steps after Step 0 (Sources & Source summary)
   if (i > 0) {
     return (
-      <div className="actionbar">
-        <span className="hint">
+      <div className={actionBarClass}>
+        <span className={hintClass}>
           Next steps coming soon — Step 1 (Sources &amp; Source summary) is complete.
         </span>
-        <Link to={ROUTES.product(product.id)} className="btn soft">
+        <Link to={ROUTES.product(product.id)} className={protoBtn({ variant: "soft" })}>
           Product overview
         </Link>
       </div>
@@ -118,11 +126,11 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
 
   if (step.status === "running") {
     return (
-      <div className="actionbar">
-        <span className="hint">
-          <span className="spin" /> Relay is working on step {i + 1}.
+      <div className={actionBarClass}>
+        <span className={cn(hintClass, "inline-flex items-center gap-2")}>
+          <Spin /> Relay is working on step {i + 1}.
         </span>
-        <button type="button" className="btn ghost" onClick={askCancel}>
+        <button type="button" className={protoBtn({ variant: "ghost" })} onClick={askCancel}>
           Stop
         </button>
       </div>
@@ -135,11 +143,11 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
       step.qualityWarning ||
       "This source is too thin to build a product from. Add more sources or tell us what you know."
     return (
-      <div className="actionbar">
-        <span className="hint">{warningText}</span>
+      <div className={actionBarClass}>
+        <span className={hintClass}>{warningText}</span>
         <button
           type="button"
-          className="btn soft"
+          className={protoBtn({ variant: "soft" })}
           onClick={() =>
             openSourceDialog({
               sources: product.sources,
@@ -147,7 +155,10 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
                 const added = sources.filter(
                   (s) => !product.sources.some((p) => p.id === s.id)
                 )
-                if (added.length) addSources.mutate({ id: product.id, sources: added })
+                if (added.length) {
+                  followThreadToEnd()
+                  addSources.mutate({ id: product.id, sources: added })
+                }
               },
             })
           }
@@ -156,9 +167,12 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
         </button>
         <button
           type="button"
-          className="btn sun"
+          className={protoBtn()}
           disabled={continueQuality.isPending}
-          onClick={() => continueQuality.mutate(product.id)}
+          onClick={() => {
+            followThreadToEnd()
+            continueQuality.mutate(product.id)
+          }}
         >
           Continue anyway
         </button>
@@ -168,15 +182,15 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
 
   if (step.status === "review") {
     return (
-      <div className="actionbar">
-        <span className="hint">Happy with it?</span>
-        <button type="button" className="btn ghost danger" onClick={askCancel}>
+      <div className={actionBarClass}>
+        <span className={hintClass}>Happy with it?</span>
+        <button type="button" className={protoBtn({ variant: "danger" })} onClick={askCancel}>
           Cancel
         </button>
-        <button type="button" className="btn ghost" onClick={askSuggest}>
+        <button type="button" className={protoBtn({ variant: "ghost" })} onClick={askSuggest}>
           Suggest a change
         </button>
-        <button type="button" className="btn mint" onClick={() => approve.mutate(product.id)}>
+        <button type="button" className={protoBtn({ variant: "mint" })} onClick={() => { followThreadToEnd(); approve.mutate(product.id) }}>
           <Check className="size-4" /> Looks good, continue
         </button>
       </div>
@@ -188,24 +202,24 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
   const missing = Boolean(need && !connected(need))
 
   return (
-    <div className="actionbar">
-      <span className="hint">
+    <div className={actionBarClass}>
+      <span className={hintClass}>
         {missing
           ? `Relay needs your ${service?.name} key for this step.`
           : `Relay will do step ${i + 1}: ${catalog.buildSteps[i].toLowerCase()}.`}
       </span>
-      <button type="button" className="btn ghost danger" onClick={askCancel}>
+      <button type="button" className={protoBtn({ variant: "danger" })} onClick={askCancel}>
         Cancel
       </button>
-      <button type="button" className="btn ghost" onClick={askSuggest}>
+      <button type="button" className={protoBtn({ variant: "ghost" })} onClick={askSuggest}>
         Suggest
       </button>
       {missing && service ? (
-        <button type="button" className="btn sun" onClick={() => openConnectModal(service)}>
+        <button type="button" className={protoBtn()} onClick={() => { followThreadToEnd(); openConnectModal(service) }}>
           Add {service.name} key
         </button>
       ) : (
-        <button type="button" className="btn sun" onClick={() => proceed.mutate(product.id)}>
+        <button type="button" className={protoBtn()} onClick={() => { followThreadToEnd(); proceed.mutate(product.id) }}>
           <Bolt className="size-4" /> Proceed
         </button>
       )}
@@ -216,18 +230,18 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
 function SuggestForm({ onSend }: { onSend: (text: string) => void }) {
   return (
     <>
-      <textarea id="sg" placeholder="Warmer voice. Shorter sections." />
-      <div className="actions">
+      <textarea id="sg" className={fieldClass} placeholder="What should change?" />
+      <div className={modalActionsClass}>
         <button
           type="button"
-          className="btn ghost"
+          className={protoBtn({ variant: "ghost" })}
           onClick={() => useUiStore.getState().closeModal()}
         >
           Cancel
         </button>
         <button
           type="button"
-          className="btn sun"
+          className={protoBtn()}
           onClick={() => {
             const value = (document.getElementById("sg") as HTMLTextAreaElement | null)?.value ?? ""
             onSend(value)

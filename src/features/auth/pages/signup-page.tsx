@@ -3,8 +3,10 @@ import { useForm } from "react-hook-form"
 import { Link, useNavigate } from "react-router"
 import { z } from "zod"
 
+import { Spin } from "@/components/common/spin"
 import { GoogleSignInButton } from "@/features/auth/components/google-sign-in-button"
 import { ROUTES } from "@/constants/routes"
+import { fieldClass, protoBtn } from "@/lib/proto"
 import { useSignupMutation } from "@/shared/queries/auth.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import { apiError } from "@/util/api-error"
@@ -38,57 +40,58 @@ export function SignupPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, marginBottom: 6 }}>Create account</h1>
-      <p className="muted small" style={{ marginBottom: 18 }}>
+      <h1 className="mb-1.5 text-2xl">Create account</h1>
+      <p className="mb-[18px] text-[13px] text-muted-foreground">
         No trial. After signup you can choose a 6-month or yearly plan.
       </p>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="stack" style={{ gap: 12 }}>
-        <label className="stack" style={{ gap: 6 }}>
-          <span className="small">Name</span>
-          <input className="input" autoComplete="name" {...form.register("name")} />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
+        <label className="grid gap-1.5">
+          <span className="text-[13px]">Name</span>
+          <input className={fieldClass} autoComplete="name" {...form.register("name")} />
           {form.formState.errors.name ? (
-            <span className="small" style={{ color: "salmon" }}>
+            <span className="text-[13px] text-destructive">
               {form.formState.errors.name.message}
             </span>
           ) : null}
         </label>
-        <label className="stack" style={{ gap: 6 }}>
-          <span className="small">Email</span>
-          <input className="input" type="email" autoComplete="email" {...form.register("email")} />
+        <label className="grid gap-1.5">
+          <span className="text-[13px]">Email</span>
+          <input className={fieldClass} type="email" autoComplete="email" {...form.register("email")} />
           {form.formState.errors.email ? (
-            <span className="small" style={{ color: "salmon" }}>
+            <span className="text-[13px] text-destructive">
               {form.formState.errors.email.message}
             </span>
           ) : null}
         </label>
-        <label className="stack" style={{ gap: 6 }}>
-          <span className="small">Password</span>
+        <label className="grid gap-1.5">
+          <span className="text-[13px]">Password</span>
           <input
-            className="input"
+            className={fieldClass}
             type="password"
             autoComplete="new-password"
             {...form.register("password")}
           />
           {form.formState.errors.password ? (
-            <span className="small" style={{ color: "salmon" }}>
+            <span className="text-[13px] text-destructive">
               {form.formState.errors.password.message}
             </span>
           ) : null}
         </label>
-        <button type="submit" className="btn sun" disabled={signup.isPending}>
-          {signup.isPending ? <span className="spin" /> : null}
+        <button type="submit" className={protoBtn()} disabled={signup.isPending}>
+          {signup.isPending ? <Spin /> : null}
           Create account
         </button>
       </form>
 
-      <div style={{ margin: "18px 0", textAlign: "center" }} className="muted small">
-        or
-      </div>
+      <div className="my-[18px] text-center text-[13px] text-muted-foreground">or</div>
       <GoogleSignInButton onSuccess={() => void navigate(ROUTES.connections)} />
 
-      <p className="muted small" style={{ marginTop: 18, textAlign: "center" }}>
-        Already have an account? <Link to={ROUTES.login}>Sign in</Link>
+      <p className="mt-[18px] text-center text-[13px] text-muted-foreground">
+        Already have an account?{" "}
+        <Link to={ROUTES.login} className="font-semibold text-primary">
+          Sign in
+        </Link>
       </p>
     </div>
   )

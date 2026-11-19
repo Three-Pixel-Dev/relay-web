@@ -17,7 +17,7 @@ alwaysApply: true
 - **Routing:** React Router
 - **HTTP client:** Axios
 - **Animation:** Framer Motion
-- **Localization (i18n):** react-i18next
+- **Copy:** English only (no i18n)
 - **Image cropping:** react-image-crop
 - **Carousel:** embla-carousel-react (via shadcn/ui Carousel)
 
@@ -93,7 +93,7 @@ alwaysApply: true
 - No `any`. Use `unknown` plus narrowing, or a precise type/generic.
 - Destructure props in the function signature, not inside the body.
 - Optional props get a default via destructuring (`{ size = 'md' }`), not `||` inside the component body.
-- Avoid prop drilling more than 2 levels deep — lift state, use composition, or use context for cross-cutting concerns (theme, auth, locale).
+- Avoid prop drilling more than 2 levels deep — lift state, use composition, or use context for cross-cutting concerns (theme, auth).
 
 ## Hooks
 
@@ -189,23 +189,10 @@ alwaysApply: true
 - Use `AnimatePresence` for mount/unmount transitions (modals, toasts, route transitions) rather than conditionally rendering without an exit animation.
 - Avoid animating layout-affecting properties (`width`, `height`, `top`/`left`) when a `transform`-based animation (`scale`, `x`/`y`) achieves the same effect — it's cheaper for the browser to render.
 
-## Localization (i18n)
+## Copy
 
-- Use **react-i18next**. No hardcoded user-facing strings in components — every visible string goes through `t('key')`.
-- Translation files live in `src/locales/<lang>/<namespace>.json` (e.g. `locales/en/common.json`, `locales/th/common.json`, `locales/zh/common.json`), split into namespaces by feature/area (`common`, `auth`, `products`) rather than one giant file per language.
-- **Key naming:** use `namespace:scoped.key` in `snake_case` or `camelCase` consistently (pick one and stick to it), grouped by feature/section — e.g. `auth:login.title`, `auth:login.submit_button`. Don't use the literal English text as the key.
-- Keep interpolation and pluralization in the translation string itself (i18next supports `{{count}}`, plural keys) rather than concatenating strings in the component:
-  ```tsx
-  // ❌ Don't
-  <p>{count} {count === 1 ? 'item' : 'items'}</p>
-
-  // ✅ Do
-  <p>{t('cart:item_count', { count })}</p>
-  ```
-- Every new key must be added to **all** supported languages at the same time — don't merge a feature with English-only keys and "translate later." Missing keys should fall back visibly (i18next's fallback language) so gaps are easy to spot, not silently blank. UI switcher currently shows `en` and `my` only; still keep `th`/`zh` files in sync when you add keys.
-- **Myanmar (`my`) copy is mostly Burmese** with a few familiar English loanwords (`platform`, `account`, `email`, `admin`, `role`, …). Do not leave whole labels in English. Follow `.cursor/rules/myanmar-translation.mdc`.
-- Don't bake locale-specific formatting (dates, currency, numbers) into translation strings — use `Intl`/i18next's built-in formatters so THB/MMK and date formats stay correct per locale instead of hardcoded.
-- Language switching state (current locale) lives in the Zustand store or i18next's own persisted instance — pick one source of truth, don't duplicate it in both.
+- **English only.** Write user-facing strings directly in components. Do not add i18n libraries, locale JSON, or a language switcher.
+- Dates, currency, and numbers use `en-GB` / `en-US` `Intl` formatters as already used in `util/format.ts`.
 
 ## Image Components
 

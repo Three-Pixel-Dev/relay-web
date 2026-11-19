@@ -1,6 +1,8 @@
 import { Navigate, Outlet } from "react-router"
 
 import { ROUTES } from "@/constants/routes"
+import { cardClass } from "@/lib/proto"
+import { cn } from "@/lib/utils"
 import { useSessionStore } from "@/shared/stores/session.store"
 
 export function AuthLayout() {
@@ -11,25 +13,13 @@ export function AuthLayout() {
   }
 
   return (
-    <div
-      className="auth-shell"
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 24,
-        background:
-          "radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--sun, #f5c542) 22%, transparent), transparent), var(--bg, #0f1115)",
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: 420 }}>
-        <div style={{ textAlign: "center", marginBottom: 22 }}>
-          <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em" }}>relay</div>
-          <p className="muted small" style={{ marginTop: 6 }}>
-            Build, sell, get seen
-          </p>
+    <div className="grid min-h-full place-items-center bg-[radial-gradient(1200px_600px_at_10%_-10%,color-mix(in_oklab,var(--primary)_22%,transparent),transparent)] bg-background p-6">
+      <div className="w-full max-w-[420px]">
+        <div className="mb-[22px] text-center">
+          <div className="text-[28px] font-bold tracking-tight">relay</div>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">Build, sell, get seen</p>
         </div>
-        <div className="card" style={{ padding: 22 }}>
+        <div className={cn(cardClass, "p-[22px]")}>
           <Outlet />
         </div>
       </div>
