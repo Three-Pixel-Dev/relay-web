@@ -70,7 +70,7 @@ export function PlansPicker({ selected = null, onPicked }: PlansPickerProps) {
       body: (
         <div className="stack" style={{ gap: 12 }}>
           <p className="muted small">
-            Card only via Stripe. Test card: 4242 4242 4242 4242 · any future expiry · any CVC.
+            Paid by card.
           </p>
           <StripeEmbeddedCheckout
             clientSecret={session.clientSecret}
@@ -173,7 +173,7 @@ export function PlansPicker({ selected = null, onPicked }: PlansPickerProps) {
         <ShieldIcon className="size-4 shrink-0" />
         <span>
           AI usage runs on your own keys at the providers’ prices. Marketplace fees are theirs.
-          Relay’s price is only Relay — paid by card through Stripe Checkout.
+          Relay’s price is only Relay — paid by card.
         </span>
       </p>
     </>
