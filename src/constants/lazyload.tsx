@@ -29,3 +29,8 @@ export const BuildPage = pageLoader(
   () => import("@/features/products/pages/build-page"),
   "BuildPage"
 )
+
+export const PartnersPage = pageLoader(
+  () => import("@/features/partners/pages/partners-page"),
+  "PartnersPage"
+)
