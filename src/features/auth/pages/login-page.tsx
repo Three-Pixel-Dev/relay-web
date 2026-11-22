@@ -41,9 +41,14 @@ export function LoginPage() {
     <div>
       <h1 className="mb-1.5 text-2xl">Sign in</h1>
       <p className="mb-[18px] text-[13px] text-muted-foreground">
-        Email/password or Google. New here? Continue with Google — you can set a password later in
-        Profile. No trial.
+        New here? Continue with Google — you can set a password later in Profile. No trial.
       </p>
+
+      <GoogleSignInButton onSuccess={() => void navigate(ROUTES.start)} />
+
+      <div className="my-[18px] text-center text-[13px] text-muted-foreground">
+        Already set a password?
+      </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
         <label className="grid gap-1.5">
@@ -74,9 +79,6 @@ export function LoginPage() {
           Sign in
         </button>
       </form>
-
-      <div className="my-[18px] text-center text-[13px] text-muted-foreground">or</div>
-      <GoogleSignInButton onSuccess={() => void navigate(ROUTES.start)} />
     </div>
   )
 }
