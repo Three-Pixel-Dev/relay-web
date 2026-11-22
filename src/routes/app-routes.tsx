@@ -4,6 +4,7 @@ import { ComingSoonPage } from "@/components/common/coming-soon-page"
 import {
   BuildPage,
   ConnectionsPage,
+  PartnersPage,
   ProductOverviewPage,
   ProductsPage,
   ProfilePage,
@@ -43,15 +44,7 @@ export const appRoutes: RouteObject[] = [
       />
     ),
   },
-  {
-    path: "partners",
-    element: (
-      <ComingSoonPage
-        title="Partners — coming soon"
-        description="Creator scouting and partnership outreach will be enabled in a future phase."
-      />
-    ),
-  },
+  { path: "partners", element: <PartnersPage /> },
   { path: "connections", element: <ConnectionsPage /> },
   {
     path: "admin",
