@@ -1,3 +1,5 @@
+import { useState } from "react"
+import { ArrowLeft } from "lucide-react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router"
@@ -19,6 +21,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export function LoginPage() {
+  const [mode, setMode] = useState<"google" | "password">("google")
   const navigate = useNavigate()
   const login = useLoginMutation()
   const showToast = useUiStore((s) => s.showToast)
@@ -37,6 +40,61 @@ export function LoginPage() {
     })
   }
 
+  if (mode === "password") {
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={() => setMode("google")}
+          className="mb-3 inline-flex cursor-pointer items-center gap-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-3.5" />
+          Back to Google sign-in
+        </button>
+        <h1 className="mb-1.5 text-2xl">Sign in with password</h1>
+        <p className="mb-[18px] text-[13px] text-muted-foreground">
+          Use the email and password you set in Profile.
+        </p>
+
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
+          <label className="grid gap-1.5">
+            <span className="text-[13px]">Email</span>
+            <input
+              className={fieldClass}
+              type="email"
+              autoComplete="email"
+              autoFocus
+              {...form.register("email")}
+            />
+            {form.formState.errors.email ? (
+              <span className="text-[13px] text-destructive">
+                {form.formState.errors.email.message}
+              </span>
+            ) : null}
+          </label>
+          <label className="grid gap-1.5">
+            <span className="text-[13px]">Password</span>
+            <input
+              className={fieldClass}
+              type="password"
+              autoComplete="current-password"
+              {...form.register("password")}
+            />
+            {form.formState.errors.password ? (
+              <span className="text-[13px] text-destructive">
+                {form.formState.errors.password.message}
+              </span>
+            ) : null}
+          </label>
+          <button type="submit" className={protoBtn()} disabled={login.isPending}>
+            {login.isPending ? <Spin /> : null}
+            Sign in
+          </button>
+        </form>
+      </div>
+    )
+  }
+
   return (
     <div>
       <h1 className="mb-1.5 text-2xl">Sign in</h1>
@@ -46,39 +104,15 @@ export function LoginPage() {
 
       <GoogleSignInButton onSuccess={() => void navigate(ROUTES.start)} />
 
-      <div className="my-[18px] text-center text-[13px] text-muted-foreground">
-        Already set a password?
-      </div>
-
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-3">
-        <label className="grid gap-1.5">
-          <span className="text-[13px]">Email</span>
-          <input className={fieldClass} type="email" autoComplete="email" {...form.register("email")} />
-          {form.formState.errors.email ? (
-            <span className="text-[13px] text-destructive">
-              {form.formState.errors.email.message}
-            </span>
-          ) : null}
-        </label>
-        <label className="grid gap-1.5">
-          <span className="text-[13px]">Password</span>
-          <input
-            className={fieldClass}
-            type="password"
-            autoComplete="current-password"
-            {...form.register("password")}
-          />
-          {form.formState.errors.password ? (
-            <span className="text-[13px] text-destructive">
-              {form.formState.errors.password.message}
-            </span>
-          ) : null}
-        </label>
-        <button type="submit" className={protoBtn()} disabled={login.isPending}>
-          {login.isPending ? <Spin /> : null}
-          Sign in
+      <div className="mt-5 text-center">
+        <button
+          type="button"
+          onClick={() => setMode("password")}
+          className="cursor-pointer text-[13px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          Already set a password?
         </button>
-      </form>
+      </div>
     </div>
   )
 }

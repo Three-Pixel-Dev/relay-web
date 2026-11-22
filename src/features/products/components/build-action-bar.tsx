@@ -50,7 +50,9 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
       title: "What should change?",
       body: (
         <SuggestForm
+          pending={suggest.isPending}
           onSend={(text) => {
+            if (suggest.isPending) return
             closeModal()
             followThreadToEnd()
             suggest.mutate({ id: product.id, text })
@@ -76,7 +78,9 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
           <button
             type="button"
             className={protoBtn()}
+            disabled={cancel.isPending}
             onClick={() => {
+              if (cancel.isPending) return
               closeModal()
               followThreadToEnd()
               cancel.mutate(product.id)
@@ -93,7 +97,16 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
     return (
       <div className={actionBarClass}>
         <span className={hintClass}>Paused. Everything is kept.</span>
-        <button type="button" className={protoBtn()} onClick={() => { followThreadToEnd(); resume.mutate(product.id) }}>
+        <button
+          type="button"
+          className={protoBtn()}
+          disabled={resume.isPending}
+          onClick={() => {
+            if (resume.isPending) return
+            followThreadToEnd()
+            resume.mutate(product.id)
+          }}
+        >
           Resume
         </button>
       </div>
@@ -243,13 +256,32 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
     return (
       <div className={actionBarClass}>
         <span className={hintClass}>Happy with it?</span>
-        <button type="button" className={protoBtn({ variant: "danger" })} onClick={askCancel}>
+        <button
+          type="button"
+          className={protoBtn({ variant: "danger" })}
+          disabled={cancel.isPending}
+          onClick={askCancel}
+        >
           Cancel
         </button>
-        <button type="button" className={protoBtn({ variant: "ghost" })} onClick={askSuggest}>
+        <button
+          type="button"
+          className={protoBtn({ variant: "ghost" })}
+          disabled={suggest.isPending}
+          onClick={askSuggest}
+        >
           Suggest a change
         </button>
-        <button type="button" className={protoBtn({ variant: "mint" })} onClick={() => { followThreadToEnd(); approve.mutate(product.id) }}>
+        <button
+          type="button"
+          className={protoBtn({ variant: "mint" })}
+          disabled={approve.isPending}
+          onClick={() => {
+            if (approve.isPending) return
+            followThreadToEnd()
+            approve.mutate(product.id)
+          }}
+        >
           <Check className="size-4" /> Looks good, continue
         </button>
       </div>
@@ -279,10 +311,20 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
           ? `Relay needs your ${service?.name} key for this step.`
           : `Relay will do step ${i + 1}: ${catalog.buildSteps[i].toLowerCase()}.`}
       </span>
-      <button type="button" className={protoBtn({ variant: "danger" })} onClick={askCancel}>
+      <button
+        type="button"
+        className={protoBtn({ variant: "danger" })}
+        disabled={cancel.isPending}
+        onClick={askCancel}
+      >
         Cancel
       </button>
-      <button type="button" className={protoBtn({ variant: "ghost" })} onClick={askSuggest}>
+      <button
+        type="button"
+        className={protoBtn({ variant: "ghost" })}
+        disabled={suggest.isPending}
+        onClick={askSuggest}
+      >
         Suggest
       </button>
       {missing && service ? (
@@ -290,7 +332,16 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
           Add {service.name} key
         </button>
       ) : (
-        <button type="button" className={protoBtn()} onClick={() => { followThreadToEnd(); proceed.mutate(product.id) }}>
+        <button
+          type="button"
+          className={protoBtn()}
+          disabled={proceed.isPending}
+          onClick={() => {
+            if (proceed.isPending) return
+            followThreadToEnd()
+            proceed.mutate(product.id)
+          }}
+        >
           <Bolt className="size-4" /> Proceed
         </button>
       )}
@@ -298,7 +349,13 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
   )
 }
 
-function SuggestForm({ onSend }: { onSend: (text: string) => void }) {
+function SuggestForm({
+  onSend,
+  pending = false,
+}: {
+  onSend: (text: string) => void
+  pending?: boolean
+}) {
   return (
     <>
       <textarea id="sg" className={fieldClass} placeholder="What should change?" />
@@ -313,7 +370,9 @@ function SuggestForm({ onSend }: { onSend: (text: string) => void }) {
         <button
           type="button"
           className={protoBtn()}
+          disabled={pending}
           onClick={() => {
+            if (pending) return
             const value = (document.getElementById("sg") as HTMLTextAreaElement | null)?.value ?? ""
             onSend(value)
           }}

@@ -41,6 +41,13 @@ export interface ProductType {
   sections: number
 }
 
+export interface TypePriceSuggestion {
+  price: string
+  median?: number | null
+  rationale?: string | null
+  source?: string | null
+}
+
 export interface ChannelCatalogItem {
   id: string
   name: string
@@ -196,6 +203,7 @@ export interface Product {
   pockets: Pocket[]
   pocket: Pocket | null
   type: string | null
+  typePriceSuggestions?: Record<string, TypePriceSuggestion>
   structure: ManuscriptSection[]
   words: number
   brand: ProductBrand | null

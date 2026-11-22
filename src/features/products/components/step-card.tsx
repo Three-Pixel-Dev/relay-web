@@ -19,7 +19,14 @@ import {
   useUpdateBrandMutation,
 } from "@/shared/queries/product.query"
 import { downloadProductFile } from "@/shared/services/product.service"
-import type { Pocket, Product, ProductFile, ProductType, RelayCatalog } from "@/shared/types/relay"
+import type {
+  Pocket,
+  Product,
+  ProductFile,
+  ProductType,
+  RelayCatalog,
+  TypePriceSuggestion,
+} from "@/shared/types/relay"
 import { pagesCount, pluralize } from "@/util/format"
 
 interface StepCardProps {
@@ -614,6 +621,7 @@ function ManuscriptStepBody({ product }: { product: Product }) {
                       className={cn(protoBtn({ variant: "soft" }), "px-2.5 py-1.5 text-xs")}
                       disabled={regenerate.isPending}
                       onClick={() => {
+                        if (regenerate.isPending) return
                         followThreadToEnd()
                         regenerate.mutate({ id: product.id, sectionId: focused.id })
                       }}
@@ -770,14 +778,16 @@ function TypesStepBody({ product, catalog }: { product: Product; catalog: RelayC
             : "Pick the format that fits your pocket and how buyers will use it."
           : product.type
             ? "Product format selected."
-            : "Press Proceed to compare the six product formats and pick one."}
+            : "Press Proceed to compare the six product formats with live marketplace price ranges."}
       </p>
+      {step.progress ? <ProgressLines lines={step.progress} /> : null}
       {showCards ? (
         <div className="mt-3.5 grid grid-cols-2 gap-3 max-sm:grid-cols-1">
           {catalog.types.map((typeItem) => (
             <TypeCard
               key={typeItem.id}
               typeItem={typeItem}
+              suggestion={product.typePriceSuggestions?.[typeItem.id]}
               chosen={product.type === typeItem.id}
               canPick={canPick}
               picking={chooseType.isPending}
@@ -795,13 +805,15 @@ function TypesStepBody({ product, catalog }: { product: Product; catalog: RelayC
 
 interface TypeCardProps {
   typeItem: ProductType
+  suggestion?: TypePriceSuggestion
   chosen: boolean
   canPick: boolean
   picking: boolean
   onPick: () => void
 }
 
-function TypeCard({ typeItem, chosen, canPick, picking, onPick }: TypeCardProps) {
+function TypeCard({ typeItem, suggestion, chosen, canPick, picking, onPick }: TypeCardProps) {
+  const displayPrice = suggestion?.price || typeItem.price
   return (
     <button
       type="button"
@@ -827,9 +839,21 @@ function TypeCard({ typeItem, chosen, canPick, picking, onPick }: TypeCardProps)
           {typeItem.desc}
         </p>
       </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2.5 text-xs text-dim">
-        <span>{typeItem.pages}</span>
-        <b className="text-foreground">{typeItem.price}</b>
+      <div className="mt-3 border-t border-border pt-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-dim">
+          <span>{typeItem.pages}</span>
+          <b className="text-foreground" title={suggestion?.rationale ?? undefined}>
+            {displayPrice}
+          </b>
+        </div>
+        {suggestion ? (
+          <small
+            className="mt-1 block text-right text-[11px] text-dim"
+            title={suggestion.rationale ?? undefined}
+          >
+            Based on live Etsy listings
+          </small>
+        ) : null}
       </div>
     </button>
   )

@@ -76,7 +76,15 @@ export function useProductEvents(id: string | undefined, isRunning: boolean) {
       },
       onProduct: (updatedProduct) => {
         queryClient.setQueryData(productKeys.detail(id), updatedProduct)
-        void queryClient.invalidateQueries({ queryKey: productKeys.lists() })
+        queryClient.setQueryData<Product[]>(productKeys.lists(), (prev) =>
+          prev ? prev.map((item) => (item.id === updatedProduct.id ? updatedProduct : item)) : prev
+        )
+        const stillRunning =
+          updatedProduct.stage === "build" &&
+          updatedProduct.steps[updatedProduct.cur]?.status === "running"
+        if (!stillRunning) {
+          void queryClient.invalidateQueries({ queryKey: productKeys.lists() })
+        }
       },
       onError: () => {
         // Fallback single refetch if SSE stream drops unexpectedly
