@@ -13,10 +13,10 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
     name: "Whop",
     short: "W",
     color: "#ff6243",
-    kind: "oauth",
+    kind: "key",
     group: "Sell",
     main: true,
-    does: "Your main store. Relay creates the product, checkout link and storefront, turns on affiliates, sets the partner share and reads every sale.",
+    does: "Your main store. Relay creates the product and checkout link, hands buyers their files after payment, and records every sale.",
     price: "Whop’s own fee per sale (about 3% plus card processing)",
   },
   {

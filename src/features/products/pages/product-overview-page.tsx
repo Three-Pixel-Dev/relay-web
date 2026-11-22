@@ -108,13 +108,15 @@ export function ProductOverviewPage() {
                   <div className="flex flex-wrap items-center justify-between gap-3.5 text-[13px]" key={key}>
                     {service ? <ServiceLabel service={service} /> : key}
                     <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-success">
-                      {url} <ExternalLink className="size-3" />
+                      <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 break-all">
+                        {url} <ExternalLink className="size-3" />
+                      </a>
                     </span>
                   </div>
                 )
               })
             ) : (
-              <span className="text-[13px] text-dim">Not listed yet (publishing coming soon).</span>
+              <span className="text-[13px] text-dim">Not listed yet. Publish it to Whop from the Publish step.</span>
             )}
           </div>
         </div>
@@ -131,9 +133,14 @@ export function ProductOverviewPage() {
             </div>
             <p className="mt-2.5 text-[13px]">
               Checkout link{" "}
-              <span className="inline-flex items-center gap-1.5 font-semibold text-success">
-                {whop}/checkout
-              </span>
+              <a
+                href={whop}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 break-all font-semibold text-success"
+              >
+                {whop}
+              </a>
             </p>
             {product.orders.length ? (
               <table className="mt-2.5 w-full border-collapse text-[13.5px]">
@@ -152,7 +159,7 @@ export function ProductOverviewPage() {
                 </thead>
                 <tbody>
                   {product.orders.slice(0, 6).map((order) => (
-                    <tr key={order.t}>
+                    <tr key={`${order.t}-${order.amt}-${order.via}`}>
                       <td className="border-b border-border p-2.5 last:border-0">{formatDate(order.t)}</td>
                       <td className="border-b border-border p-2.5">{money(order.amt)}</td>
                       <td className="border-b border-border p-2.5">{order.via}</td>
