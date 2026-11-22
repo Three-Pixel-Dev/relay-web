@@ -1,7 +1,8 @@
-import { BookOpen, Plug, Sparkles } from "lucide-react"
+import { BookOpen, Plug, Sparkles, Users } from "lucide-react"
 import { NavLink } from "react-router"
 
 import { ROUTES } from "@/constants/routes"
+import { usePartnersOverviewQuery } from "@/shared/queries/partners.query"
 import { useProductsQuery } from "@/shared/queries/product.query"
 import { useWorkspaceQuery } from "@/shared/queries/workspace.query"
 import { cn } from "@/lib/utils"
@@ -9,6 +10,8 @@ import { cn } from "@/lib/utils"
 export function Sidebar() {
   const { data: workspace } = useWorkspaceQuery()
   const { data: products = [] } = useProductsQuery()
+  const { data: partnersOverview } = usePartnersOverviewQuery()
+  const partnerCount = partnersOverview?.partners?.length ?? 0
 
   const items: {
     to: string
@@ -19,6 +22,7 @@ export function Sidebar() {
   }[] = [
     { to: ROUTES.start, label: "Start", icon: Sparkles, end: true },
     { to: ROUTES.products, label: "My products", icon: BookOpen, end: false, count: products.length },
+    { to: ROUTES.partners, label: "Partners", icon: Users, end: true, count: partnerCount || undefined },
     { to: ROUTES.connections, label: "Connections", icon: Plug, end: true },
   ]
 
