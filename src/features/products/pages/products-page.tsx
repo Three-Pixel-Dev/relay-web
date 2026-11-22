@@ -61,6 +61,7 @@ export function ProductsPage() {
                       palette={palette}
                       variant={product.brand.cover}
                       title={product.brand.title}
+                      imageUrl={product.brand.coverImageUrls?.[product.brand.cover] ?? null}
                     />
                   ) : (
                     <PosterLite />

@@ -90,6 +90,7 @@ export interface SourceProfile {
 }
 
 export interface Pocket {
+  id: string
   h: string
   ind: string
   niche: string
@@ -102,6 +103,7 @@ export interface Pocket {
 }
 
 export interface ManuscriptSection {
+  id: string
   title: string
   moment: string
   words: number
@@ -114,6 +116,15 @@ export interface ProductBrand {
   title: string
   palette: number
   cover: number
+  coverImageUrls?: (string | null)[]
+  pageGraphicUrls?: Record<string, string>
+}
+
+export interface ProductFile {
+  id: string
+  fileType: string
+  version: number
+  downloadPath?: string
 }
 
 export interface ProductStep {
@@ -188,6 +199,7 @@ export interface Product {
   structure: ManuscriptSection[]
   words: number
   brand: ProductBrand | null
+  files?: ProductFile[]
   stage: ProductStage
   cur: number
   steps: ProductStep[]
@@ -197,6 +209,9 @@ export interface Product {
   promote: PromoteState
   metrics: { sales: number; revenue: number; leads: number; visits: number }
   spend: number
+  remainingEstimate?: number | null
+  pricingAvailable?: boolean
+  pricingMessage?: string | null
   qualityWarning?: string | null
   cancelled?: boolean
   created: string

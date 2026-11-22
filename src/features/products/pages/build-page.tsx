@@ -127,13 +127,30 @@ export function BuildPage() {
             <h3>Spend</h3>
             <div className={kvClass}>
               <span className="text-muted-foreground">AI so far</span>
-              <b>{money(product.spend)}</b>
+              <b>
+                {product.spend > 0 && product.spend < 0.01
+                  ? `$${product.spend.toFixed(4)}`
+                  : money(product.spend)}
+              </b>
             </div>
             <div className={kvClass}>
               <span className="text-muted-foreground">Estimate to Ready</span>
-              <b>{money(1.8 + (product.structure.length || 9) * 0.08)}</b>
+              {product.pricingAvailable === false || product.remainingEstimate == null ? (
+                <span className="text-xs text-muted-foreground">Unavailable</span>
+              ) : (
+                <b>{money((product.spend || 0) + product.remainingEstimate)}</b>
+              )}
             </div>
-            <p className="mt-2 text-xs text-dim">Billed by your providers at their price.</p>
+            {product.pricingAvailable === false ? (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {product.pricingMessage ||
+                  "Published AI rates unavailable — cost estimate cannot be calculated right now."}
+              </p>
+            ) : null}
+            <p className="mt-2 text-xs text-dim">
+              Actuals from tokens × published catalog rates when available. Billed by your AI
+              providers.
+            </p>
           </div>
           <div className={cn(cardClass, "mb-3.5 min-w-0 overflow-hidden")}>
             <div className="flex flex-wrap items-center justify-between gap-3.5">

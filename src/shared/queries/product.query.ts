@@ -4,17 +4,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { subscribeProductEvents } from "@/shared/services/product-events"
 import {
   addProductSources,
+  addSection,
   approveProductStep,
   cancelProduct,
+  choosePocket,
+  chooseType,
   continueDespiteQuality,
   createProduct,
   deleteProduct,
   getProduct,
   listProducts,
   proceedProduct,
+  regenerateSection,
   removeProductSource,
+  removeSection,
   resumeProduct,
   suggestProductChange,
+  updateBrand,
 } from "@/shared/services/product.service"
 import type { CreateProductInput, Product, SourceItem } from "@/shared/types/relay"
 
@@ -128,6 +134,52 @@ export function useContinueQualityProductMutation() {
 
 export function useApproveProductMutation() {
   return useProductMutation((id: string) => approveProductStep(id))
+}
+
+export function useChoosePocketMutation() {
+  return useProductMutation(({ id, pocketId }: { id: string; pocketId: string }) =>
+    choosePocket(id, pocketId)
+  )
+}
+
+export function useChooseTypeMutation() {
+  return useProductMutation(({ id, typeId }: { id: string; typeId: string }) =>
+    chooseType(id, typeId)
+  )
+}
+
+export function useAddSectionMutation() {
+  return useProductMutation(({ id, title }: { id: string; title: string }) =>
+    addSection(id, title)
+  )
+}
+
+export function useRemoveSectionMutation() {
+  return useProductMutation(({ id, sectionId }: { id: string; sectionId: string }) =>
+    removeSection(id, sectionId)
+  )
+}
+
+export function useRegenerateSectionMutation() {
+  return useProductMutation(({ id, sectionId }: { id: string; sectionId: string }) =>
+    regenerateSection(id, sectionId)
+  )
+}
+
+export function useUpdateBrandMutation() {
+  return useProductMutation(
+    ({
+      id,
+      title,
+      palette,
+      cover,
+    }: {
+      id: string
+      title?: string
+      palette?: number
+      cover?: number
+    }) => updateBrand(id, { title, palette, cover })
+  )
 }
 
 export function useSuggestProductMutation() {

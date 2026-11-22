@@ -107,18 +107,8 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
         <Link to={ROUTES.product(product.id)} className={protoBtn({ variant: "ghost" })}>
           Product overview
         </Link>
-      </div>
-    )
-  }
-
-  if (i > 0) {
-    return (
-      <div className={actionBarClass}>
-        <span className={hintClass}>
-          Next steps coming soon — Step 1 (Sources &amp; Source summary) is complete.
-        </span>
-        <Link to={ROUTES.product(product.id)} className={protoBtn({ variant: "soft" })}>
-          Product overview
+        <Link to={ROUTES.publish(product.id)} className={protoBtn()}>
+          Publish it
         </Link>
       </div>
     )
@@ -180,7 +170,76 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
     )
   }
 
+  if (step.status === "gate") {
+    return (
+      <div className={actionBarClass}>
+        <span className={hintClass}>Approve the voice to write the rest.</span>
+        <button type="button" className={protoBtn({ variant: "danger" })} onClick={askCancel}>
+          Cancel
+        </button>
+        <button type="button" className={protoBtn({ variant: "ghost" })} onClick={askSuggest}>
+          Change the voice
+        </button>
+        <button
+          type="button"
+          className={protoBtn({ variant: "mint" })}
+          disabled={approve.isPending}
+          onClick={() => {
+            followThreadToEnd()
+            approve.mutate(product.id)
+          }}
+        >
+          <Check className="size-4" /> Voice is right, write the rest
+        </button>
+      </div>
+    )
+  }
+
   if (step.status === "review") {
+    if (i === 1) {
+      return (
+        <div className={actionBarClass}>
+          <span className={hintClass}>Pick a pocket above.</span>
+          <button type="button" className={protoBtn({ variant: "danger" })} onClick={askCancel}>
+            Cancel
+          </button>
+          <button type="button" className={protoBtn({ variant: "ghost" })} onClick={askSuggest}>
+            Suggest a change
+          </button>
+        </div>
+      )
+    }
+    if (i === 2) {
+      const hasType = Boolean(product.type)
+      return (
+        <div className={actionBarClass}>
+          <span className={hintClass}>
+            {hasType
+              ? "Switch formats above, or continue to Structure."
+              : "Pick a product type above."}
+          </span>
+          <button type="button" className={protoBtn({ variant: "danger" })} onClick={askCancel}>
+            Cancel
+          </button>
+          <button type="button" className={protoBtn({ variant: "ghost" })} onClick={askSuggest}>
+            Suggest a change
+          </button>
+          {hasType ? (
+            <button
+              type="button"
+              className={protoBtn({ variant: "mint" })}
+              disabled={approve.isPending}
+              onClick={() => {
+                followThreadToEnd()
+                approve.mutate(product.id)
+              }}
+            >
+              <Check className="size-4" /> Looks good, continue
+            </button>
+          ) : null}
+        </div>
+      )
+    }
     return (
       <div className={actionBarClass}>
         <span className={hintClass}>Happy with it?</span>
@@ -197,7 +256,19 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
     )
   }
 
-  const need = product.sources.length && !product.profile ? "llm" : null
+  const need =
+    (i === 0 && product.sources.length && !product.profile) ||
+    i === 1 ||
+    i === 3 ||
+    i === 4
+      ? "llm"
+      : i === 5
+        ? !connected("llm")
+          ? "llm"
+          : "img"
+        : i === 6
+          ? "img"
+          : null
   const service = need ? catalog.services.find((item) => item.id === need) : undefined
   const missing = Boolean(need && !connected(need))
 

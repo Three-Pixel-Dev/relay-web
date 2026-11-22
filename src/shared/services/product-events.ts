@@ -105,8 +105,11 @@ function dispatchFrame(rawFrame: string, handlers: ProductEventsHandlers): boole
       return false
     }
     if (eventName === "product") {
-      handlers.onProduct?.(parsed as Product)
-      return true
+      const next = parsed as Product
+      handlers.onProduct?.(next)
+      const stillRunning =
+        next.stage === "build" && next.steps[next.cur]?.status === "running"
+      return !stillRunning
     }
     if (eventName === "error") {
       handlers.onError?.(parsed as { message: string })

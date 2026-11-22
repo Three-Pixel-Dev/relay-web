@@ -1,12 +1,94 @@
+import { useEffect, useState } from "react"
+import type { ReactNode } from "react"
+
+import { apiClient } from "@/app/api/client"
 import type { Palette } from "@/shared/types/relay"
 
 interface CoverArtProps {
   palette: Palette
   variant: number
   title: string
+  imageUrl?: string | null
 }
 
-export function CoverArt({ palette, variant, title }: CoverArtProps) {
+function toApiRelativePath(url: string) {
+  return url.startsWith("/api/") ? url.slice(4) : url
+}
+
+export function AuthGraphic({
+  imageUrl,
+  alt,
+  className,
+  fallback,
+}: {
+  imageUrl?: string | null
+  alt: string
+  className?: string
+  fallback?: ReactNode
+}) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    if (!imageUrl) {
+      setBlobUrl(null)
+      setFailed(false)
+      return
+    }
+    let active = true
+    let createdUrl: string | null = null
+    setFailed(false)
+
+    apiClient
+      .get<Blob>(toApiRelativePath(imageUrl), { responseType: "blob" })
+      .then((res) => {
+        if (!active) return
+        const blob = res.data instanceof Blob ? res.data : new Blob([res.data])
+        createdUrl = URL.createObjectURL(blob)
+        setBlobUrl(createdUrl)
+      })
+      .catch(() => {
+        if (active) setFailed(true)
+      })
+
+    return () => {
+      active = false
+      if (createdUrl) URL.revokeObjectURL(createdUrl)
+    }
+  }, [imageUrl])
+
+  if (blobUrl && !failed) {
+    return <img src={blobUrl} alt={alt} className={className} />
+  }
+  return <>{fallback ?? null}</>
+}
+
+export function CoverArt({ palette, variant, title, imageUrl }: CoverArtProps) {
+  const svgFallback = <CoverArtSvg palette={palette} variant={variant} title={title} />
+
+  if (imageUrl) {
+    return (
+      <AuthGraphic
+        imageUrl={imageUrl}
+        alt={title}
+        className="block aspect-3/4 w-full object-cover"
+        fallback={svgFallback}
+      />
+    )
+  }
+
+  return svgFallback
+}
+
+function CoverArtSvg({
+  palette,
+  variant,
+  title,
+}: {
+  palette: Palette
+  variant: number
+  title: string
+}) {
   const [page, ink, acc, tint] = palette.cols
   const words = title.split(" ")
   const lines: string[] = []
@@ -51,7 +133,7 @@ export function CoverArt({ palette, variant, title }: CoverArtProps) {
       )}
       {lines.slice(0, 4).map((line, index) => (
         <text
-          key={line}
+          key={`${line}-${index}`}
           x={x}
           y={70 + index * 26}
           fontFamily="Georgia,serif"

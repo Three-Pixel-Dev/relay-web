@@ -1,4 +1,5 @@
-import { ExternalLink } from "lucide-react"
+import { useState } from "react"
+import { Download, ExternalLink } from "lucide-react"
 import { Link, Navigate, useParams } from "react-router"
 
 import { ChipDot } from "@/components/common/spin"
@@ -10,12 +11,24 @@ import { ROUTES } from "@/constants/routes"
 import { cardClass, protoBtn, protoChip } from "@/lib/proto"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import { useProductEvents, useProductQuery } from "@/shared/queries/product.query"
+import { downloadProductFile } from "@/shared/services/product.service"
+import type { ProductFile } from "@/shared/types/relay"
 import { formatDate, money, pagesCount, pluralize, productName } from "@/util/format"
+
+const FILE_TYPE_LABELS: Record<string, string> = {
+  pdf_letter: "PDF Letter",
+  pdf_a4: "PDF A4",
+  epub: "EPUB",
+  docx: "DOCX",
+  mockups: "Mockups",
+  html: "Canva-editable",
+}
 
 export function ProductOverviewPage() {
   const { id = "" } = useParams()
   const { data: product, isLoading } = useProductQuery(id)
   const { data: catalog } = useCatalogQuery()
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const isRunning = Boolean(
     product && product.stage === "build" && product.steps[product.cur]?.status === "running"
   )
@@ -27,6 +40,16 @@ export function ProductOverviewPage() {
   const palette = product.brand ? catalog.palettes[product.brand.palette] : null
   const whop = product.publish.live.whop
   const m = product.metrics
+  const files = product.files ?? []
+
+  async function handleDownload(file: ProductFile) {
+    setDownloadingId(file.id)
+    try {
+      await downloadProductFile(product!.id, file.id, `${file.fileType}-v${file.version}`)
+    } finally {
+      setDownloadingId(null)
+    }
+  }
 
   return (
     <>
@@ -52,8 +75,28 @@ export function ProductOverviewPage() {
           <p className="mt-2.5 text-[13px] text-muted-foreground">
             {product.structure.length
               ? `${pluralize(product.structure.length, "section")} · ${pluralize(product.words, "word")} · ${pluralize(pagesCount(product.words, product.structure.length), "page")}`
-              : "Exports (PDF, EPUB, DOCX, Mockups) coming soon after manuscript & branding steps."}
+              : "Exports (PDF, EPUB, DOCX, Mockups) are generated in the Ready step."}
           </p>
+          {files.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {files.map((file) => {
+                const label = FILE_TYPE_LABELS[file.fileType] ?? file.fileType.toUpperCase()
+                const busy = downloadingId === file.id
+                return (
+                  <button
+                    key={file.id}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => handleDownload(file)}
+                    className={protoBtn({ variant: "soft" })}
+                  >
+                    <Download className="size-3.5" />
+                    {busy ? "Downloading…" : label}
+                  </button>
+                )
+              })}
+            </div>
+          ) : null}
         </div>
         <div className={cardClass}>
           <h3>Where it is</h3>
@@ -138,6 +181,7 @@ export function ProductOverviewPage() {
                 palette={palette}
                 variant={product.brand.cover}
                 title={product.brand.title}
+                imageUrl={product.brand.coverImageUrls?.[product.brand.cover] ?? null}
               />
             </div>
           </div>
