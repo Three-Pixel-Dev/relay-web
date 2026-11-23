@@ -137,8 +137,8 @@ function ServiceGroup({ title, services, connected, onConnect, onRemove }: Servi
                 <small className="mt-0.5 block text-[12.5px] text-muted-foreground">{service.price}</small>
               </div>
               <div className="flex items-center gap-2.5">
-                {service.kind === "guided" ? (
-                  <span className={protoChip()}>Guided · no API</span>
+                {service.comingSoon ? (
+                  <span className={protoChip()}>Coming soon</span>
                 ) : on ? (
                   <>
                     <span className={protoChip({ variant: "mint" })}>

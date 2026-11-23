@@ -14,6 +14,10 @@ interface ConnectModalBodyProps {
 
 export function openConnectModal(service: ServiceCatalogItem) {
   const { openModal, showToast } = useUiStore.getState()
+  if (service.comingSoon) {
+    showToast(`${service.name} is coming soon.`)
+    return
+  }
   if (service.kind === "guided") {
     showToast(`${service.name} has no API. Relay guides you when you publish.`)
     return

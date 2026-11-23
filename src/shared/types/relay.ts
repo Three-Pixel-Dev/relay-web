@@ -23,6 +23,8 @@ export interface ServiceCatalogItem {
   kind: ServiceKind
   group: string
   main?: boolean
+  /** When true, Connections shows Coming soon and blocks connect. */
+  comingSoon?: boolean
   does: string
   price: string
 }
