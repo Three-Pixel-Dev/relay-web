@@ -17,8 +17,7 @@ import {
 } from "@/shared/queries/workspace.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import { apiError } from "@/util/api-error"
-import { uid } from "@/util/source"
-import { linkKind, linkName } from "@/util/source"
+import { isValidSourceLink, linkKind, linkName, uid } from "@/util/source"
 
 import type { BuildMode, SourceItem } from "@/shared/types/relay"
 
@@ -84,9 +83,9 @@ export function StartPage() {
     extra?: { name?: string; forElse?: boolean; client?: string; sources?: SourceItem[] }
   ) {
     const resolvedName = (extra?.name ?? name).trim()
-    if (!resolvedName) {
-      showToast("Please enter a product name first.")
-      nameInputRef.current?.focus()
+    const resolvedSources = extra?.sources ?? sources
+    if (!resolvedName && !text.trim() && resolvedSources.length === 0) {
+      showToast("Describe what you know or attach a source to start.")
       return
     }
     createProduct.mutate(
@@ -96,7 +95,7 @@ export function StartPage() {
         mode,
         forElse: extra?.forElse,
         client: extra?.client,
-        sources: extra?.sources ?? sources,
+        sources: resolvedSources,
       },
       {
         onSuccess: (product) => {
@@ -134,7 +133,7 @@ export function StartPage() {
             htmlFor="start-product-name"
             className="mb-1 block text-xs font-semibold tracking-wide text-muted-foreground uppercase"
           >
-            Product name <span className="text-primary">*</span>
+            Product name <span className="font-normal normal-case text-dim">(optional)</span>
           </label>
           <input
             id="start-product-name"
@@ -247,8 +246,8 @@ export function StartPage() {
         onClick={openAgency}
       />
       <p className="mt-[30px] text-xs text-dim">
-        Enter a product name above, then describe what you know or attach your sources and press
-        Start.
+        Describe what you know or attach your sources and press Start. Leave the name blank and it
+        stays Untitled until Relay finds a niche.
       </p>
     </section>
   )
@@ -304,9 +303,7 @@ function AgencyForm({ onStart }: AgencyFormProps) {
       </p>
       <div className="grid gap-3.5">
         <div>
-          <label className={labelClass}>
-            Product name <span className="text-primary">*</span>
-          </label>
+          <label className={labelClass}>Product name (optional)</label>
           <input
             className={fieldClass}
             value={productName}
@@ -356,14 +353,15 @@ function AgencyForm({ onStart }: AgencyFormProps) {
           type="button"
           className={protoBtn()}
           onClick={() => {
-            if (!productName.trim()) {
-              showToast("Please enter a product name first.")
-              return
-            }
             const sources: SourceItem[] = []
             for (const value of [yt, ig]) {
               const v = value.trim()
-              if (v) sources.push({ id: uid(), kind: linkKind(v), name: linkName(v), url: v })
+              if (!v) continue
+              if (!isValidSourceLink(v)) {
+                showToast("We couldn't read this link")
+                return
+              }
+              sources.push({ id: uid(), kind: linkKind(v), name: linkName(v), url: v })
             }
             if (!sources.length && !know.trim()) {
               showToast("Paste their YouTube or Instagram link, or say what they teach.")

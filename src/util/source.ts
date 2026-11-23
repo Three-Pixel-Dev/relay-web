@@ -4,6 +4,22 @@ export function uid() {
   return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
 }
 
+export function isValidSourceLink(raw: string): boolean {
+  const value = raw.trim()
+  if (!value || /\s/.test(value)) return false
+  // Allow Instagram @handles
+  if (/^@[a-zA-Z0-9._]{1,60}$/.test(value)) return true
+  const candidate = /^https?:\/\//i.test(value) ? value : `https://${value}`
+  try {
+    const parsed = new URL(candidate)
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false
+    const host = parsed.hostname
+    return Boolean(host && host.includes(".") && !host.startsWith(".") && !host.endsWith("."))
+  } catch {
+    return false
+  }
+}
+
 export function linkKind(url: string): SourceKind {
   if (/youtu\.?be/i.test(url)) return "youtube"
   if (/instagram\.com|^@/i.test(url)) return "instagram"

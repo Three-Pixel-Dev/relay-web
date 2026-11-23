@@ -44,8 +44,17 @@ export interface ProductType {
 export interface TypePriceSuggestion {
   price: string
   median?: number | null
+  pages?: string | null
   rationale?: string | null
   source?: string | null
+}
+
+export interface ProductSelectionResponse {
+  id: string
+  type: string | null
+  pocketId: string | null
+  cur: number
+  stepStatus: StepStatus
 }
 
 export interface ChannelCatalogItem {
@@ -94,6 +103,7 @@ export interface SourceProfile {
   verdict: string
   audience: string
   voice: string
+  viable?: boolean
 }
 
 export interface Pocket {
@@ -122,6 +132,7 @@ export interface ManuscriptSection {
 export interface ProductBrand {
   title: string
   palette: number
+  paletteDetail?: Palette | null
   cover: number
   coverImageUrls?: (string | null)[]
   pageGraphicUrls?: Record<string, string>
@@ -153,6 +164,12 @@ export interface Listing {
   price: number
   tags: string
   desc: string
+}
+
+export interface ListingDraftResponse {
+  title: string
+  headline: string
+  price: number
 }
 
 export interface PublishState {

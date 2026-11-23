@@ -1,5 +1,11 @@
 import { apiClient } from "@/app/api/client"
-import type { CreateProductInput, Product, SourceItem } from "@/shared/types/relay"
+import type {
+  CreateProductInput,
+  ListingDraftResponse,
+  Product,
+  ProductSelectionResponse,
+  SourceItem,
+} from "@/shared/types/relay"
 
 export async function listProducts() {
   const { data } = await apiClient.get<Product[]>("/products")
@@ -34,6 +40,11 @@ export async function createProduct(input: CreateProductInput) {
 
 export async function deleteProduct(id: string) {
   await apiClient.delete(`/products/${id}`)
+}
+
+export async function renameProduct(id: string, name: string) {
+  const { data } = await apiClient.patch<Product>(`/products/${id}/name`, { name })
+  return data
 }
 
 export async function uploadProductSources(id: string, files: File[]) {
@@ -89,14 +100,26 @@ export async function approveProductStep(id: string) {
   return data
 }
 
-export async function choosePocket(id: string, pocketId: string) {
-  const { data } = await apiClient.post<Product>(`/products/${id}/pockets/${pocketId}/choose`)
+export async function patchProductPocket(id: string, pocketId: string) {
+  const { data } = await apiClient.patch<ProductSelectionResponse>(`/products/${id}/pocket`, {
+    pocketId: Number(pocketId),
+  })
   return data
 }
 
-export async function chooseType(id: string, typeId: string) {
-  const { data } = await apiClient.post<Product>(`/products/${id}/types/${typeId}/choose`)
+export async function patchProductType(id: string, typeId: string) {
+  const { data } = await apiClient.patch<ProductSelectionResponse>(`/products/${id}/type`, {
+    typeId,
+  })
   return data
+}
+
+export async function choosePocket(id: string, pocketId: string) {
+  return patchProductPocket(id, pocketId)
+}
+
+export async function chooseType(id: string, typeId: string) {
+  return patchProductType(id, typeId)
 }
 
 export async function addSection(id: string, title: string) {
@@ -116,7 +139,7 @@ export async function regenerateSection(id: string, sectionId: string) {
 
 export async function updateBrand(
   id: string,
-  input: { title?: string; palette?: number; cover?: number }
+  input: { title?: string; cover?: number }
 ) {
   const { data } = await apiClient.patch<Product>(`/products/${id}/brand`, input)
   return data
@@ -142,6 +165,11 @@ export interface PublishToWhopInput {
   title?: string
   headline?: string
   affiliatePercent?: number
+}
+
+export async function generateListingDraft(id: string) {
+  const { data } = await apiClient.post<ListingDraftResponse>(`/products/${id}/listing-draft`)
+  return data
 }
 
 export async function publishToWhop(id: string, input: PublishToWhopInput) {

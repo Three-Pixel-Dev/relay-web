@@ -146,7 +146,7 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
     color: "#c7b4ff",
     kind: "key",
     group: "AI (your keys)",
-    does: "Your Google Gemini API key (AIza…). Used for Gemini embeddings (indexing your sources) and generating source summaries, pockets, structure, manuscript, listings, and emails.",
+    does: "Your Google Gemini API key (AIza… or AQ.…). Used for Gemini embeddings (indexing your sources) and generating source summaries, pockets, structure, manuscript, listings, and emails.",
     price: "Cents per task",
   },
   {
@@ -183,6 +183,8 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
 
 export const TRENDING: TrendingIdea[] = []
 
+// Note: `pages` and `price` are deprecated for TypeCard UI (TypeCard reads live `typePriceSuggestions` only).
+// `sections` is actively used for Structure generation.
 export const PRODUCT_TYPES: ProductType[] = [
   {
     id: "ebook",

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { Check, ChevronDown, ChevronUp, Download, Paperclip, Plus, RefreshCw, Sparkles, X } from "lucide-react"
 
 import { AuthGraphic, CoverArt } from "@/components/common/cover-art"
@@ -6,13 +6,14 @@ import { ChipDot, Spin } from "@/components/common/spin"
 import { SourceChips } from "@/components/common/source-chips"
 import { followThreadToEnd } from "@/features/products/components/thread-pane"
 import { openSourceDialog } from "@/features/start/components/source-dialog"
+import { ensureGoogleFontLoaded, resolveBrandPalette } from "@/lib/brand-palette"
 import { fieldClass, kvClass, protoBtn, protoChip } from "@/lib/proto"
 import { cn } from "@/lib/utils"
 import {
   useAddSectionMutation,
   useAddSourcesMutation,
-  useChoosePocketMutation,
-  useChooseTypeMutation,
+  usePatchProductPocketMutation,
+  usePatchProductTypeMutation,
   useRegenerateSectionMutation,
   useRemoveSectionMutation,
   useRemoveSourceMutation,
@@ -193,6 +194,23 @@ function StepBody({
                   .join(" · ")}
               </span>
             </div>
+            {product.qualityWarning ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={protoChip({ variant: "sun" })}>
+                  <ChipDot />
+                  {product.qualityWarning}
+                </span>
+              </div>
+            ) : null}
+            {product.profile.viable === false ||
+            /no viable|not viable|cannot support a paid/i.test(product.profile.verdict || "") ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={protoChip({ variant: "sun" })}>
+                  <ChipDot />
+                  Not viable for a paid product — add more sources
+                </span>
+              </div>
+            ) : null}
             <div className={cn(kvClass, "items-start gap-4")}>
               <span className="w-[118px] shrink-0 text-muted-foreground max-md:w-auto">Niche</span>
               <b className="flex-1 text-left font-medium leading-relaxed">{product.profile.niche}</b>
@@ -286,7 +304,7 @@ function ReadyStepBody({ product, catalog }: { product: Product; catalog: RelayC
   const step = product.steps[6]
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const files = product.files ?? []
-  const palette = catalog.palettes[product.brand?.palette ?? 0] ?? catalog.palettes[0]
+  const palette = resolveBrandPalette(product.brand, catalog.palettes)
   const title = product.brand?.title || product.name || "Untitled product"
   const previewSections = product.structure.slice(0, 11)
 
@@ -399,24 +417,23 @@ function BrandingStepBody({ product, catalog }: { product: Product; catalog: Rel
   const updateBrand = useUpdateBrandMutation()
   const brand = product.brand
   const [titleDraft, setTitleDraft] = useState(brand?.title ?? "")
-  const generatedPaletteRef = useRef(brand?.palette ?? 0)
   const canEdit = product.stage === "build" && product.cur === 5 && step.status === "review"
 
   useEffect(() => {
     setTitleDraft(brand?.title ?? "")
   }, [brand?.title])
 
-  const palette = catalog.palettes[brand?.palette ?? 0] ?? catalog.palettes[0]
-  const paletteMatchesArt = (brand?.palette ?? 0) === generatedPaletteRef.current
+  const palette = resolveBrandPalette(brand, catalog.palettes)
+
+  useEffect(() => {
+    if (palette) {
+      ensureGoogleFontLoaded(palette.display)
+      ensureGoogleFontLoaded(palette.body)
+    }
+  }, [palette])
 
   function previewImageUrl(variant: number) {
-    if (!paletteMatchesArt) return null
     return brand?.coverImageUrls?.[variant] ?? null
-  }
-
-  function selectPalette(idx: number) {
-    if (!canEdit || !brand || idx === brand.palette) return
-    updateBrand.mutate({ id: product.id, palette: idx })
   }
 
   function selectCover(variant: number) {
@@ -435,8 +452,8 @@ function BrandingStepBody({ product, catalog }: { product: Product; catalog: Rel
     <>
       <p className="text-[13.5px] leading-relaxed text-muted-foreground">
         {brand
-          ? "Cover title, color palette, typography, and layout. Switch any option to preview live."
-          : "Relay picks a cover title, palette, typography, and cover layout from your pocket and manuscript."}
+          ? "Custom cover title, AI-designed color palette, typography, and three cover options."
+          : "Relay designs a custom color palette, font pairing, cover title, and three cover options for your product."}
       </p>
       {step.progress ? <ProgressLines lines={step.progress} /> : null}
       {product.qualityWarning && product.cur === 5 ? (
@@ -480,37 +497,28 @@ function BrandingStepBody({ product, catalog }: { product: Product; catalog: Rel
               <span className="text-xs font-semibold text-muted-foreground">
                 Palette &amp; typography
               </span>
-              <div className="grid grid-cols-3 gap-2 max-sm:grid-cols-1">
-                {catalog.palettes.map((pal, idx) => {
-                  const active = brand.palette === idx
-                  return (
-                    <button
-                      key={pal.name}
-                      type="button"
-                      disabled={!canEdit}
-                      onClick={() => selectPalette(idx)}
-                      className={cn(
-                        "rounded-xl border border-border bg-muted p-2.5 text-left transition-colors disabled:cursor-default",
-                        active && "border-primary bg-card",
-                        canEdit && "cursor-pointer hover:border-border-strong"
-                      )}
-                    >
-                      <div className="mb-1.5 flex gap-1">
-                        {pal.cols.slice(0, 4).map((col) => (
-                          <span
-                            key={col}
-                            className="size-3.5 rounded-full border border-black/15"
-                            style={{ backgroundColor: col }}
-                          />
-                        ))}
-                      </div>
-                      <b className="block text-xs text-foreground">{pal.name}</b>
-                      <small className="block text-[11px] text-dim">
-                        {pal.display} / {pal.body}
-                      </small>
-                    </button>
-                  )
-                })}
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted p-3">
+                <div className="min-w-0">
+                  <div className="mb-1.5 flex gap-1.5">
+                    {palette.cols.slice(0, 5).map((col, idx) => (
+                      <span
+                        key={`${col}-${idx}`}
+                        title={col}
+                        className="size-4 rounded-full border border-black/15"
+                        style={{ backgroundColor: col }}
+                      />
+                    ))}
+                  </div>
+                  <b className="block text-xs text-foreground">{palette.name}</b>
+                  <small className="block text-[11.5px] text-dim">
+                    {palette.display} / {palette.body}
+                  </small>
+                </div>
+                {canEdit ? (
+                  <small className="text-[11px] text-dim">
+                    Want a different palette? Use Suggest a change below.
+                  </small>
+                ) : null}
               </div>
             </div>
 
@@ -776,7 +784,7 @@ function StructureStepBody({ product }: { product: Product }) {
 function TypesStepBody({ product, catalog }: { product: Product; catalog: RelayCatalog }) {
   const step = product.steps[2]
   const structureStep = product.steps[3]
-  const chooseType = useChooseTypeMutation()
+  const patchType = usePatchProductTypeMutation()
   // Allow pick/re-pick on Product type review, or while Structure is still waiting (no sections yet)
   const canPick =
     product.stage === "build" &&
@@ -807,10 +815,9 @@ function TypesStepBody({ product, catalog }: { product: Product; catalog: RelayC
               suggestion={product.typePriceSuggestions?.[typeItem.id]}
               chosen={product.type === typeItem.id}
               canPick={canPick}
-              picking={chooseType.isPending}
               onPick={() => {
                 if (!canPick || product.type === typeItem.id) return
-                chooseType.mutate({ id: product.id, typeId: typeItem.id })
+                patchType.mutate({ id: product.id, typeId: typeItem.id })
               }}
             />
           ))}
@@ -825,16 +832,23 @@ interface TypeCardProps {
   suggestion?: TypePriceSuggestion
   chosen: boolean
   canPick: boolean
-  picking: boolean
   onPick: () => void
 }
 
-function TypeCard({ typeItem, suggestion, chosen, canPick, picking, onPick }: TypeCardProps) {
-  const displayPrice = suggestion?.price || typeItem.price
+function TypeCard({ typeItem, suggestion, chosen, canPick, onPick }: TypeCardProps) {
+  const hasSuggestion = Boolean(suggestion && suggestion.price)
+  const displayPrice = hasSuggestion ? suggestion!.price : "—"
+  const displayPages = hasSuggestion ? suggestion!.pages || "—" : "—"
+  const sourceCaption = hasSuggestion
+    ? suggestion!.source?.toLowerCase().includes("etsy")
+      ? "Based on live Etsy listings"
+      : "Estimated from live market data"
+    : "Awaiting market data"
+
   return (
     <button
       type="button"
-      disabled={!canPick || picking}
+      disabled={!canPick}
       onClick={onPick}
       className={cn(
         "flex flex-col justify-between rounded-xl border border-border-strong bg-muted p-4 text-left transition-colors disabled:cursor-default",
@@ -858,19 +872,20 @@ function TypeCard({ typeItem, suggestion, chosen, canPick, picking, onPick }: Ty
       </div>
       <div className="mt-3 border-t border-border pt-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-dim">
-          <span>{typeItem.pages}</span>
-          <b className="text-foreground" title={suggestion?.rationale ?? undefined}>
+          <span>{displayPages}</span>
+          <b
+            className={hasSuggestion ? "text-foreground" : "font-normal text-dim"}
+            title={suggestion?.rationale ?? undefined}
+          >
             {displayPrice}
           </b>
         </div>
-        {suggestion ? (
-          <small
-            className="mt-1 block text-right text-[11px] text-dim"
-            title={suggestion.rationale ?? undefined}
-          >
-            Based on live Etsy listings
-          </small>
-        ) : null}
+        <small
+          className="mt-1 block text-right text-[11px] text-dim"
+          title={suggestion?.rationale ?? undefined}
+        >
+          {sourceCaption}
+        </small>
       </div>
     </button>
   )
@@ -878,15 +893,27 @@ function TypeCard({ typeItem, suggestion, chosen, canPick, picking, onPick }: Ty
 
 function PocketsStepBody({ product }: { product: Product }) {
   const step = product.steps[1]
-  const choosePocket = useChoosePocketMutation()
+  const typeStep = product.steps[2]
+  const patchPocket = usePatchProductPocketMutation()
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
-  const canPick = product.stage === "build" && product.cur === 1 && step.status === "review"
+  // Allow pick/re-pick on Pockets review, or while Product type is still waiting (no type/prices yet)
+  const canPick =
+    product.stage === "build" &&
+    ((product.cur === 1 && step.status === "review") ||
+      (product.cur === 2 &&
+        typeStep?.status === "todo" &&
+        !product.type &&
+        !product.typePriceSuggestions))
 
   return (
     <>
       <p className="text-[13.5px] leading-relaxed text-muted-foreground">
         {product.pockets.length
-          ? "Four pockets backed by live Etsy, Google, and Google Trends data. Pick one to build."
+          ? canPick
+            ? product.pocket
+              ? "Pocket selected — pick another card to switch, then press Looks good, continue."
+              : "Four pockets backed by live Etsy, Google, and Google Trends data. Pick one to build."
+            : "Four pockets backed by live Etsy, Google, and Google Trends data."
           : "Relay checks active Etsy listings, Google demand, and Google Trends to propose four profitable pockets."}
       </p>
       {step.progress ? <ProgressLines lines={step.progress} /> : null}
@@ -903,16 +930,15 @@ function PocketsStepBody({ product }: { product: Product }) {
                 key={key}
                 pocket={pocket}
                 chosen={isChosen}
+                hasAnyChosen={Boolean(product.pocket)}
                 canPick={canPick}
-                picking={choosePocket.isPending}
                 expanded={isOpen}
                 onToggleEvidence={() =>
                   setExpanded((prev) => ({ ...prev, [key]: !prev[key] }))
                 }
                 onPick={() => {
-                  if (!canPick || !pocket.id) return
-                  followThreadToEnd()
-                  choosePocket.mutate({ id: product.id, pocketId: pocket.id })
+                  if (!canPick || !pocket.id || isChosen) return
+                  patchPocket.mutate({ id: product.id, pocketId: pocket.id })
                 }}
               />
             )
@@ -926,8 +952,8 @@ function PocketsStepBody({ product }: { product: Product }) {
 interface PocketCardProps {
   pocket: Pocket
   chosen: boolean
+  hasAnyChosen: boolean
   canPick: boolean
-  picking: boolean
   expanded: boolean
   onToggleEvidence: () => void
   onPick: () => void
@@ -936,8 +962,8 @@ interface PocketCardProps {
 function PocketCard({
   pocket,
   chosen,
+  hasAnyChosen,
   canPick,
-  picking,
   expanded,
   onToggleEvidence,
   onPick,
@@ -998,14 +1024,13 @@ function PocketCard({
           Why these scores ({pocket.src.length})
         </button>
 
-        {canPick ? (
+        {canPick && !chosen ? (
           <button
             type="button"
-            className={protoBtn({ variant: pocket.rec ? "sun" : "soft" })}
-            disabled={picking}
+            className={protoBtn({ variant: pocket.rec && !hasAnyChosen ? "sun" : "soft" })}
             onClick={onPick}
           >
-            <Check className="size-3.5" /> Pick this pocket
+            <Check className="size-3.5" /> {hasAnyChosen ? "Switch to this pocket" : "Pick this pocket"}
           </button>
         ) : null}
       </div>

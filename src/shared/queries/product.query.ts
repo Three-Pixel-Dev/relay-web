@@ -7,24 +7,33 @@ import {
   addSection,
   approveProductStep,
   cancelProduct,
-  choosePocket,
-  chooseType,
   continueDespiteQuality,
   createProduct,
   deleteProduct,
+  generateListingDraft,
   getProduct,
   listProducts,
+  patchProductPocket,
+  patchProductType,
   proceedProduct,
   publishToWhop,
   regenerateSection,
   removeProductSource,
   removeSection,
+  renameProduct,
   resumeProduct,
   suggestProductChange,
   updateBrand,
 } from "@/shared/services/product.service"
 import type { PublishToWhopInput } from "@/shared/services/product.service"
-import type { CreateProductInput, Product, SourceItem } from "@/shared/types/relay"
+import { useUiStore } from "@/shared/stores/ui.store"
+import type {
+  CreateProductInput,
+  Product,
+  ProductSelectionResponse,
+  SourceItem,
+  StepStatus,
+} from "@/shared/types/relay"
 
 export const productKeys = {
   all: ["products"] as const,
@@ -134,6 +143,12 @@ export function useDeleteProductMutation() {
   })
 }
 
+export function useRenameProductMutation() {
+  return useProductMutation(({ id, name }: { id: string; name: string }) =>
+    renameProduct(id, name)
+  )
+}
+
 export function useProceedProductMutation() {
   return useProductMutation((id: string) => proceedProduct(id))
 }
@@ -146,16 +161,133 @@ export function useApproveProductMutation() {
   return useProductMutation((id: string) => approveProductStep(id))
 }
 
+const selectionSeqByKey = new Map<string, number>()
+
+function nextSelectionSeq(key: string): number {
+  const next = (selectionSeqByKey.get(key) ?? 0) + 1
+  selectionSeqByKey.set(key, next)
+  return next
+}
+
+function isLatestSelectionSeq(key: string, seq: number): boolean {
+  return selectionSeqByKey.get(key) === seq
+}
+
+function applyStepsForSelection(product: Product, cur: number, stepStatus: StepStatus) {
+  return product.steps.map((step, idx) => {
+    if (idx < cur) {
+      return { ...step, status: "done" as StepStatus, progress: null }
+    }
+    if (idx === cur) {
+      return { ...step, status: stepStatus, progress: null }
+    }
+    return { ...step, status: "todo" as StepStatus, progress: null }
+  })
+}
+
+function mergeSelectionIntoProduct(prev: Product, sel: ProductSelectionResponse): Product {
+  const matchedPocket =
+    sel.pocketId != null
+      ? prev.pockets.find((p) => p.id === sel.pocketId) ?? prev.pocket
+      : null
+  return {
+    ...prev,
+    pocket: matchedPocket,
+    type: sel.type ? sel.type.toLowerCase() : null,
+    cur: sel.cur,
+    steps: applyStepsForSelection(prev, sel.cur, sel.stepStatus),
+  }
+}
+
+export function usePatchProductPocketMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, pocketId }: { id: string; pocketId: string }) =>
+      patchProductPocket(id, pocketId),
+    onMutate: async (vars) => {
+      const seqKey = `pocket:${vars.id}`
+      const seq = nextSelectionSeq(seqKey)
+      await queryClient.cancelQueries({ queryKey: productKeys.detail(vars.id) })
+      const previous = queryClient.getQueryData<Product>(productKeys.detail(vars.id))
+      if (previous) {
+        const nextPocket = previous.pockets.find((p) => p.id === vars.pocketId) ?? previous.pocket
+        queryClient.setQueryData<Product>(productKeys.detail(vars.id), {
+          ...previous,
+          pocket: nextPocket,
+          typePriceSuggestions: undefined,
+          cur: 1,
+          steps: applyStepsForSelection(previous, 1, "review"),
+        })
+      }
+      return { previous, seq, seqKey }
+    },
+    onError: (error, vars, context) => {
+      if (context?.previous && isLatestSelectionSeq(context.seqKey, context.seq)) {
+        queryClient.setQueryData(productKeys.detail(vars.id), context.previous)
+      }
+      const message = error instanceof Error && error.message ? error.message : "Could not save pocket selection."
+      useUiStore.getState().showToast(message)
+    },
+    onSuccess: (sel, vars, context) => {
+      if (context && !isLatestSelectionSeq(context.seqKey, context.seq)) {
+        return
+      }
+      queryClient.setQueryData<Product>(productKeys.detail(vars.id), (prev) =>
+        prev
+          ? {
+              ...mergeSelectionIntoProduct(prev, sel),
+              typePriceSuggestions: undefined,
+            }
+          : prev
+      )
+    },
+  })
+}
+
+export function usePatchProductTypeMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, typeId }: { id: string; typeId: string }) =>
+      patchProductType(id, typeId),
+    onMutate: async (vars) => {
+      const seqKey = `type:${vars.id}`
+      const seq = nextSelectionSeq(seqKey)
+      await queryClient.cancelQueries({ queryKey: productKeys.detail(vars.id) })
+      const previous = queryClient.getQueryData<Product>(productKeys.detail(vars.id))
+      if (previous) {
+        queryClient.setQueryData<Product>(productKeys.detail(vars.id), {
+          ...previous,
+          type: vars.typeId,
+          cur: 2,
+          steps: applyStepsForSelection(previous, 2, "review"),
+        })
+      }
+      return { previous, seq, seqKey }
+    },
+    onError: (error, vars, context) => {
+      if (context?.previous && isLatestSelectionSeq(context.seqKey, context.seq)) {
+        queryClient.setQueryData(productKeys.detail(vars.id), context.previous)
+      }
+      const message = error instanceof Error && error.message ? error.message : "Could not save product type."
+      useUiStore.getState().showToast(message)
+    },
+    onSuccess: (sel, vars, context) => {
+      if (context && !isLatestSelectionSeq(context.seqKey, context.seq)) {
+        return
+      }
+      queryClient.setQueryData<Product>(productKeys.detail(vars.id), (prev) =>
+        prev ? mergeSelectionIntoProduct(prev, sel) : prev
+      )
+    },
+  })
+}
+
 export function useChoosePocketMutation() {
-  return useProductMutation(({ id, pocketId }: { id: string; pocketId: string }) =>
-    choosePocket(id, pocketId)
-  )
+  return usePatchProductPocketMutation()
 }
 
 export function useChooseTypeMutation() {
-  return useProductMutation(({ id, typeId }: { id: string; typeId: string }) =>
-    chooseType(id, typeId)
-  )
+  return usePatchProductTypeMutation()
 }
 
 export function useAddSectionMutation() {
@@ -182,14 +314,12 @@ export function useUpdateBrandMutation() {
     mutationFn: ({
       id,
       title,
-      palette,
       cover,
     }: {
       id: string
       title?: string
-      palette?: number
       cover?: number
-    }) => updateBrand(id, { title, palette, cover }),
+    }) => updateBrand(id, { title, cover }),
     onMutate: async (vars) => {
       await queryClient.cancelQueries({ queryKey: productKeys.detail(vars.id) })
       const previous = queryClient.getQueryData<Product>(productKeys.detail(vars.id))
@@ -199,7 +329,6 @@ export function useUpdateBrandMutation() {
           brand: {
             ...previous.brand,
             title: vars.title ?? previous.brand.title,
-            palette: vars.palette ?? previous.brand.palette,
             cover: vars.cover ?? previous.brand.cover,
           },
         })
@@ -222,6 +351,12 @@ export function useSuggestProductMutation() {
   return useProductMutation(({ id, text }: { id: string; text: string }) =>
     suggestProductChange(id, text)
   )
+}
+
+export function useListingDraftMutation() {
+  return useMutation({
+    mutationFn: (id: string) => generateListingDraft(id),
+  })
 }
 
 export function useWhopPublishMutation() {

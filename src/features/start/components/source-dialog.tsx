@@ -2,7 +2,7 @@ import { ShieldIcon } from "lucide-react"
 
 import { SourceChips } from "@/components/common/source-chips"
 import { fieldClass, labelClass, noteClass, protoBtn } from "@/lib/proto"
-import { SOURCE_FILE_ACCEPT, linkKind, linkName, uid } from "@/util/source"
+import { SOURCE_FILE_ACCEPT, isValidSourceLink, linkKind, linkName, uid } from "@/util/source"
 import { useUiStore } from "@/shared/stores/ui.store"
 
 import type { SourceItem } from "@/shared/types/relay"
@@ -87,6 +87,10 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
                 const input = document.getElementById("src-link") as HTMLInputElement | null
                 const value = input?.value.trim()
                 if (!value) return
+                if (!isValidSourceLink(value)) {
+                  useUiStore.getState().showToast("We couldn't read this link")
+                  return
+                }
                 add([{ id: uid(), kind: linkKind(value), name: linkName(value), url: value }])
               }}
             >

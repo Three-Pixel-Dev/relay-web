@@ -33,7 +33,6 @@ export function productName(
   return (
     product.name?.trim() ||
     product.brand?.title?.trim() ||
-    product.input?.trim() ||
     product.profile?.niche?.trim() ||
     product.pocket?.niche?.trim() ||
     "Untitled product"

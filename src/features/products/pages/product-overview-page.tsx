@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Download, ExternalLink } from "lucide-react"
+import { Download, ExternalLink, Pencil } from "lucide-react"
 import { Link, Navigate, useParams } from "react-router"
 
 import { ChipDot } from "@/components/common/spin"
@@ -8,11 +8,18 @@ import { ServiceLabel } from "@/components/common/service-mark"
 import { SourceChips } from "@/components/common/source-chips"
 import { StageBar } from "@/components/common/stage-bar"
 import { ROUTES } from "@/constants/routes"
-import { cardClass, protoBtn, protoChip } from "@/lib/proto"
+import { resolveBrandPalette } from "@/lib/brand-palette"
+import { cardClass, fieldClass, protoBtn, protoChip } from "@/lib/proto"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
-import { useProductEvents, useProductQuery } from "@/shared/queries/product.query"
+import {
+  useProductEvents,
+  useProductQuery,
+  useRenameProductMutation,
+} from "@/shared/queries/product.query"
 import { downloadProductFile } from "@/shared/services/product.service"
+import { useUiStore } from "@/shared/stores/ui.store"
 import type { ProductFile } from "@/shared/types/relay"
+import { apiError } from "@/util/api-error"
 import { formatDate, money, pagesCount, pluralize, productName } from "@/util/format"
 
 const FILE_TYPE_LABELS: Record<string, string> = {
@@ -28,7 +35,11 @@ export function ProductOverviewPage() {
   const { id = "" } = useParams()
   const { data: product, isLoading } = useProductQuery(id)
   const { data: catalog } = useCatalogQuery()
+  const renameProduct = useRenameProductMutation()
+  const showToast = useUiStore((state) => state.showToast)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState(false)
+  const [nameDraft, setNameDraft] = useState("")
   const isRunning = Boolean(
     product && product.stage === "build" && product.steps[product.cur]?.status === "running"
   )
@@ -37,7 +48,7 @@ export function ProductOverviewPage() {
   if (isLoading || !catalog) return null
   if (!product) return <Navigate to={ROUTES.products} replace />
 
-  const palette = product.brand ? catalog.palettes[product.brand.palette] : null
+  const palette = product.brand ? resolveBrandPalette(product.brand, catalog.palettes) : null
   const whop = product.publish.live.whop
   const m = product.metrics
   const files = product.files ?? []
@@ -57,7 +68,60 @@ export function ProductOverviewPage() {
       <div className="mb-[18px] flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[13px] text-muted-foreground">{product.pocket?.niche || product.profile?.niche}</p>
-          <h1 className="text-[30px]">{productName(product)}</h1>
+          {editingName ? (
+            <form
+              className="mt-1 flex flex-wrap items-center gap-2"
+              onSubmit={(e) => {
+                e.preventDefault()
+                const trimmed = nameDraft.trim()
+                if (!trimmed) return
+                renameProduct.mutate(
+                  { id: product.id, name: trimmed },
+                  {
+                    onSuccess: () => {
+                      setEditingName(false)
+                      showToast("Product renamed.")
+                    },
+                    onError: (err) => showToast(apiError(err).message),
+                  }
+                )
+              }}
+            >
+              <input
+                type="text"
+                className={fieldClass}
+                value={nameDraft}
+                autoFocus
+                maxLength={200}
+                onChange={(e) => setNameDraft(e.target.value)}
+              />
+              <button type="submit" className={protoBtn({ variant: "soft" })} disabled={renameProduct.isPending}>
+                Save
+              </button>
+              <button
+                type="button"
+                className={protoBtn({ variant: "ghost" })}
+                onClick={() => setEditingName(false)}
+              >
+                Cancel
+              </button>
+            </form>
+          ) : (
+            <div className="flex items-center gap-2">
+              <h1 className="text-[30px]">{productName(product)}</h1>
+              <button
+                type="button"
+                className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                title="Rename product"
+                onClick={() => {
+                  setNameDraft(productName(product))
+                  setEditingName(true)
+                }}
+              >
+                <Pencil className="size-4" />
+              </button>
+            </div>
+          )}
         </div>
         <Link to={ROUTES.build(product.id)} className={protoBtn()}>
           Open build

@@ -2,6 +2,7 @@ import { XIcon } from "lucide-react"
 import { Link, useNavigate } from "react-router"
 
 import { CoverArt, PosterLite } from "@/components/common/cover-art"
+import { resolveBrandPalette } from "@/lib/brand-palette"
 import { ROUTES } from "@/constants/routes"
 import { protoBtn } from "@/lib/proto"
 import { cn } from "@/lib/utils"
@@ -45,7 +46,7 @@ export function ProductsPage() {
         <div className="grid gap-3.5">
           {products.map((product) => {
             const title = productName(product)
-            const palette = catalog?.palettes[product.brand?.palette ?? 0]
+            const palette = product.brand ? resolveBrandPalette(product.brand, catalog?.palettes) : null
             const href =
               product.stage === "build" || product.stage === "paused"
                 ? ROUTES.build(product.id)

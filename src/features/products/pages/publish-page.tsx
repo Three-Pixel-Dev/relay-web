@@ -1,17 +1,23 @@
-import { useState } from "react"
-import { ExternalLink } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { ExternalLink, RefreshCw } from "lucide-react"
 import { Link, Navigate, useParams } from "react-router"
 
+import { CoverArt, PosterLite } from "@/components/common/cover-art"
 import { Spin } from "@/components/common/spin"
 import { StageBar } from "@/components/common/stage-bar"
 import { ROUTES } from "@/constants/routes"
-import { cardClass, fieldClass, labelClass, noteClass, protoBtn } from "@/lib/proto"
+import { resolveBrandPalette } from "@/lib/brand-palette"
+import { cardClass, fieldClass, labelClass, noteClass, protoBtn, protoChip } from "@/lib/proto"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
-import { useProductQuery, useWhopPublishMutation } from "@/shared/queries/product.query"
+import {
+  useListingDraftMutation,
+  useProductQuery,
+  useWhopPublishMutation,
+} from "@/shared/queries/product.query"
 import { useWorkspaceQuery } from "@/shared/queries/workspace.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import { apiError } from "@/util/api-error"
-import { productName } from "@/util/format"
+import { money, productName } from "@/util/format"
 
 export function PublishPage() {
   const { id = "" } = useParams()
@@ -19,24 +25,70 @@ export function PublishPage() {
   const { data: catalog } = useCatalogQuery()
   const { data: workspace } = useWorkspaceQuery()
   const publish = useWhopPublishMutation()
+  const draft = useListingDraftMutation()
   const showToast = useUiStore((state) => state.showToast)
+
   const [price, setPrice] = useState("")
   const [title, setTitle] = useState("")
   const [headline, setHeadline] = useState("")
-  const [affiliate, setAffiliate] = useState("")
+  const [affiliate, setAffiliate] = useState("30")
+  const seededRef = useRef<string | null>(null)
+  const editedRef = useRef(false)
+
+  const checkoutUrl = product?.publish.live.whop
+
+  useEffect(() => {
+    if (!product || !id || checkoutUrl) return
+    if (seededRef.current === product.id) return
+    seededRef.current = product.id
+
+    draft.mutate(id, {
+      onSuccess: (res) => {
+        if (editedRef.current) return
+        if (res.price != null && Number.isFinite(res.price)) {
+          setPrice(String(res.price))
+        }
+        if (res.title) setTitle(res.title)
+        if (res.headline) setHeadline(res.headline)
+      },
+    })
+  }, [product?.id, id, checkoutUrl])
 
   if (isLoading || !catalog) return null
   if (!product) return <Navigate to={ROUTES.products} replace />
 
-  const checkoutUrl = product.publish.live.whop
   const isConnected = Boolean(workspace?.services.whop)
   const hasFiles = (product.files ?? []).length > 0
-  const typeHint = catalog.types.find((type) => type.id === product.type)?.price
+  const typeSuggestionPrice = product.type
+    ? product.typePriceSuggestions?.[product.type]?.price
+    : undefined
+  const whopFeeText = catalog.services.find((s) => s.id === "whop")?.price
+  const palette = product.brand ? resolveBrandPalette(product.brand, catalog.palettes) : null
+
   const parsedPrice = Number(price)
-  const canPublish = isConnected && hasFiles && Number.isFinite(parsedPrice) && parsedPrice >= 1
+  const parsedAffiliate = affiliate.trim() === "" ? 30 : Number(affiliate)
+  const canPublish =
+    isConnected && hasFiles && Number.isFinite(parsedPrice) && parsedPrice >= 1 && !draft.isPending
+
+  function handleRewrite() {
+    if (draft.isPending) return
+    editedRef.current = false
+    draft.mutate(id, {
+      onSuccess: (res) => {
+        if (res.price != null && Number.isFinite(res.price)) {
+          setPrice(String(res.price))
+        }
+        if (res.title) setTitle(res.title)
+        if (res.headline) setHeadline(res.headline)
+        showToast("Listing copy refreshed.")
+      },
+      onError: (error) => showToast(apiError(error).message),
+    })
+  }
 
   function handlePublish() {
-    const affiliatePercent = affiliate.trim() === "" ? undefined : Number(affiliate)
+    const affiliatePercent =
+      affiliate.trim() === "" ? 30 : Number.isFinite(Number(affiliate)) ? Number(affiliate) : 30
     publish.mutate(
       {
         id,
@@ -51,6 +103,46 @@ export function PublishPage() {
       }
     )
   }
+
+  const previewTitle = title.trim() || product.brand?.title || productName(product)
+  const previewHeadline =
+    headline.trim() || product.pocket?.h || "Instant-download digital product delivered after payment."
+  const coverImageUrl = product.brand?.coverImageUrls?.[product.brand.cover] ?? null
+
+  const previewCard = (
+    <div className={cardClass}>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="text-sm">Listing preview</h3>
+        {Number.isFinite(parsedPrice) && parsedPrice >= 1 ? (
+          <span className={protoChip({ variant: "mint" })}>{money(parsedPrice)}</span>
+        ) : (
+          <span className={protoChip()}>—</span>
+        )}
+      </div>
+      <div className="aspect-3/4 w-full overflow-hidden rounded-xl border border-border-strong bg-muted shadow-xs">
+        {product.brand && palette ? (
+          <CoverArt
+            palette={palette}
+            variant={product.brand.cover}
+            title={previewTitle}
+            imageUrl={coverImageUrl}
+          />
+        ) : (
+          <PosterLite />
+        )}
+      </div>
+      <div className="mt-3">
+        <b className="block text-sm leading-snug text-foreground">{previewTitle}</b>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{previewHeadline}</p>
+        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+          <span className={protoChip({ variant: "outline" })}>Whop checkout</span>
+          {Number.isFinite(parsedAffiliate) && parsedAffiliate > 0 ? (
+            <span className={protoChip({ variant: "sun" })}>{parsedAffiliate}% affiliate</span>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  )
 
   const liveCard = checkoutUrl ? (
     <div className={cardClass}>
@@ -93,7 +185,18 @@ export function PublishPage() {
 
   const form = (
     <div className={cardClass}>
-      <h3>Sell on Whop</h3>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3>Sell on Whop</h3>
+        <button
+          type="button"
+          className={protoBtn({ variant: "soft" })}
+          disabled={draft.isPending}
+          onClick={handleRewrite}
+        >
+          {draft.isPending ? <Spin /> : <RefreshCw className="size-3.5" />}
+          {draft.isPending ? "Drafting…" : "Rewrite listing"}
+        </button>
+      </div>
       <p className="mt-2.5 mb-4 text-[13px] text-muted-foreground">
         Relay creates the Whop product and a one-time checkout link. After payment, buyers land on a
         Relay page where they download the files.
@@ -111,9 +214,13 @@ export function PublishPage() {
             min={1}
             step="0.01"
             inputMode="decimal"
-            placeholder={typeHint ? `Typical ${typeHint}` : "19"}
+            disabled={draft.isPending}
+            placeholder={typeSuggestionPrice ? `Suggested ${typeSuggestionPrice}` : "19"}
             value={price}
-            onChange={(event) => setPrice(event.target.value)}
+            onChange={(event) => {
+              editedRef.current = true
+              setPrice(event.target.value)
+            }}
           />
         </div>
         <div>
@@ -124,9 +231,13 @@ export function PublishPage() {
             id="publish-title"
             className={fieldClass}
             maxLength={80}
+            disabled={draft.isPending}
             placeholder={productName(product)}
             value={title}
-            onChange={(event) => setTitle(event.target.value)}
+            onChange={(event) => {
+              editedRef.current = true
+              setTitle(event.target.value)
+            }}
           />
         </div>
         <div>
@@ -137,13 +248,17 @@ export function PublishPage() {
             id="publish-headline"
             className={fieldClass}
             maxLength={80}
+            disabled={draft.isPending}
             value={headline}
-            onChange={(event) => setHeadline(event.target.value)}
+            onChange={(event) => {
+              editedRef.current = true
+              setHeadline(event.target.value)
+            }}
           />
         </div>
         <div>
           <label className={labelClass} htmlFor="publish-affiliate">
-            Affiliate commission % (optional)
+            Affiliate commission % (optional — 0 to disable)
           </label>
           <input
             id="publish-affiliate"
@@ -152,13 +267,18 @@ export function PublishPage() {
             min={0}
             max={100}
             inputMode="numeric"
-            placeholder="0"
+            placeholder="30"
             value={affiliate}
             onChange={(event) => setAffiliate(event.target.value)}
           />
         </div>
       </div>
-      <div className="mt-5 flex justify-end">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        {whopFeeText ? (
+          <small className="text-xs text-muted-foreground">{whopFeeText}.</small>
+        ) : (
+          <span />
+        )}
         <button
           type="button"
           className={protoBtn()}
@@ -178,7 +298,10 @@ export function PublishPage() {
         <h1 className="text-[30px]">Publish</h1>
         <p className="text-[13px] text-muted-foreground">{productName(product)}</p>
       </div>
-      <div className="max-w-[640px]">{liveCard ?? form}</div>
+      <div className="grid max-w-[960px] grid-cols-[minmax(0,1fr)_280px] items-start gap-6 max-lg:grid-cols-1">
+        <div>{liveCard ?? form}</div>
+        {previewCard}
+      </div>
     </>
   )
 }

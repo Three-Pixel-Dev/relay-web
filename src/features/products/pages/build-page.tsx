@@ -1,4 +1,5 @@
-import { Check } from "lucide-react"
+import { useState } from "react"
+import { Check, Pencil } from "lucide-react"
 import { Navigate, useParams } from "react-router"
 
 import type { ReactNode } from "react"
@@ -12,21 +13,28 @@ import { StepCard } from "@/features/products/components/step-card"
 import { ThreadMessage } from "@/features/products/components/thread-message"
 import { followThreadToEnd, ThreadPane } from "@/features/products/components/thread-pane"
 import { openSourceDialog } from "@/features/start/components/source-dialog"
-import { cardClass, kvClass, protoChip, linkClass } from "@/lib/proto"
+import { cardClass, fieldClass, kvClass, linkClass, protoBtn, protoChip } from "@/lib/proto"
 import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import {
   useAddSourcesMutation,
   useProductEvents,
   useProductQuery,
+  useRenameProductMutation,
 } from "@/shared/queries/product.query"
-import { money, pluralize } from "@/util/format"
+import { useUiStore } from "@/shared/stores/ui.store"
+import { apiError } from "@/util/api-error"
+import { money, pluralize, productName } from "@/util/format"
 
 export function BuildPage() {
   const { id = "" } = useParams()
   const { data: product, isLoading } = useProductQuery(id)
   const { data: catalog } = useCatalogQuery()
   const addSources = useAddSourcesMutation()
+  const renameProduct = useRenameProductMutation()
+  const showToast = useUiStore((state) => state.showToast)
+  const [editingName, setEditingName] = useState(false)
+  const [nameDraft, setNameDraft] = useState("")
   const isRunning = Boolean(
     product && product.stage === "build" && product.steps[product.cur]?.status === "running"
   )
@@ -82,6 +90,59 @@ export function BuildPage() {
           scrollKey={`${product.sources.length}-${product.updated}`}
         >
           <div className={cn(cardClass, "mb-3.5")}>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              {editingName ? (
+                <form
+                  className="flex flex-1 items-center gap-1.5"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    const trimmed = nameDraft.trim()
+                    if (!trimmed) return
+                    renameProduct.mutate(
+                      { id: product.id, name: trimmed },
+                      {
+                        onSuccess: () => {
+                          setEditingName(false)
+                          showToast("Product renamed.")
+                        },
+                        onError: (err) => showToast(apiError(err).message),
+                      }
+                    )
+                  }}
+                >
+                  <input
+                    type="text"
+                    className={cn(fieldClass, "flex-1 py-1 text-xs")}
+                    value={nameDraft}
+                    autoFocus
+                    maxLength={200}
+                    onChange={(e) => setNameDraft(e.target.value)}
+                  />
+                  <button
+                    type="submit"
+                    className={cn(protoBtn({ variant: "soft" }), "px-2 py-1 text-xs")}
+                    disabled={renameProduct.isPending}
+                  >
+                    Save
+                  </button>
+                </form>
+              ) : (
+                <>
+                  <b className="truncate text-sm">{productName(product)}</b>
+                  <button
+                    type="button"
+                    className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    title="Rename product"
+                    onClick={() => {
+                      setNameDraft(productName(product))
+                      setEditingName(true)
+                    }}
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                </>
+              )}
+            </div>
             <h3>Plan</h3>
             <div className="mt-2.5 grid gap-1">
               {catalog.buildSteps.map((label, i) => {
@@ -148,8 +209,7 @@ export function BuildPage() {
               </p>
             ) : null}
             <p className="mt-2 text-xs text-dim">
-              Actuals from tokens × published catalog rates when available. Billed by your AI
-              providers.
+              Estimate to Ready is projected total (tokens × published catalog rates).
             </p>
           </div>
           <div className={cn(cardClass, "mb-3.5 min-w-0 overflow-hidden")}>

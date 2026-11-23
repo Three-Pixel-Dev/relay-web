@@ -20,6 +20,7 @@ import {
 import { useWorkspaceQuery } from "@/shared/queries/workspace.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import type { Product, RelayCatalog } from "@/shared/types/relay"
+import { apiError } from "@/util/api-error"
 import { money } from "@/util/format"
 
 interface BuildActionBarProps {
@@ -41,6 +42,7 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
   const suggest = useSuggestProductMutation()
   const openModal = useUiStore((state) => state.openModal)
   const closeModal = useUiStore((state) => state.closeModal)
+  const showToast = useUiStore((state) => state.showToast)
   const i = product.cur
   const step = product.steps[i]
   const connected = (id: string) => workspace?.services[id]?.status === "connected"
@@ -141,16 +143,16 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
   }
 
   if (step.status === "quality_gate") {
-    const warningText =
-      product.qualityWarning ||
-      step.qualityWarning ||
-      "This source is too thin to build a product from. Add more sources or tell us what you know."
+    const warningText = product.qualityWarning || step.qualityWarning || ""
+    const nonTeachable = warningText.startsWith("These sources cannot support")
     return (
       <div className={actionBarClass}>
-        <span className={hintClass}>{warningText}</span>
+        <span className={hintClass}>
+          {nonTeachable ? "Add teachable sources to continue." : "Add more sources or continue anyway."}
+        </span>
         <button
           type="button"
-          className={protoBtn({ variant: "soft" })}
+          className={protoBtn({ variant: nonTeachable ? "sun" : "soft" })}
           onClick={() =>
             openSourceDialog({
               sources: product.sources,
@@ -168,17 +170,21 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
         >
           <Paperclip className="size-3.5" /> Add sources
         </button>
-        <button
-          type="button"
-          className={protoBtn()}
-          disabled={continueQuality.isPending}
-          onClick={() => {
-            followThreadToEnd()
-            continueQuality.mutate(product.id)
-          }}
-        >
-          Continue anyway
-        </button>
+        {!nonTeachable ? (
+          <button
+            type="button"
+            className={protoBtn()}
+            disabled={continueQuality.isPending}
+            onClick={() => {
+              followThreadToEnd()
+              continueQuality.mutate(product.id, {
+                onError: (err) => showToast(apiError(err).message),
+              })
+            }}
+          >
+            Continue anyway
+          </button>
+        ) : null}
       </div>
     )
   }
@@ -209,16 +215,79 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
   }
 
   if (step.status === "review") {
+    if (i === 0 && product.profile) {
+      const notViable =
+        product.profile.viable === false ||
+        /no viable|not viable|cannot support a paid/i.test(product.profile.verdict || "")
+      if (notViable) {
+        return (
+          <div className={actionBarClass}>
+            <span className={hintClass}>
+              These sources cannot support a paid product yet. Add more sources to continue.
+            </span>
+            <button
+              type="button"
+              className={protoBtn()}
+              onClick={() =>
+                openSourceDialog({
+                  sources: product.sources,
+                  onChange: (sources) => {
+                    const added = sources.filter(
+                      (s) => !product.sources.some((p) => p.id === s.id)
+                    )
+                    if (added.length) {
+                      followThreadToEnd()
+                      addSources.mutate({ id: product.id, sources: added })
+                    }
+                  },
+                })
+              }
+            >
+              <Paperclip className="size-3.5" /> Add sources
+            </button>
+          </div>
+        )
+      }
+    }
     if (i === 1) {
+      const hasPocket = Boolean(product.pocket)
       return (
         <div className={actionBarClass}>
-          <span className={hintClass}>Pick a pocket above.</span>
-          <button type="button" className={protoBtn({ variant: "danger" })} onClick={askCancel}>
+          <span className={hintClass}>
+            {hasPocket
+              ? "Switch pockets above, or continue to Product type."
+              : "Pick a pocket above."}
+          </span>
+          <button
+            type="button"
+            className={protoBtn({ variant: "danger" })}
+            disabled={cancel.isPending}
+            onClick={askCancel}
+          >
             Cancel
           </button>
-          <button type="button" className={protoBtn({ variant: "ghost" })} onClick={askSuggest}>
+          <button
+            type="button"
+            className={protoBtn({ variant: "ghost" })}
+            disabled={suggest.isPending}
+            onClick={askSuggest}
+          >
             Suggest a change
           </button>
+          {hasPocket ? (
+            <button
+              type="button"
+              className={protoBtn({ variant: "mint" })}
+              disabled={approve.isPending}
+              onClick={() => {
+                if (approve.isPending) return
+                followThreadToEnd()
+                approve.mutate(product.id)
+              }}
+            >
+              <Check className="size-4" /> Looks good, continue
+            </button>
+          ) : null}
         </div>
       )
     }
@@ -339,7 +408,9 @@ export function BuildActionBar({ product, catalog }: BuildActionBarProps) {
           onClick={() => {
             if (proceed.isPending) return
             followThreadToEnd()
-            proceed.mutate(product.id)
+            proceed.mutate(product.id, {
+              onError: (err) => showToast(apiError(err).message),
+            })
           }}
         >
           <Bolt className="size-4" /> Proceed

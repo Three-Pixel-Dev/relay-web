@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 
 import { apiClient } from "@/app/api/client"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ensureGoogleFontLoaded } from "@/lib/brand-palette"
 import { cn } from "@/lib/utils"
 import type { Palette } from "@/shared/types/relay"
 
@@ -104,6 +105,10 @@ function CoverArtSvg({
   variant: number
   title: string
 }) {
+  useEffect(() => {
+    ensureGoogleFontLoaded(palette.display)
+  }, [palette.display])
+
   const [page, ink, acc, tint] = palette.cols
   const words = title.split(" ")
   const lines: string[] = []
