@@ -23,6 +23,7 @@ export function usePartnersOverviewQuery() {
   return useQuery({
     queryKey: partnersKeys.overview(),
     queryFn: getPartnersOverview,
+    refetchInterval: 30_000,
   })
 }
 
