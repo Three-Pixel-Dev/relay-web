@@ -48,7 +48,7 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
       </p>
       <div className="grid gap-3.5">
         <div>
-          <label className={labelClass}>Upload documents or audio</label>
+          <label className={labelClass}>Upload documents, audio, or video</label>
           <input
             className={fieldClass}
             type="file"
@@ -68,7 +68,8 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
             }}
           />
           <p className="mt-1.5 text-xs text-dim">
-            PDF, Word, text, transcripts, or audio/video. Audio is transcribed when you proceed.
+            PDF, Word, text, transcripts, audio, or video. Speech is transcribed when you proceed.
+            Video also uses unique on-screen scenes.
           </p>
         </div>
         <div>
