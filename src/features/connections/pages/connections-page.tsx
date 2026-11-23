@@ -1,4 +1,7 @@
+import { useEffect } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { ShieldIcon } from "lucide-react"
+import { useSearchParams } from "react-router"
 
 import { ChipDot } from "@/components/common/spin"
 import { PlansPicker } from "@/components/common/plans-picker"
@@ -8,9 +11,11 @@ import { openConnectModal } from "@/features/connections/components/connect-moda
 import { cardClass, noteClass, protoBtn, protoChip } from "@/lib/proto"
 import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
+import { partnersKeys } from "@/shared/queries/partners.query"
 import {
   useDisconnectServiceMutation,
   useWorkspaceQuery,
+  workspaceKeys,
 } from "@/shared/queries/workspace.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import type { ServiceCatalogItem } from "@/shared/types/relay"
@@ -22,6 +27,21 @@ export function ConnectionsPage() {
   const { data: workspace } = useWorkspaceQuery()
   const disconnect = useDisconnectServiceMutation()
   const showToast = useUiStore((state) => state.showToast)
+  const queryClient = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const gmailResult = searchParams.get("gmail")
+
+  useEffect(() => {
+    if (!gmailResult) return
+    if (gmailResult === "connected") {
+      showToast("Gmail connected. Outreach now sends from your own mailbox.")
+      void queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
+      void queryClient.invalidateQueries({ queryKey: partnersKeys.all })
+    } else {
+      showToast("Gmail connection was cancelled or failed. Try again.")
+    }
+    setSearchParams({}, { replace: true })
+  }, [gmailResult, queryClient, setSearchParams, showToast])
 
   if (!catalog || !workspace) return null
 

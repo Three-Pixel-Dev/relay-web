@@ -386,9 +386,6 @@ export function PartnersPage() {
   function connectMailbox() {
     const gmail = catalog.services.find((s) => s.id === "gmail")
     if (gmail) openConnectModal(gmail)
-    if (!mailConfigured) {
-      showToast("Also set SPRING_MAIL_USERNAME and SPRING_MAIL_PASSWORD on the server.")
-    }
   }
 
   const todayCap = Math.min(queued.length, outreach.cap)
