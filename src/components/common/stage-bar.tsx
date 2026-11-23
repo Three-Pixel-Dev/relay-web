@@ -11,6 +11,7 @@ interface StageBarProps {
 export function StageBar({ product }: StageBarProps) {
   const { pathname } = useLocation()
   const built = product.stage !== "build" && product.stage !== "paused"
+  const isPublished = Object.keys(product.publish.live).length > 0
   const items = [
     {
       to: ROUTES.build(product.id),
@@ -22,9 +23,9 @@ export function StageBar({ product }: StageBarProps) {
     {
       to: ROUTES.publish(product.id),
       label: "Publish",
-      sub: "coming soon",
-      locked: true,
-      done: false,
+      sub: isPublished ? "live" : built ? "ready" : "after build",
+      locked: !built,
+      done: isPublished,
     },
     {
       to: ROUTES.distribute(product.id),
