@@ -110,7 +110,8 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
           <ShieldIcon className="size-4 shrink-0" />
           <span>
             Your sources are private to your account and never used to train anything. Instagram
-            needs the account owner’s approval; YouTube and web pages are read from the link.
+            is read from the public bio and post captions only (private accounts can’t be read);
+            YouTube and web pages are read from the link.
           </span>
         </p>
       </div>

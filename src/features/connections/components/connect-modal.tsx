@@ -2,6 +2,7 @@ import { useState } from "react"
 
 import { Spin } from "@/components/common/spin"
 import { fieldClass, kvClass, labelClass, protoBtn } from "@/lib/proto"
+import { startGmailConnect } from "@/shared/services/gmail.service"
 import { useConnectServiceMutation } from "@/shared/queries/workspace.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import type { ServiceCatalogItem } from "@/shared/types/relay"
@@ -47,6 +48,7 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
   const closeModal = useUiStore((state) => state.closeModal)
   const showToast = useUiStore((state) => state.showToast)
   const [keyValue, setKeyValue] = useState("")
+  const [redirecting, setRedirecting] = useState(false)
 
   const can =
     service.kind === "oauth"
@@ -60,6 +62,18 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
     service.id === "gmail"
       ? "Read the rest of your inbox, send anything you did not approve"
       : "Change payouts, delete your account"
+
+  function connectGmail() {
+    setRedirecting(true)
+    startGmailConnect()
+      .then((result) => {
+        window.location.assign(result.authorizationUrl)
+      })
+      .catch((error: unknown) => {
+        setRedirecting(false)
+        showToast(apiError(error).message)
+      })
+  }
 
   function finish(label: string, credential?: string) {
     connect.mutate(
@@ -101,10 +115,10 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
           <button
             type="button"
             className={protoBtn()}
-            disabled={connect.isPending}
-            onClick={() => finish("Connected")}
+            disabled={connect.isPending || redirecting}
+            onClick={() => (service.id === "gmail" ? connectGmail() : finish("Connected"))}
           >
-            {connect.isPending ? <Spin /> : null} Continue to {service.name}
+            {connect.isPending || redirecting ? <Spin /> : null} Continue to {service.name}
           </button>
         </div>
       </>

@@ -1,9 +1,7 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { env } from "@/app/config/env"
 import { Spin } from "@/components/common/spin"
-import { protoBtn } from "@/lib/proto"
-import { cn } from "@/lib/utils"
 import { useGoogleLoginMutation } from "@/shared/queries/auth.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import { apiError } from "@/util/api-error"
@@ -37,6 +35,10 @@ interface GoogleSignInButtonProps {
   onSuccess?: () => void
 }
 
+type GsiState = "loading" | "ready" | "failed"
+
+const GSI_SRC = "https://accounts.google.com/gsi/client"
+
 export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
@@ -44,22 +46,26 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
   const mutateRef = useRef(googleLogin.mutate)
   const onSuccessRef = useRef(onSuccess)
   const showToast = useUiStore((s) => s.showToast)
-
-  mutateRef.current = googleLogin.mutate
-  onSuccessRef.current = onSuccess
+  const [state, setState] = useState<GsiState>("loading")
 
   useEffect(() => {
-    if (!env.googleClientId || !hostRef.current) return
+    mutateRef.current = googleLogin.mutate
+    onSuccessRef.current = onSuccess
+  })
+
+  useEffect(() => {
+    if (!env.googleClientId) return
 
     let cancelled = false
 
     function mountButton() {
-      if (cancelled || !hostRef.current || !window.google?.accounts?.id) return
-      const measuredWidth = Math.min(
+      const host = hostRef.current
+      if (cancelled || !host || !window.google?.accounts?.id) return
+      const width = Math.min(
         400,
         Math.max(240, Math.round(containerRef.current?.clientWidth || 356))
       )
-      hostRef.current.innerHTML = ""
+      host.innerHTML = ""
       window.google.accounts.id.initialize({
         client_id: env.googleClientId,
         callback: (response) => {
@@ -74,34 +80,43 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
           })
         },
       })
-      window.google.accounts.id.renderButton(hostRef.current, {
+      window.google.accounts.id.renderButton(host, {
         theme: "filled_black",
         size: "large",
-        width: measuredWidth,
+        width,
         text: "continue_with",
         shape: "rectangular",
       })
+      setState("ready")
     }
 
-    const existing = document.querySelector<HTMLScriptElement>("script[data-google-gsi]")
-    if (existing) {
-      if (window.google?.accounts?.id) mountButton()
-      else existing.addEventListener("load", mountButton)
+    function fail() {
+      if (!cancelled) setState("failed")
+    }
+
+    if (window.google?.accounts?.id) {
+      mountButton()
       return () => {
         cancelled = true
       }
     }
 
-    const script = document.createElement("script")
-    script.src = "https://accounts.google.com/gsi/client"
-    script.async = true
-    script.defer = true
-    script.dataset.googleGsi = "true"
+    let script = document.querySelector<HTMLScriptElement>("script[data-google-gsi]")
+    if (!script) {
+      script = document.createElement("script")
+      script.src = GSI_SRC
+      script.async = true
+      script.defer = true
+      script.dataset.googleGsi = "true"
+      document.head.appendChild(script)
+    }
     script.addEventListener("load", mountButton)
-    document.head.appendChild(script)
+    script.addEventListener("error", fail)
 
     return () => {
       cancelled = true
+      script.removeEventListener("load", mountButton)
+      script.removeEventListener("error", fail)
     }
   }, [showToast])
 
@@ -114,45 +129,23 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
   }
 
   return (
-    <div ref={containerRef} className="group relative w-full">
-      <div
-        aria-hidden="true"
-        className={cn(
-          protoBtn({ variant: "ghost" }),
-          "pointer-events-none w-full border-border-strong bg-muted text-foreground transition-colors group-hover:border-primary/50 group-hover:bg-secondary"
-        )}
-      >
-        {googleLogin.isPending ? <Spin /> : <GoogleMark />}
-        <span>Continue with Google</span>
-      </div>
-      <div
-        ref={hostRef}
-        style={{ colorScheme: "light" }}
-        className="absolute inset-0 flex cursor-pointer items-center justify-center overflow-hidden rounded-md opacity-[0.01] [&_iframe]:!h-full [&_iframe]:!w-full"
-      />
+    <div ref={containerRef} className="w-full">
+      <div ref={hostRef} className="flex min-h-10 w-full items-center justify-center" />
+      {state === "loading" ? (
+        <p className="flex items-center justify-center gap-2 text-[13px] text-muted-foreground">
+          <Spin /> Loading Google sign-in…
+        </p>
+      ) : null}
+      {state === "failed" ? (
+        <p className="text-center text-[13px] text-destructive">
+          Google sign-in could not load. Check your connection or ad blocker, then reload.
+        </p>
+      ) : null}
+      {googleLogin.isPending ? (
+        <p className="mt-2 flex items-center justify-center gap-2 text-[13px] text-muted-foreground">
+          <Spin /> Signing you in…
+        </p>
+      ) : null}
     </div>
-  )
-}
-
-function GoogleMark() {
-  return (
-    <svg className="size-[18px] shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        fill="#4285F4"
-        d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82Z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24Z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.62H1.29a11.99 11.99 0 0 0 0 10.76l3.98-3.09Z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96Z"
-      />
-    </svg>
   )
 }
