@@ -33,3 +33,23 @@ export const SOURCE_KINDS: Record<SourceKind, { label: string; short: string }> 
   instagram: { label: "Instagram", short: "IG" },
   web: { label: "Web page", short: "Web" },
 }
+
+export const SOURCE_FILE_ACCEPT =
+  ".pdf,.docx,.txt,.md,.csv,.srt,.mp3,.wav,.m4a,.aac,.ogg,.flac,.mp4,.mov,.webm,.avi,.mkv"
+
+const AUDIO_EXTENSIONS = [".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"]
+const VIDEO_EXTENSIONS = [".mp4", ".mov", ".webm", ".avi", ".mkv"]
+
+function fileExtension(name: string) {
+  const dot = name.lastIndexOf(".")
+  return dot >= 0 ? name.slice(dot).toLowerCase() : ""
+}
+
+export function sourceChipLabel(kind: SourceKind, name: string) {
+  if (kind === "file") {
+    const ext = fileExtension(name)
+    if (AUDIO_EXTENSIONS.includes(ext)) return "Audio"
+    if (VIDEO_EXTENSIONS.includes(ext)) return "Video"
+  }
+  return SOURCE_KINDS[kind].short
+}

@@ -2,8 +2,7 @@ import { ShieldIcon } from "lucide-react"
 
 import { SourceChips } from "@/components/common/source-chips"
 import { fieldClass, labelClass, noteClass, protoBtn } from "@/lib/proto"
-import { uid } from "@/util/source"
-import { linkKind, linkName } from "@/util/source"
+import { SOURCE_FILE_ACCEPT, linkKind, linkName, uid } from "@/util/source"
 import { useUiStore } from "@/shared/stores/ui.store"
 
 import type { SourceItem } from "@/shared/types/relay"
@@ -49,12 +48,12 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
       </p>
       <div className="grid gap-3.5">
         <div>
-          <label className={labelClass}>Upload documents</label>
+          <label className={labelClass}>Upload documents or audio</label>
           <input
             className={fieldClass}
             type="file"
             multiple
-            accept=".pdf,.docx,.txt,.md,.csv,.srt,.mp3,.mp4"
+            accept={SOURCE_FILE_ACCEPT}
             onChange={(event) => {
               const files = [...(event.target.files ?? [])]
               add(
@@ -69,7 +68,7 @@ function SourceDialogBody({ sources, late, onChange }: SourceDialogProps) {
             }}
           />
           <p className="mt-1.5 text-xs text-dim">
-            PDF, Word, text, transcripts, audio or video.
+            PDF, Word, text, transcripts, or audio/video. Audio is transcribed when you proceed.
           </p>
         </div>
         <div>

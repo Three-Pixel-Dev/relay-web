@@ -204,7 +204,7 @@ export function StartPage() {
       <StartOpt
         icon={<Paperclip className="size-[18px]" />}
         title="Add sources"
-        body="Upload documents, notes or transcripts, or paste a YouTube, Instagram or web link. Relay writes from them and cites them."
+        body="Upload documents, notes, transcripts, or audio, or paste a YouTube, Instagram or web link. Relay writes from them and cites them."
         onClick={() => openSourceDialog({ sources, onChange: setSources })}
       />
       <StartOpt

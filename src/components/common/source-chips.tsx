@@ -1,6 +1,6 @@
 import { XIcon } from "lucide-react"
 
-import { SOURCE_KINDS } from "@/util/source"
+import { sourceChipLabel } from "@/util/source"
 
 import type { SourceItem } from "@/shared/types/relay"
 
@@ -34,7 +34,7 @@ export function SourceChips({ sources, onRemove }: SourceChipsProps) {
             title={tooltip}
           >
             <b className="shrink-0 rounded-full bg-lilac/15 px-1.5 py-0.5 text-[10.5px] font-bold text-lilac">
-              {SOURCE_KINDS[source.kind].short}
+              {sourceChipLabel(source.kind, source.name)}
             </b>
             <span className="min-w-0 truncate">
               {source.name}
