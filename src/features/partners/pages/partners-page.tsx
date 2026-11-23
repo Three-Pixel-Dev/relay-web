@@ -42,6 +42,31 @@ const STATUS_META: Record<PartnerStatus, { label: string; variant: "sun" | "outl
   partnered: { label: "Partner", variant: "lilac" },
 }
 
+/** Turns a scout/partner source path (instagram.com/x or youtube.com/@x) into an absolute https URL. */
+function sourceHref(url?: string | null): string | null {
+  if (!url?.trim()) return null
+  const cleaned = url.trim().replace(/^https?:\/\//i, "")
+  if (!/^(www\.)?(instagram\.com|youtube\.com|youtu\.be)\//i.test(cleaned)) return null
+  return `https://${cleaned.replace(/^www\./i, "")}`
+}
+
+function SourceLink({ url, className }: { url?: string | null; className?: string }) {
+  const href = sourceHref(url)
+  if (!href) return null
+  const label = href.replace(/^https:\/\//i, "")
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={cn("text-[12px] text-primary underline-offset-2 hover:underline", className)}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {label}
+    </a>
+  )
+}
+
 export function PartnersPage() {
   const navigate = useNavigate()
   const { data: overview, isLoading } = usePartnersOverviewQuery()
@@ -260,6 +285,12 @@ export function PartnersPage() {
           <p className="mb-3 text-[13px] text-muted-foreground">
             {partner.handle || ""}{" "}
             {partner.followers ? `· ${partner.followers} followers` : ""} · {partner.email}
+            {sourceHref(partner.url) ? (
+              <>
+                <br />
+                <SourceLink url={partner.url} />
+              </>
+            ) : null}
           </p>
           <div className="rounded-md border border-border bg-muted p-3.5">
             <small className="text-muted-foreground">You</small>
@@ -460,6 +491,7 @@ export function PartnersPage() {
                       {c.handle} · {c.plat === "youtube" ? "YouTube" : "Instagram"} · {c.followers}
                     </span>
                     <small className="mt-0.5 block text-muted-foreground">{c.niche}</small>
+                    <SourceLink url={c.url} className="mt-0.5 block" />
                   </div>
                   <div className="min-w-[140px]">
                     <span className={protoChip({ variant: "mint" })}>
@@ -496,7 +528,7 @@ export function PartnersPage() {
           </>
         ) : scoutMutation.isPending ? (
           <div className="mt-3.5 flex items-center gap-2 text-[13px] text-muted-foreground">
-            <Spin /> Reading bios, About pages and links for email-list mentions
+            <Spin /> Reading Instagram profiles, YouTube About pages and links for emails
           </div>
         ) : scoutDone ? (
           <p className="mt-3.5 text-[13px] text-muted-foreground">
@@ -642,6 +674,7 @@ export function PartnersPage() {
                     <small className="mt-0.5 block text-muted-foreground">
                       {c.niche || "From your own list"}
                     </small>
+                    <SourceLink url={c.url} className="mt-0.5 block" />
                   </div>
                   <div className="min-w-[160px] flex-1">
                     <span className={protoChip({ variant: meta.variant })}>
