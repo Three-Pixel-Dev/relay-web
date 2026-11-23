@@ -48,8 +48,10 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
   const showToast = useUiStore((s) => s.showToast)
   const [state, setState] = useState<GsiState>("loading")
 
-  mutateRef.current = googleLogin.mutate
-  onSuccessRef.current = onSuccess
+  useEffect(() => {
+    mutateRef.current = googleLogin.mutate
+    onSuccessRef.current = onSuccess
+  })
 
   useEffect(() => {
     if (!env.googleClientId) return
