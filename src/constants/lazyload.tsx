@@ -25,6 +25,11 @@ export const ProductOverviewPage = pageLoader(
   "ProductOverviewPage"
 )
 
+export const PublishPage = pageLoader(
+  () => import("@/features/products/pages/publish-page"),
+  "PublishPage"
+)
+
 export const BuildPage = pageLoader(
   () => import("@/features/products/pages/build-page"),
   "BuildPage"

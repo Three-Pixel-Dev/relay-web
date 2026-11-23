@@ -15,6 +15,7 @@ import {
   getProduct,
   listProducts,
   proceedProduct,
+  publishToWhop,
   regenerateSection,
   removeProductSource,
   removeSection,
@@ -22,6 +23,7 @@ import {
   suggestProductChange,
   updateBrand,
 } from "@/shared/services/product.service"
+import type { PublishToWhopInput } from "@/shared/services/product.service"
 import type { CreateProductInput, Product, SourceItem } from "@/shared/types/relay"
 
 export const productKeys = {
@@ -193,6 +195,12 @@ export function useUpdateBrandMutation() {
 export function useSuggestProductMutation() {
   return useProductMutation(({ id, text }: { id: string; text: string }) =>
     suggestProductChange(id, text)
+  )
+}
+
+export function useWhopPublishMutation() {
+  return useProductMutation(({ id, ...input }: { id: string } & PublishToWhopInput) =>
+    publishToWhop(id, input)
   )
 }
 

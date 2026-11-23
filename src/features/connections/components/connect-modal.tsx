@@ -5,6 +5,7 @@ import { fieldClass, kvClass, labelClass, protoBtn } from "@/lib/proto"
 import { useConnectServiceMutation } from "@/shared/queries/workspace.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import type { ServiceCatalogItem } from "@/shared/types/relay"
+import { apiError } from "@/util/api-error"
 
 interface ConnectModalBodyProps {
   service: ServiceCatalogItem
@@ -20,6 +21,22 @@ export function openConnectModal(service: ServiceCatalogItem) {
     title: service.kind === "oauth" ? `Connect ${service.name}` : `Add your ${service.name} key`,
     body: <ConnectModalBody service={service} />,
   })
+}
+
+function keyLabel(serviceId: string) {
+  if (serviceId === "llm") return "Gemini API key"
+  if (serviceId === "whop") return "Whop API key"
+  return "API key"
+}
+
+function keyHelp(serviceId: string) {
+  if (serviceId === "llm") {
+    return "Paste a Google Gemini API key (starts with AIza…) so Relay can embed your sources and generate summaries."
+  }
+  if (serviceId === "whop") {
+    return "Create an API key in your Whop dashboard under Developer, with permission to manage products, plans and webhooks, then paste it here. Relay checks it and sets up sale tracking for you. Whop takes its own fee per sale."
+  }
+  return "Paste your provider API key below."
 }
 
 function ConnectModalBody({ service }: ConnectModalBodyProps) {
@@ -45,6 +62,7 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
     connect.mutate(
       { id: service.id, label, credential },
       {
+        onError: (error) => showToast(apiError(error).message),
         onSuccess: () => {
           closeModal()
           showToast(`${service.name} connected.`)
@@ -93,20 +111,19 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
   return (
     <>
       <p className="mb-3.5 text-[13px] text-muted-foreground">
-        {service.does} Billed by your provider at {service.price.toLowerCase()}.{" "}
-        {service.id === "llm"
-          ? "Paste a Google Gemini API key (starts with AIza…) so Relay can embed your sources and generate summaries."
-          : "Paste your provider API key below."}
+        {service.does}{" "}
+        {service.id === "whop" ? "" : `Billed by your provider at ${service.price.toLowerCase()}.`}{" "}
+        {keyHelp(service.id)}
       </p>
       <div>
         <label className={labelClass} htmlFor="k1">
-          {service.id === "llm" ? "Gemini API key" : "API key"}
+          {keyLabel(service.id)}
         </label>
         <input
           id="k1"
           className={fieldClass}
           type="password"
-          placeholder={service.id === "llm" ? "AIza…" : "sk-…"}
+          placeholder={service.id === "llm" ? "AIza…" : service.id === "whop" ? "apik_…" : "sk-…"}
           value={keyValue}
           onChange={(event) => setKeyValue(event.target.value)}
         />

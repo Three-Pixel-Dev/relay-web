@@ -137,6 +137,18 @@ export async function resumeProduct(id: string) {
   return data
 }
 
+export interface PublishToWhopInput {
+  price: number
+  title?: string
+  headline?: string
+  affiliatePercent?: number
+}
+
+export async function publishToWhop(id: string, input: PublishToWhopInput) {
+  const { data } = await apiClient.post<Product>(`/whop/products/${id}/publish`, input)
+  return data
+}
+
 export async function downloadProductFile(
   productId: string,
   fileId: string,
