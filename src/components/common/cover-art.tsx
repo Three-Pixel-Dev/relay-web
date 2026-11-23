@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
 
 import { apiClient } from "@/app/api/client"
+import { Skeleton } from "@/components/ui/skeleton"
+import { cn } from "@/lib/utils"
 import type { Palette } from "@/shared/types/relay"
 
 interface CoverArtProps {
@@ -20,24 +22,30 @@ export function AuthGraphic({
   alt,
   className,
   fallback,
+  showSkeleton = false,
 }: {
   imageUrl?: string | null
   alt: string
   className?: string
   fallback?: ReactNode
+  showSkeleton?: boolean
 }) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null)
   const [failed, setFailed] = useState(false)
+  const [isLoading, setIsLoading] = useState(Boolean(imageUrl))
 
   useEffect(() => {
     if (!imageUrl) {
       setBlobUrl(null)
       setFailed(false)
+      setIsLoading(false)
       return
     }
     let active = true
     let createdUrl: string | null = null
+    setBlobUrl(null)
     setFailed(false)
+    setIsLoading(true)
 
     apiClient
       .get<Blob>(toApiRelativePath(imageUrl), { responseType: "blob" })
@@ -50,6 +58,9 @@ export function AuthGraphic({
       .catch(() => {
         if (active) setFailed(true)
       })
+      .finally(() => {
+        if (active) setIsLoading(false)
+      })
 
     return () => {
       active = false
@@ -57,6 +68,9 @@ export function AuthGraphic({
     }
   }, [imageUrl])
 
+  if (isLoading && showSkeleton) {
+    return <Skeleton className={cn("rounded-none", className)} />
+  }
   if (blobUrl && !failed) {
     return <img src={blobUrl} alt={alt} className={className} />
   }
@@ -73,6 +87,7 @@ export function CoverArt({ palette, variant, title, imageUrl }: CoverArtProps) {
         alt={title}
         className="block aspect-3/4 w-full object-cover"
         fallback={svgFallback}
+        showSkeleton
       />
     )
   }
@@ -136,7 +151,7 @@ function CoverArtSvg({
           key={`${line}-${index}`}
           x={x}
           y={70 + index * 26}
-          fontFamily="Georgia,serif"
+          fontFamily={`${palette.display}, Georgia, serif`}
           fontWeight="700"
           fontSize="20"
           fill={textFill}

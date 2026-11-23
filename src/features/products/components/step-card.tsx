@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Check, ChevronDown, ChevronUp, Download, Paperclip, Plus, RefreshCw, Sparkles, X } from "lucide-react"
 
 import { AuthGraphic, CoverArt } from "@/components/common/cover-art"
@@ -392,6 +392,7 @@ function BrandingStepBody({ product, catalog }: { product: Product; catalog: Rel
   const updateBrand = useUpdateBrandMutation()
   const brand = product.brand
   const [titleDraft, setTitleDraft] = useState(brand?.title ?? "")
+  const generatedPaletteRef = useRef(brand?.palette ?? 0)
   const canEdit = product.stage === "build" && product.cur === 5 && step.status === "review"
 
   useEffect(() => {
@@ -399,6 +400,22 @@ function BrandingStepBody({ product, catalog }: { product: Product; catalog: Rel
   }, [brand?.title])
 
   const palette = catalog.palettes[brand?.palette ?? 0] ?? catalog.palettes[0]
+  const paletteMatchesArt = (brand?.palette ?? 0) === generatedPaletteRef.current
+
+  function previewImageUrl(variant: number) {
+    if (!paletteMatchesArt) return null
+    return brand?.coverImageUrls?.[variant] ?? null
+  }
+
+  function selectPalette(idx: number) {
+    if (!canEdit || !brand || idx === brand.palette) return
+    updateBrand.mutate({ id: product.id, palette: idx })
+  }
+
+  function selectCover(variant: number) {
+    if (!canEdit || !brand || variant === brand.cover) return
+    updateBrand.mutate({ id: product.id, cover: variant })
+  }
 
   function saveTitle(e: React.FormEvent) {
     e.preventDefault()
@@ -425,7 +442,7 @@ function BrandingStepBody({ product, catalog }: { product: Product; catalog: Rel
               palette={palette}
               variant={brand.cover}
               title={titleDraft || brand.title}
-              imageUrl={brand.coverImageUrls?.[brand.cover] ?? null}
+              imageUrl={previewImageUrl(brand.cover)}
             />
           </div>
 
@@ -463,8 +480,8 @@ function BrandingStepBody({ product, catalog }: { product: Product; catalog: Rel
                     <button
                       key={pal.name}
                       type="button"
-                      disabled={!canEdit || updateBrand.isPending}
-                      onClick={() => updateBrand.mutate({ id: product.id, palette: idx })}
+                      disabled={!canEdit}
+                      onClick={() => selectPalette(idx)}
                       className={cn(
                         "rounded-xl border border-border bg-muted p-2.5 text-left transition-colors disabled:cursor-default",
                         active && "border-primary bg-card",
@@ -499,8 +516,8 @@ function BrandingStepBody({ product, catalog }: { product: Product; catalog: Rel
                     <button
                       key={variant}
                       type="button"
-                      disabled={!canEdit || updateBrand.isPending}
-                      onClick={() => updateBrand.mutate({ id: product.id, cover: variant })}
+                      disabled={!canEdit}
+                      onClick={() => selectCover(variant)}
                       className={cn(
                         "overflow-hidden rounded-lg border-2 border-transparent transition-colors disabled:cursor-default",
                         active && "border-primary",
@@ -511,7 +528,7 @@ function BrandingStepBody({ product, catalog }: { product: Product; catalog: Rel
                         palette={palette}
                         variant={variant}
                         title={titleDraft || brand.title}
-                        imageUrl={brand.coverImageUrls?.[variant] ?? null}
+                        imageUrl={previewImageUrl(variant)}
                       />
                     </button>
                   )

@@ -167,8 +167,9 @@ export function useRegenerateSectionMutation() {
 }
 
 export function useUpdateBrandMutation() {
-  return useProductMutation(
-    ({
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
       id,
       title,
       palette,
@@ -178,8 +179,33 @@ export function useUpdateBrandMutation() {
       title?: string
       palette?: number
       cover?: number
-    }) => updateBrand(id, { title, palette, cover })
-  )
+    }) => updateBrand(id, { title, palette, cover }),
+    onMutate: async (vars) => {
+      await queryClient.cancelQueries({ queryKey: productKeys.detail(vars.id) })
+      const previous = queryClient.getQueryData<Product>(productKeys.detail(vars.id))
+      if (previous?.brand) {
+        queryClient.setQueryData<Product>(productKeys.detail(vars.id), {
+          ...previous,
+          brand: {
+            ...previous.brand,
+            title: vars.title ?? previous.brand.title,
+            palette: vars.palette ?? previous.brand.palette,
+            cover: vars.cover ?? previous.brand.cover,
+          },
+        })
+      }
+      return { previous }
+    },
+    onError: (_error, vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(productKeys.detail(vars.id), context.previous)
+      }
+    },
+    onSuccess: (product) => {
+      queryClient.setQueryData(productKeys.detail(product.id), product)
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() })
+    },
+  })
 }
 
 export function useSuggestProductMutation() {
