@@ -2,6 +2,7 @@ export const ROUTES = {
   start: "/",
   login: "/login",
   signup: "/signup",
+  privacy: "/privacy",
   profile: "/profile",
   products: "/products",
   product: (id: string) => `/products/${id}`,
