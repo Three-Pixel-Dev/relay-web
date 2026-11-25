@@ -30,6 +30,11 @@ export const PublishPage = pageLoader(
   "PublishPage"
 )
 
+export const DistributePage = pageLoader(
+  () => import("@/features/products/pages/distribute-page"),
+  "DistributePage"
+)
+
 export const BuildPage = pageLoader(
   () => import("@/features/products/pages/build-page"),
   "BuildPage"

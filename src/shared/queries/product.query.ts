@@ -5,6 +5,7 @@ import { subscribeProductEvents } from "@/shared/services/product-events"
 import {
   addProductSources,
   addSection,
+  approveDistributeWeek,
   approveProductStep,
   cancelProduct,
   continueDespiteQuality,
@@ -23,6 +24,8 @@ import {
   renameProduct,
   resumeProduct,
   suggestProductChange,
+  turnOffDistributeChannel,
+  turnOnDistributeChannel,
   updateBrand,
 } from "@/shared/services/product.service"
 import type { PublishToWhopInput } from "@/shared/services/product.service"
@@ -363,6 +366,22 @@ export function useWhopPublishMutation() {
   return useProductMutation(({ id, ...input }: { id: string } & PublishToWhopInput) =>
     publishToWhop(id, input)
   )
+}
+
+export function useDistributeChannelOnMutation() {
+  return useProductMutation(({ id, channel }: { id: string; channel: string }) =>
+    turnOnDistributeChannel(id, channel)
+  )
+}
+
+export function useDistributeChannelOffMutation() {
+  return useProductMutation(({ id, channel }: { id: string; channel: string }) =>
+    turnOffDistributeChannel(id, channel)
+  )
+}
+
+export function useDistributeWeekMutation() {
+  return useProductMutation((id: string) => approveDistributeWeek(id))
 }
 
 export function useCancelProductMutation() {

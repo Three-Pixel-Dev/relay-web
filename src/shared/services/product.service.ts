@@ -177,6 +177,21 @@ export async function publishToWhop(id: string, input: PublishToWhopInput) {
   return data
 }
 
+export async function turnOnDistributeChannel(id: string, channel: string) {
+  const { data } = await apiClient.post<Product>(`/products/${id}/distribute/${channel}/on`)
+  return data
+}
+
+export async function turnOffDistributeChannel(id: string, channel: string) {
+  const { data } = await apiClient.post<Product>(`/products/${id}/distribute/${channel}/off`)
+  return data
+}
+
+export async function approveDistributeWeek(id: string) {
+  const { data } = await apiClient.post<Product>(`/products/${id}/distribute/week`)
+  return data
+}
+
 export async function downloadProductFile(
   productId: string,
   fileId: string,

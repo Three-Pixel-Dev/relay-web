@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { ExternalLink, RefreshCw } from "lucide-react"
+import { ArrowRight, ExternalLink, RefreshCw } from "lucide-react"
 import { Link, Navigate, useParams } from "react-router"
 
 import { CoverArt, PosterLite } from "@/components/common/cover-art"
@@ -159,11 +159,17 @@ export function PublishPage() {
       >
         {checkoutUrl} <ExternalLink className="size-3" />
       </a>
-      <div className="mt-4">
-        <Link to={ROUTES.product(product.id)} className={protoBtn({ variant: "soft" })}>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link to={ROUTES.product(product.id)} className={protoBtn({ variant: "ghost" })}>
           Product overview
         </Link>
+        <Link to={ROUTES.distribute(product.id)} className={protoBtn()}>
+          Distribute <ArrowRight className="size-3.5" />
+        </Link>
       </div>
+      <p className="mt-3 text-[12.5px] text-muted-foreground">
+        Listed. Now get it seen — turn on channels and approve a weekly batch.
+      </p>
     </div>
   ) : null
 

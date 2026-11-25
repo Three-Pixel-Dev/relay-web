@@ -8,10 +8,26 @@ interface StageBarProps {
   product: Product
 }
 
+function channelsOnCount(product: Product) {
+  return Object.values(product.distribute ?? {}).filter((c) => c?.on).length
+}
+
+function promoteSub(product: Product) {
+  const promote = product.promote
+  if (!promote) return "not started"
+  if (promote.scheduled) return "scheduled"
+  const n = promote.videos?.length ?? 0
+  if (n > 0) return `${n} video${n === 1 ? "" : "s"}`
+  return "not started"
+}
+
 export function StageBar({ product }: StageBarProps) {
   const { pathname } = useLocation()
   const built = product.stage !== "build" && product.stage !== "paused"
-  const isPublished = Object.keys(product.publish.live).length > 0
+  const isPublished = Object.keys(product.publish?.live ?? {}).length > 0
+  const distributeUnlocked = built && (product.stage === "distribute" || isPublished)
+  const onCount = channelsOnCount(product)
+
   const items = [
     {
       to: ROUTES.build(product.id),
@@ -30,16 +46,16 @@ export function StageBar({ product }: StageBarProps) {
     {
       to: ROUTES.distribute(product.id),
       label: "Distribute",
-      sub: "coming soon",
-      locked: true,
-      done: false,
+      sub: onCount ? `${onCount} channel${onCount === 1 ? "" : "s"} on` : "not started",
+      locked: !distributeUnlocked,
+      done: onCount > 0,
     },
     {
       to: ROUTES.promote(product.id),
       label: "Promote",
-      sub: "coming soon",
-      locked: true,
-      done: false,
+      sub: promoteSub(product),
+      locked: !distributeUnlocked,
+      done: (product.promote?.videos?.length ?? 0) > 0 || Boolean(product.promote?.scheduled),
     },
   ]
 

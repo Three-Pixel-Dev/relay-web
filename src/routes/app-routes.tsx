@@ -4,6 +4,7 @@ import { ComingSoonPage } from "@/components/common/coming-soon-page"
 import {
   BuildPage,
   ConnectionsPage,
+  DistributePage,
   PartnersPage,
   ProductOverviewPage,
   ProductsPage,
@@ -19,15 +20,7 @@ export const appRoutes: RouteObject[] = [
   { path: "products/:id", element: <ProductOverviewPage /> },
   { path: "products/:id/build", element: <BuildPage /> },
   { path: "products/:id/publish", element: <PublishPage /> },
-  {
-    path: "products/:id/distribute",
-    element: (
-      <ComingSoonPage
-        title="Distribute — coming soon"
-        description="Automated distribution channels will be enabled in a future phase."
-      />
-    ),
-  },
+  { path: "products/:id/distribute", element: <DistributePage /> },
   {
     path: "products/:id/promote",
     element: (
