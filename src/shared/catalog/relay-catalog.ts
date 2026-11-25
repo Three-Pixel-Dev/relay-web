@@ -301,7 +301,8 @@ export const CHANNELS: ChannelCatalogItem[] = [
   {
     id: "affiliates",
     name: "Affiliates",
-    needs: ["gumroad", "whop"],
+    // Phase A: Whop only (Gumroad later when Connections ships it).
+    needs: ["whop"],
     desc: "Turns on the affiliate programme (30%), writes the pitch, finds 20 creators in your niche.",
     did: "",
     nums: [
