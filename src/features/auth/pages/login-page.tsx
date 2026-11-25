@@ -116,6 +116,13 @@ export function LoginPage() {
 
       <p className="mt-4 text-center text-[12px] text-muted-foreground">
         <Link
+          to={ROUTES.terms}
+          className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          Terms of Service
+        </Link>
+        <span className="mx-1.5 text-border">·</span>
+        <Link
           to={ROUTES.privacy}
           className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
         >
