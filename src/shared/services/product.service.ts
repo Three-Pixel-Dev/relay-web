@@ -192,6 +192,26 @@ export async function approveDistributeWeek(id: string) {
   return data
 }
 
+export async function startPromote(id: string) {
+  const { data } = await apiClient.post<Product>(`/products/${id}/promote/start`)
+  return data
+}
+
+export async function approvePromote(id: string) {
+  const { data } = await apiClient.post<Product>(`/products/${id}/promote/approve`)
+  return data
+}
+
+export async function redoPromote(id: string) {
+  const { data } = await apiClient.post<Product>(`/products/${id}/promote/redo`)
+  return data
+}
+
+export async function schedulePromote(id: string) {
+  const { data } = await apiClient.post<Product>(`/products/${id}/promote/schedule`)
+  return data
+}
+
 export async function downloadProductFile(
   productId: string,
   fileId: string,

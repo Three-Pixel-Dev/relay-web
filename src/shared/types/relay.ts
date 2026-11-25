@@ -200,6 +200,10 @@ export interface PromoteState {
   videos: PromoVideo[]
   status: string
   scheduled: boolean
+  /** Total estimate for ten Shorts (USD), when relevant. */
+  estimateUsd?: number | null
+  /** Cost of the next promote action (USD). */
+  nextSpendUsd?: number | null
 }
 
 export interface Order {

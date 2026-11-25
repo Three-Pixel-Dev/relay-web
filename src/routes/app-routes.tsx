@@ -9,6 +9,7 @@ import {
   ProductOverviewPage,
   ProductsPage,
   ProfilePage,
+  PromotePage,
   PublishPage,
   StartPage,
 } from "@/constants/lazyload"
@@ -21,15 +22,7 @@ export const appRoutes: RouteObject[] = [
   { path: "products/:id/build", element: <BuildPage /> },
   { path: "products/:id/publish", element: <PublishPage /> },
   { path: "products/:id/distribute", element: <DistributePage /> },
-  {
-    path: "products/:id/promote",
-    element: (
-      <ComingSoonPage
-        title="Promote — coming soon"
-        description="Promo video generation and scheduling will be enabled in a future phase."
-      />
-    ),
-  },
+  { path: "products/:id/promote", element: <PromotePage /> },
   { path: "partners", element: <PartnersPage /> },
   { path: "connections", element: <ConnectionsPage /> },
   {

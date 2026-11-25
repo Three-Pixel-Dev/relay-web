@@ -7,6 +7,7 @@ import {
   addSection,
   approveDistributeWeek,
   approveProductStep,
+  approvePromote,
   cancelProduct,
   continueDespiteQuality,
   createProduct,
@@ -18,11 +19,14 @@ import {
   patchProductType,
   proceedProduct,
   publishToWhop,
+  redoPromote,
   regenerateSection,
   removeProductSource,
   removeSection,
   renameProduct,
   resumeProduct,
+  schedulePromote,
+  startPromote,
   suggestProductChange,
   turnOffDistributeChannel,
   turnOnDistributeChannel,
@@ -382,6 +386,22 @@ export function useDistributeChannelOffMutation() {
 
 export function useDistributeWeekMutation() {
   return useProductMutation((id: string) => approveDistributeWeek(id))
+}
+
+export function usePromoteStartMutation() {
+  return useProductMutation((id: string) => startPromote(id))
+}
+
+export function usePromoteApproveMutation() {
+  return useProductMutation((id: string) => approvePromote(id))
+}
+
+export function usePromoteRedoMutation() {
+  return useProductMutation((id: string) => redoPromote(id))
+}
+
+export function usePromoteScheduleMutation() {
+  return useProductMutation((id: string) => schedulePromote(id))
 }
 
 export function useCancelProductMutation() {
