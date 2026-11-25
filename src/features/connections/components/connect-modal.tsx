@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Spin } from "@/components/common/spin"
 import { fieldClass, kvClass, labelClass, protoBtn } from "@/lib/proto"
 import { startGmailConnect } from "@/shared/services/gmail.service"
+import { startPinterestConnect } from "@/shared/services/pinterest.service"
 import { useConnectServiceMutation } from "@/shared/queries/workspace.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import type { ServiceCatalogItem } from "@/shared/types/relay"
@@ -33,6 +34,7 @@ function keyLabel(serviceId: string) {
   if (serviceId === "whop") return "Whop API key"
   if (serviceId === "higgsfield") return "Higgsfield KEY_ID:KEY_SECRET"
   if (serviceId === "elevenlabs") return "ElevenLabs API key"
+  if (serviceId === "beehiiv") return "beehiiv API key"
   return "API key"
 }
 
@@ -52,6 +54,9 @@ function keyHelp(serviceId: string) {
   if (serviceId === "elevenlabs") {
     return "Paste your ElevenLabs API key (xi-…). Optional for Promote — Higgsfield can generate audio on its own."
   }
+  if (serviceId === "beehiiv") {
+    return "In beehiiv go to Settings → API, create a key, and paste it here. Relay lists your publications and links the lead-magnet channel — it never invents open or click rates."
+  }
   return "Paste your provider API key below."
 }
 
@@ -66,18 +71,34 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
     service.kind === "oauth"
       ? service.id === "gmail"
         ? "Send the emails you approve, read replies to them"
-        : service.id === "whop"
-          ? "Create products and checkout links, set affiliate and partner shares, read sales"
-          : "Create and update listings, read stats"
+        : service.id === "pinterest"
+          ? "Create boards and pins, manage a capped paid test campaign"
+          : service.id === "whop"
+            ? "Create products and checkout links, set affiliate and partner shares, read sales"
+            : "Create and update listings, read stats"
       : ""
   const cannot =
     service.id === "gmail"
       ? "Read the rest of your inbox, send anything you did not approve"
-      : "Change payouts, delete your account"
+      : service.id === "pinterest"
+        ? "Spend more than the $50 hard stop without your action; invent click metrics"
+        : "Change payouts, delete your account"
 
   function connectGmail() {
     setRedirecting(true)
     startGmailConnect()
+      .then((result) => {
+        window.location.assign(result.authorizationUrl)
+      })
+      .catch((error: unknown) => {
+        setRedirecting(false)
+        showToast(apiError(error).message)
+      })
+  }
+
+  function connectPinterest() {
+    setRedirecting(true)
+    startPinterestConnect()
       .then((result) => {
         window.location.assign(result.authorizationUrl)
       })
@@ -128,7 +149,13 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
             type="button"
             className={protoBtn()}
             disabled={connect.isPending || redirecting}
-            onClick={() => (service.id === "gmail" ? connectGmail() : finish("Connected"))}
+            onClick={() =>
+              service.id === "gmail"
+                ? connectGmail()
+                : service.id === "pinterest"
+                  ? connectPinterest()
+                  : finish("Connected")
+            }
           >
             {connect.isPending || redirecting ? <Spin /> : null} Continue to {service.name}
           </button>
@@ -161,7 +188,9 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
                   ? "KEY_ID:KEY_SECRET"
                   : service.id === "elevenlabs"
                     ? "xi-…"
-                    : "sk-…"
+                    : service.id === "beehiiv"
+                      ? "beehiiv API key"
+                      : "sk-…"
           }
           value={keyValue}
           onChange={(event) => setKeyValue(event.target.value)}
