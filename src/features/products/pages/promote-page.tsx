@@ -117,7 +117,7 @@ export function PromotePage() {
 
   function onSchedule() {
     schedule.mutate(id, {
-      onSuccess: () => showToast("Scheduled: one video a day for 10 days (nothing posts until workers run)."),
+      onSuccess: () => showToast("Scheduled: one video a day for 10 days to your connected accounts."),
       onError: (error) => showToast(apiError(error).message),
     })
   }
@@ -199,7 +199,7 @@ export function PromotePage() {
     action = (
       <div className={actionBarClass}>
         <span className="text-[13px] text-muted-foreground">
-          Scheduled one a day for 10 days. Nothing posts until the scheduler workers ship.
+          Scheduled one a day for 10 days to your connected YouTube / TikTok / Instagram accounts.
         </span>
       </div>
     )

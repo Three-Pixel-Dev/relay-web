@@ -4,10 +4,13 @@ import { Spin } from "@/components/common/spin"
 import { fieldClass, kvClass, labelClass, protoBtn } from "@/lib/proto"
 import { startGmailConnect } from "@/shared/services/gmail.service"
 import { startPinterestConnect } from "@/shared/services/pinterest.service"
+import { startReachConnect, type ReachPlatform } from "@/shared/services/reach.service"
 import { useConnectServiceMutation } from "@/shared/queries/workspace.query"
 import { useUiStore } from "@/shared/stores/ui.store"
 import type { ServiceCatalogItem } from "@/shared/types/relay"
 import { apiError } from "@/util/api-error"
+
+const REACH_PLATFORMS = new Set<string>(["youtube", "tiktok", "instagram"])
 
 interface ConnectModalBodyProps {
   service: ServiceCatalogItem
@@ -73,16 +76,20 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
         ? "Send the emails you approve, read replies to them"
         : service.id === "pinterest"
           ? "Create boards and pins, manage a capped paid test campaign"
-          : service.id === "whop"
-            ? "Create products and checkout links, set affiliate and partner shares, read sales"
-            : "Create and update listings, read stats"
+          : REACH_PLATFORMS.has(service.id)
+            ? "Post the Shorts you schedule on Promote, one a day"
+            : service.id === "whop"
+              ? "Create products and checkout links, set affiliate and partner shares, read sales"
+              : "Create and update listings, read stats"
       : ""
   const cannot =
     service.id === "gmail"
       ? "Read the rest of your inbox, send anything you did not approve"
       : service.id === "pinterest"
         ? "Spend more than the $50 hard stop without your action; invent click metrics"
-        : "Change payouts, delete your account"
+        : REACH_PLATFORMS.has(service.id)
+          ? "Post anything without Schedule; invent view counts"
+          : "Change payouts, delete your account"
 
   function connectGmail() {
     setRedirecting(true)
@@ -99,6 +106,18 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
   function connectPinterest() {
     setRedirecting(true)
     startPinterestConnect()
+      .then((result) => {
+        window.location.assign(result.authorizationUrl)
+      })
+      .catch((error: unknown) => {
+        setRedirecting(false)
+        showToast(apiError(error).message)
+      })
+  }
+
+  function connectReach() {
+    setRedirecting(true)
+    startReachConnect(service.id as ReachPlatform)
       .then((result) => {
         window.location.assign(result.authorizationUrl)
       })
@@ -154,7 +173,9 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
                 ? connectGmail()
                 : service.id === "pinterest"
                   ? connectPinterest()
-                  : finish("Connected")
+                  : REACH_PLATFORMS.has(service.id)
+                    ? connectReach()
+                    : finish("Connected")
             }
           >
             {connect.isPending || redirecting ? <Spin /> : null} Continue to {service.name}
