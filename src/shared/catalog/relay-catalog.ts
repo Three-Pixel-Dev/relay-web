@@ -80,8 +80,7 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
     color: "#ff0033",
     kind: "oauth",
     group: "Reach",
-    comingSoon: true,
-    does: "Schedules Shorts, reads views.",
+    does: "Schedules Shorts one a day after you press Schedule on Promote.",
     price: "Free",
   },
   {
@@ -91,8 +90,7 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
     color: "#69c9d0",
     kind: "oauth",
     group: "Reach",
-    comingSoon: true,
-    does: "Posts videos on a schedule, reads views.",
+    does: "Posts Shorts one a day after you press Schedule on Promote.",
     price: "Free",
   },
   {
@@ -102,8 +100,7 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
     color: "#d62976",
     kind: "oauth",
     group: "Reach",
-    comingSoon: true,
-    does: "Posts Reels and carousels, reads reach.",
+    does: "Posts Reels one a day after you press Schedule on Promote (professional account + Page).",
     price: "Free",
   },
   {
