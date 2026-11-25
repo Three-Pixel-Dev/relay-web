@@ -35,6 +35,11 @@ export const DistributePage = pageLoader(
   "DistributePage"
 )
 
+export const PromotePage = pageLoader(
+  () => import("@/features/products/pages/promote-page"),
+  "PromotePage"
+)
+
 export const BuildPage = pageLoader(
   () => import("@/features/products/pages/build-page"),
   "BuildPage"
