@@ -1,6 +1,7 @@
-import { type ReactNode } from "react"
+import { type ReactNode, useEffect } from "react"
 import { Check, Zap } from "lucide-react"
 import { Link, Navigate, useParams } from "react-router"
+import { useQueryClient } from "@tanstack/react-query"
 
 import { CoverArt, PosterLite } from "@/components/common/cover-art"
 import { Spin } from "@/components/common/spin"
@@ -11,6 +12,7 @@ import { actionBarClass, cardClass, protoBtn, protoChip } from "@/lib/proto"
 import { cn } from "@/lib/utils"
 import { useCatalogQuery } from "@/shared/queries/catalog.query"
 import {
+  productKeys,
   useProductQuery,
   usePromoteApproveMutation,
   usePromoteRedoMutation,
@@ -49,6 +51,7 @@ function estimateHint(pr: PromoteState) {
 
 export function PromotePage() {
   const { id = "" } = useParams()
+  const queryClient = useQueryClient()
   const { data: product, isLoading } = useProductQuery(id)
   const { data: catalog } = useCatalogQuery()
   const { data: workspace } = useWorkspaceQuery()
@@ -57,6 +60,15 @@ export function PromotePage() {
   const redo = usePromoteRedoMutation()
   const schedule = usePromoteScheduleMutation()
   const showToast = useUiStore((state) => state.showToast)
+
+  const promoteStatus = product?.promote?.status
+  useEffect(() => {
+    if (!id || promoteStatus !== "running") return
+    const timer = window.setInterval(() => {
+      void queryClient.invalidateQueries({ queryKey: productKeys.detail(id) })
+    }, 3000)
+    return () => window.clearInterval(timer)
+  }, [id, promoteStatus, queryClient])
 
   if (isLoading || !catalog) return null
   if (!product) return <Navigate to={ROUTES.products} replace />
@@ -84,21 +96,21 @@ export function PromotePage() {
 
   function onStart() {
     start.mutate(id, {
-      onSuccess: () => showToast("First promo video ready for approval."),
+      onSuccess: () => showToast("Generating the first Short with Higgsfield…"),
       onError: (error) => showToast(apiError(error).message),
     })
   }
 
   function onApprove() {
     approve.mutate(id, {
-      onSuccess: () => showToast("Making the other 9 the same way."),
+      onSuccess: () => showToast("Making the other 9 with Higgsfield…"),
       onError: (error) => showToast(apiError(error).message),
     })
   }
 
   function onRedo() {
     redo.mutate(id, {
-      onSuccess: () => showToast("Regenerated the first video."),
+      onSuccess: () => showToast("Regenerating the first video…"),
       onError: (error) => showToast(apiError(error).message),
     })
   }
@@ -136,10 +148,12 @@ export function PromotePage() {
       </div>
     )
   } else if (pr.status === "running") {
+    const doneCount = pr.videos.filter((v) => v.status === "done" || v.status === "review").length
     action = (
       <div className={actionBarClass}>
         <span className="inline-flex items-center gap-2 text-[13px] text-muted-foreground">
-          <Spin /> Generating.
+          <Spin /> Generating with Higgsfield
+          {pr.videos.length > 1 ? ` (${doneCount}/${pr.videos.length})` : ""}…
         </span>
       </div>
     )
@@ -219,13 +233,23 @@ export function PromotePage() {
                 product.brand?.coverImageUrls?.[
                   (product.brand.cover + index) % Math.max(product.brand.coverImageUrls.length, 1)
                 ] ?? product.brand?.coverImageUrls?.[product.brand.cover] ?? null
+              const playable = Boolean(video.url)
               return (
                 <div
                   key={`${video.title}-${index}`}
                   className="relative overflow-hidden rounded-xl border border-border bg-muted"
                   style={{ aspectRatio: "9 / 16" }}
                 >
-                  {product.brand && palette ? (
+                  {playable ? (
+                    <video
+                      className="h-full w-full object-cover"
+                      src={video.url!}
+                      muted
+                      playsInline
+                      controls
+                      preload="metadata"
+                    />
+                  ) : product.brand && palette ? (
                     <CoverArt
                       palette={palette}
                       variant={(product.brand.cover + index) % 3}
@@ -235,6 +259,11 @@ export function PromotePage() {
                   ) : (
                     <PosterLite />
                   )}
+                  {video.status === "running" ? (
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/35">
+                      <Spin />
+                    </span>
+                  ) : null}
                   <span className="absolute right-2 bottom-2 rounded bg-black/55 px-1.5 py-0.5 text-[11px] font-semibold text-white">
                     {video.dur || "0:20"}
                   </span>
@@ -313,11 +342,19 @@ export function PromotePage() {
 }
 
 function HiggsfieldFootnote({ service }: { service?: ServiceCatalogItem }) {
-  if (!service?.comingSoon) return null
+  if (!service) return null
+  if (service.comingSoon) {
+    return (
+      <p className="mt-3 text-[12.5px] text-muted-foreground">
+        Video generation needs {service.name} ({service.price}). It is marked coming soon in Connections
+        until the key path ships.
+      </p>
+    )
+  }
   return (
     <p className="mt-3 text-[12.5px] text-muted-foreground">
-      Video generation needs {service.name} ({service.price}). It is marked coming soon in Connections
-      until the key path ships.
+      Videos render through {service.name} ({service.price}). Connect KEY_ID:KEY_SECRET in Connections;
+      spend is charged when each Short finishes (~$0.76 at 480p × 20s).
     </p>
   )
 }

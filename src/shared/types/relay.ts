@@ -194,6 +194,7 @@ export interface PromoVideo {
   title: string
   dur: string
   status: string
+  url?: string | null
 }
 
 export interface PromoteState {

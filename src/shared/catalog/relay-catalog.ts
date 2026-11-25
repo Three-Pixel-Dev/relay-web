@@ -177,8 +177,7 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
     color: "#ff7a59",
     kind: "key",
     group: "AI (your keys)",
-    comingSoon: true,
-    does: "Promo videos (Kling, Seedance, Sora…).",
+    does: "Promo Shorts via Wan 3.0 (9:16, ~20s). Paste KEY_ID:KEY_SECRET from the Higgsfield Console.",
     price: "Pay per second of video",
   },
   {
@@ -189,7 +188,7 @@ export const SERVICE_CATALOG: ServiceCatalogItem[] = [
     kind: "key",
     group: "AI (your keys)",
     comingSoon: true,
-    does: "Narration for promo videos.",
+    does: "Narration for promo videos (optional; Higgsfield can generate audio).",
     price: "Cents per minute",
   },
 ]

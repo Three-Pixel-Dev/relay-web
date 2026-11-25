@@ -31,6 +31,8 @@ export function openConnectModal(service: ServiceCatalogItem) {
 function keyLabel(serviceId: string) {
   if (serviceId === "llm" || serviceId === "img") return "Gemini API key"
   if (serviceId === "whop") return "Whop API key"
+  if (serviceId === "higgsfield") return "Higgsfield KEY_ID:KEY_SECRET"
+  if (serviceId === "elevenlabs") return "ElevenLabs API key"
   return "API key"
 }
 
@@ -43,6 +45,12 @@ function keyHelp(serviceId: string) {
   }
   if (serviceId === "whop") {
     return "Create an API key in your Whop dashboard under Developer, with permission to manage products, plans and webhooks, then paste it here. Relay checks it and sets up sale tracking for you. Whop takes its own fee per sale."
+  }
+  if (serviceId === "higgsfield") {
+    return "In Higgsfield Console create an API key, then paste KEY_ID:KEY_SECRET (colon between them). Relay probes auth before saving."
+  }
+  if (serviceId === "elevenlabs") {
+    return "Paste your ElevenLabs API key (xi-…). Optional for Promote — Higgsfield can generate audio on its own."
   }
   return "Paste your provider API key below."
 }
@@ -149,7 +157,11 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
               ? "AIza… or AQ.…"
               : service.id === "whop"
                 ? "apik_…"
-                : "sk-…"
+                : service.id === "higgsfield"
+                  ? "KEY_ID:KEY_SECRET"
+                  : service.id === "elevenlabs"
+                    ? "xi-…"
+                    : "sk-…"
           }
           value={keyValue}
           onChange={(event) => setKeyValue(event.target.value)}
@@ -175,7 +187,15 @@ function ConnectModalBody({ service }: ConnectModalBodyProps) {
               )
               return
             }
-            finish(`${trimmed.slice(0, 3)}••••${trimmed.slice(-3)}`, trimmed)
+            if (service.id === "higgsfield" && !trimmed.includes(":") && !trimmed.includes("/")) {
+              showToast("Paste KEY_ID:KEY_SECRET from the Higgsfield Console.")
+              return
+            }
+            const label =
+              service.id === "higgsfield"
+                ? `${trimmed.split(/[:/]/)[0]?.slice(0, 4) ?? "hf"}••••`
+                : `${trimmed.slice(0, 3)}••••${trimmed.slice(-3)}`
+            finish(label, trimmed)
           }}
         >
           {connect.isPending ? <Spin /> : null} Test and save
