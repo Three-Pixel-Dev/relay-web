@@ -2,7 +2,7 @@ import { useState } from "react"
 import { ArrowLeft } from "lucide-react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { useNavigate } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { z } from "zod"
 
 import { Spin } from "@/components/common/spin"
@@ -113,6 +113,15 @@ export function LoginPage() {
           Already set a password?
         </button>
       </div>
+
+      <p className="mt-4 text-center text-[12px] text-muted-foreground">
+        <Link
+          to={ROUTES.privacy}
+          className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          Privacy Policy
+        </Link>
+      </p>
     </div>
   )
 }

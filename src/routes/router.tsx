@@ -5,6 +5,7 @@ import { AuthLayout } from "@/components/layouts/auth-layout"
 import { LoginPage } from "@/features/auth/pages/login-page"
 import { SignupPage } from "@/features/auth/pages/signup-page"
 import { RequireAuth } from "@/features/auth/components/require-auth"
+import { PrivacyPage } from "@/features/legal/pages/privacy-page"
 import { appRoutes } from "@/routes/app-routes"
 
 import { NotFoundPage } from "./not-found-page"
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
           { path: "signup", element: <SignupPage /> },
         ],
       },
+      { path: "privacy", element: <PrivacyPage /> },
       {
         element: <RequireAuth />,
         children: [
