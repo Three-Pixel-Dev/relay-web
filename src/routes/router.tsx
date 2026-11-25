@@ -6,6 +6,7 @@ import { LoginPage } from "@/features/auth/pages/login-page"
 import { SignupPage } from "@/features/auth/pages/signup-page"
 import { RequireAuth } from "@/features/auth/components/require-auth"
 import { PrivacyPage } from "@/features/legal/pages/privacy-page"
+import { TermsPage } from "@/features/legal/pages/terms-page"
 import { appRoutes } from "@/routes/app-routes"
 
 import { NotFoundPage } from "./not-found-page"
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
         ],
       },
       { path: "privacy", element: <PrivacyPage /> },
+      { path: "terms", element: <TermsPage /> },
       {
         element: <RequireAuth />,
         children: [
