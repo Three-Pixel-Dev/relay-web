@@ -9,7 +9,7 @@ const LAST_UPDATED = "25 November 2026"
 
 export function PrivacyPage() {
   return (
-    <div className="min-h-full bg-[radial-gradient(1200px_600px_at_10%_-10%,color-mix(in_oklab,var(--primary)_22%,transparent),transparent)] bg-background px-6 py-10">
+    <div className="h-full overflow-y-auto bg-[radial-gradient(1200px_600px_at_10%_-10%,color-mix(in_oklab,var(--primary)_22%,transparent),transparent)] bg-background px-6 py-10">
       <div className="mx-auto w-full max-w-[640px]">
         <div className="mb-6 text-center">
           <Link to={ROUTES.login} className="text-[28px] font-bold tracking-tight text-foreground no-underline">
