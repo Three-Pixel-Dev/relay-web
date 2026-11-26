@@ -73,7 +73,15 @@ export function LoginPage() {
             ) : null}
           </label>
           <label className="grid gap-1.5">
-            <span className="text-[13px]">Password</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[13px]">Password</span>
+              <Link
+                to={ROUTES.forgotPassword}
+                className="text-[12px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               className={fieldClass}
               type="password"
