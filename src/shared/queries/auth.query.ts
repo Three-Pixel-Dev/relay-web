@@ -80,6 +80,18 @@ export function useSetPasswordMutation() {
   })
 }
 
+export function useForgotPasswordMutation() {
+  return useMutation({
+    mutationFn: (email: string) => authService.forgotPassword(email),
+  })
+}
+
+export function useResetPasswordMutation() {
+  return useMutation({
+    mutationFn: authService.resetPassword,
+  })
+}
+
 export function useLogoutMutation() {
   const clear = useSessionStore((s) => s.clear)
   const queryClient = useQueryClient()

@@ -2,7 +2,9 @@ import { createBrowserRouter } from "react-router"
 
 import { AppLayout } from "@/components/layouts/app-layout"
 import { AuthLayout } from "@/components/layouts/auth-layout"
+import { ForgotPasswordPage } from "@/features/auth/pages/forgot-password-page"
 import { LoginPage } from "@/features/auth/pages/login-page"
+import { ResetPasswordPage } from "@/features/auth/pages/reset-password-page"
 import { SignupPage } from "@/features/auth/pages/signup-page"
 import { RequireAuth } from "@/features/auth/components/require-auth"
 import { PrivacyPage } from "@/features/legal/pages/privacy-page"
@@ -24,6 +26,8 @@ export const router = createBrowserRouter([
         children: [
           { path: "login", element: <LoginPage /> },
           { path: "signup", element: <SignupPage /> },
+          { path: "forgot-password", element: <ForgotPasswordPage /> },
+          { path: "reset-password", element: <ResetPasswordPage /> },
         ],
       },
       { path: "privacy", element: <PrivacyPage /> },

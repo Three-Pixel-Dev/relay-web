@@ -38,6 +38,16 @@ export async function setPassword(input: { currentPassword?: string; newPassword
   return data
 }
 
+export async function forgotPassword(email: string) {
+  const { data } = await apiClient.post<{ message: string }>("/auth/forgot-password", { email })
+  return data
+}
+
+export async function resetPassword(input: { token: string; newPassword: string }) {
+  const { data } = await apiClient.post<{ message: string }>("/auth/reset-password", input)
+  return data
+}
+
 export async function logout() {
   const { data } = await apiClient.post<{ message: string }>("/auth/logout")
   return data
