@@ -1,6 +1,6 @@
 # Relay Web (`relay-web`)
 
-React + TypeScript + Vite frontend for Relay.
+React + TypeScript + Vite frontend for Relay..
 
 ## Backend & Catalog
 
