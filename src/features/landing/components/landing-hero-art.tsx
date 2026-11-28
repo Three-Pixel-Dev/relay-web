@@ -37,21 +37,24 @@ export function LandingHeroArt() {
   const reduceMotion = useReducedMotion()
 
   return (
-    <motion.div
-      className="relative mx-auto aspect-square w-full max-w-[440px] rounded-[22px] border border-border bg-white max-[900px]:max-w-[320px]"
-      aria-hidden
-      initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={reduceMotion ? undefined : { scale: 1.015 }}
-    >
-      <motion.img
-        src="/brand/relayguy-mark-square-1024.png"
-        alt=""
-        className="absolute inset-[8%] size-auto object-contain mix-blend-multiply"
-        animate={reduceMotion ? undefined : { y: [0, -5, 0] }}
-        transition={floatTransition(5.2)}
-      />
+    <div className="relative mx-auto aspect-square w-full max-w-[440px] max-[900px]:max-w-[320px]">
+      {/* Mascot frame — sticks stay outside so hover scale can't composite against white */}
+      <motion.div
+        className="absolute inset-0 overflow-hidden rounded-[22px] border border-border bg-white"
+        aria-hidden
+        initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        whileHover={reduceMotion ? undefined : { scale: 1.015 }}
+      >
+        <motion.img
+          src="/brand/relayguy-mark-square-1024.png"
+          alt=""
+          className="absolute inset-[8%] size-auto object-contain mix-blend-multiply"
+          animate={reduceMotion ? undefined : { y: [0, -5, 0] }}
+          transition={floatTransition(5.2)}
+        />
+      </motion.div>
 
       {STICKS.map((stick) => (
         <StatusStick
@@ -66,7 +69,7 @@ export function LandingHeroArt() {
           reduceMotion={Boolean(reduceMotion)}
         />
       ))}
-    </motion.div>
+    </div>
   )
 }
 
@@ -93,7 +96,7 @@ function StatusStick({
 }: StatusStickProps) {
   return (
     <motion.div
-      className={cn("absolute", className)}
+      className={cn("absolute z-10", className)}
       initial={reduceMotion ? false : { opacity: 0, y: 12 }}
       animate={
         reduceMotion
@@ -113,7 +116,8 @@ function StatusStick({
       }
     >
       <motion.div
-        className="grid cursor-default gap-px rounded-xl border border-border bg-background px-3.5 py-2.5 shadow-[0_8px_24px_color-mix(in_oklab,var(--primary)_8%,transparent)] dark:shadow-[0_8px_24px_rgb(0_0_0_/0.4)]"
+        className="grid cursor-default gap-px rounded-xl border border-border bg-background px-3.5 py-2.5 shadow-[0_8px_24px_color-mix(in_oklab,var(--primary)_8%,transparent)] dark:shadow-[0_8px_24px_rgb(0_0_0_/0.55)]"
+        style={{ transformOrigin: "center center" }}
         whileHover={
           reduceMotion
             ? undefined
