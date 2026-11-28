@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router"
 
+import { BrandLogo } from "@/components/common/relayguy-mark"
 import { ROUTES } from "@/constants/routes"
 import { cardClass, linkClass } from "@/lib/proto"
 import { cn } from "@/lib/utils"
@@ -9,11 +10,11 @@ const LAST_UPDATED = "25 November 2026"
 
 export function PrivacyPage() {
   return (
-    <div className="h-full overflow-y-auto bg-[radial-gradient(1200px_600px_at_10%_-10%,color-mix(in_oklab,var(--primary)_22%,transparent),transparent)] bg-background px-6 py-10">
+    <div className="h-full overflow-y-auto bg-[radial-gradient(1200px_600px_at_10%_-10%,color-mix(in_oklab,var(--primary)_12%,transparent),transparent)] bg-background px-6 py-10">
       <div className="mx-auto w-full max-w-[640px]">
         <div className="mb-6 text-center">
-          <Link to={ROUTES.login} className="text-[28px] font-bold tracking-tight text-foreground no-underline">
-            relay
+          <Link to={ROUTES.login} className="inline-flex no-underline" aria-label="RelayGuy">
+            <BrandLogo size={48} nameClassName="text-[28px]" />
           </Link>
           <p className="mt-1.5 text-[13px] text-muted-foreground">Build, sell, get seen</p>
         </div>

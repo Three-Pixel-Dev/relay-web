@@ -7,6 +7,7 @@ import { LoginPage } from "@/features/auth/pages/login-page"
 import { ResetPasswordPage } from "@/features/auth/pages/reset-password-page"
 import { SignupPage } from "@/features/auth/pages/signup-page"
 import { RequireAuth } from "@/features/auth/components/require-auth"
+import { LandingPage } from "@/constants/lazyload"
 import { PrivacyPage } from "@/features/legal/pages/privacy-page"
 import { TermsPage } from "@/features/legal/pages/terms-page"
 import { appRoutes } from "@/routes/app-routes"
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     errorElement: <RouteErrorBoundary />,
     children: [
+      { index: true, element: <LandingPage /> },
       {
         element: <AuthLayout />,
         children: [

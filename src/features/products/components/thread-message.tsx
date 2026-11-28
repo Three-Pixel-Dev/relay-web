@@ -1,3 +1,4 @@
+import { RelayGuyMark } from "@/components/common/relayguy-mark"
 import { ThreadText } from "@/components/common/thread-text"
 import { cn } from "@/lib/utils"
 import { formatTime } from "@/util/format"
@@ -13,14 +14,13 @@ export function ThreadMessage({ who, text, at }: ThreadMessageProps) {
 
   return (
     <div className={cn("flex items-end gap-2.5", isYou ? "flex-row-reverse" : "flex-row")}>
-      <span
-        className={cn(
-          "grid size-8 shrink-0 place-items-center rounded-full text-[12px] font-extrabold",
-          isYou ? "bg-secondary text-foreground" : "bg-primary text-primary-foreground"
-        )}
-      >
-        {isYou ? "YO" : "R"}
-      </span>
+      {isYou ? (
+        <span className="grid size-[38px] shrink-0 place-items-center rounded-full bg-secondary text-[12px] font-extrabold text-foreground">
+          YO
+        </span>
+      ) : (
+        <RelayGuyMark size={38} />
+      )}
       <div className={cn("flex min-w-0 max-w-[min(80%,42rem)] flex-col", isYou && "items-end")}>
         <div
           className={cn(

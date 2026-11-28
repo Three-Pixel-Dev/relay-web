@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react"
 import { env } from "@/app/config/env"
 import { Spin } from "@/components/common/spin"
 import { useGoogleLoginMutation } from "@/shared/queries/auth.query"
+import { useThemeStore } from "@/shared/stores/theme.store"
 import { useUiStore } from "@/shared/stores/ui.store"
 import { apiError } from "@/util/api-error"
 
@@ -46,6 +47,7 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
   const mutateRef = useRef(googleLogin.mutate)
   const onSuccessRef = useRef(onSuccess)
   const showToast = useUiStore((s) => s.showToast)
+  const themeMode = useThemeStore((s) => s.mode)
   const [state, setState] = useState<GsiState>("loading")
 
   useEffect(() => {
@@ -81,7 +83,7 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
         },
       })
       window.google.accounts.id.renderButton(host, {
-        theme: "filled_black",
+        theme: themeMode === "dark" ? "filled_black" : "outline",
         size: "large",
         width,
         text: "continue_with",
@@ -118,7 +120,7 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
       script.removeEventListener("load", mountButton)
       script.removeEventListener("error", fail)
     }
-  }, [showToast])
+  }, [showToast, themeMode])
 
   if (!env.googleClientId) {
     return (

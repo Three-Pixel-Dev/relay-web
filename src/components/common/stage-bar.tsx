@@ -61,22 +61,28 @@ export function StageBar({ product }: StageBarProps) {
 
   return (
     <div className="mb-4 flex gap-1.5 max-md:flex-wrap">
-      {items.map((item) => (
-        <Link
-          key={item.to}
-          to={item.to}
-          className={cn(
-            "flex-1 rounded-xl border border-border bg-muted px-3 py-2.5 text-[13px] font-semibold text-muted-foreground max-md:min-w-[45%] hover:bg-card hover:text-foreground",
-            pathname === item.to && "border-primary bg-card text-foreground",
-            pathname === item.to && "[&_small]:text-primary [&_small]:opacity-100",
-            item.done && "border-success/35 text-success"
-          )}
-          style={item.locked ? { opacity: 0.45, pointerEvents: "none" } : undefined}
-        >
-          {item.label}
-          <small className="mt-0.5 block text-[11.5px] font-medium opacity-80">{item.sub}</small>
-        </Link>
-      ))}
+      {items.map((item) => {
+        const isOn = pathname === item.to
+        // Match look-spec: only Build turns mint when finished; other stages stay neutral.
+        const isDoneBuild = item.label === "Build" && item.done && !isOn
+
+        return (
+          <Link
+            key={item.to}
+            to={item.to}
+            className={cn(
+              "flex-1 rounded-lg border border-border bg-card px-3 py-2.5 text-[13px] font-semibold text-muted-foreground max-md:min-w-[45%] hover:text-foreground",
+              isOn && "border-foreground bg-foreground text-background hover:text-background",
+              isOn && "[&_small]:text-background [&_small]:opacity-80",
+              isDoneBuild && "text-success"
+            )}
+            style={item.locked ? { opacity: 0.45, pointerEvents: "none" } : undefined}
+          >
+            {item.label}
+            <small className="mt-0.5 block text-[11.5px] font-medium opacity-80">{item.sub}</small>
+          </Link>
+        )
+      })}
     </div>
   )
 }

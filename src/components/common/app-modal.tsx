@@ -1,3 +1,4 @@
+import { RelayGuyMark } from "@/components/common/relayguy-mark"
 import { cn } from "@/lib/utils"
 import { useUiStore } from "@/shared/stores/ui.store"
 
@@ -22,7 +23,10 @@ export function AppModal() {
         aria-modal="true"
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 className="mb-2 text-xl font-semibold">{modal.title}</h2>
+        <h2 className="mb-2 flex items-center gap-3 text-xl">
+          <RelayGuyMark size={44} />
+          <span>{modal.title}</span>
+        </h2>
         {modal.body}
         {modal.actions ? (
           <div className="mt-[22px] flex flex-wrap justify-end gap-2.5">{modal.actions}</div>

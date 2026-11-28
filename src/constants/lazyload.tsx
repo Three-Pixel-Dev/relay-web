@@ -1,5 +1,10 @@
 import { pageLoader } from "@/components/core/page-loader"
 
+export const LandingPage = pageLoader(
+  () => import("@/features/landing/pages/landing-page"),
+  "LandingPage"
+)
+
 export const StartPage = pageLoader(
   () => import("@/features/start/pages/start-page"),
   "StartPage"

@@ -1,6 +1,7 @@
 import { BookOpen, Plug, Sparkles, Users } from "lucide-react"
 import { NavLink } from "react-router"
 
+import { BrandLogo, RelayGuyMark } from "@/components/common/relayguy-mark"
 import { ROUTES } from "@/constants/routes"
 import { usePartnersOverviewQuery } from "@/shared/queries/partners.query"
 import { useProductsQuery } from "@/shared/queries/product.query"
@@ -30,12 +31,10 @@ export function Sidebar() {
     <aside className="sticky top-0 flex h-full w-[232px] shrink-0 flex-col gap-1.5 border-r border-border bg-background px-4 py-5 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:z-20 max-md:h-auto max-md:w-full max-md:flex-row max-md:overflow-x-auto max-md:border-r-0 max-md:border-t max-md:p-2">
       <NavLink
         to={ROUTES.start}
-        className="mb-2 flex items-center gap-2.5 px-2.5 py-1.5 text-[22px] font-extrabold tracking-tight max-md:hidden"
+        className="mb-2 flex items-center px-2.5 py-1.5 max-md:hidden"
+        aria-label="RelayGuy"
       >
-        <i className="grid size-[30px] place-items-center rounded-[9px] bg-primary text-base not-italic font-extrabold text-primary-foreground">
-          R
-        </i>
-        relay
+        <BrandLogo size={42} />
       </NavLink>
       <nav className="flex flex-col gap-0.5 max-md:w-full max-md:flex-row max-md:gap-0.5" aria-label="Main">
         {items.map(({ to, label, icon: Icon, end, count }) => (
@@ -60,9 +59,10 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
-      <div className="mt-auto rounded-lg border border-dashed border-border-strong p-3.5 text-[13px] text-muted-foreground max-md:hidden">
+      <div className="relative mt-auto rounded-lg border border-dashed border-border-strong py-3.5 pr-3.5 pl-[58px] text-[13px] text-muted-foreground max-md:hidden">
+        <RelayGuyMark size={36} className="absolute top-3.5 left-3" />
         <b className="mb-1 block text-foreground">
-          {workspace?.sub ? "Relay is on" : "Build, sell, get seen"}
+          {workspace?.sub ? "RelayGuy is on" : "Build, sell, get seen"}
         </b>
         {workspace?.sub
           ? "Your AI keys and connected accounts do the work."

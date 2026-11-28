@@ -2,9 +2,10 @@ import { ArrowUp, ArrowRight, Paperclip, Flame, User } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router"
 
-import { ChipDot } from "@/components/common/spin"
 import { PlansPicker } from "@/components/common/plans-picker"
+import { RelayGuyMark } from "@/components/common/relayguy-mark"
 import { SourceChips } from "@/components/common/source-chips"
+import { ChipDot } from "@/components/common/spin"
 import { ROUTES } from "@/constants/routes"
 import { openSourceDialog } from "@/features/start/components/source-dialog"
 import { fieldClass, labelClass, protoBtn, protoChip } from "@/lib/proto"
@@ -121,7 +122,13 @@ export function StartPage() {
   }
 
   return (
-    <section className="mx-auto mt-10 max-w-[760px] text-center">
+    <section className="mx-auto mt-4 max-w-[760px] text-center">
+      <div className="mb-[18px] flex flex-col items-center gap-2.5">
+        <RelayGuyMark size={92} className="border-[1.5px] max-md:h-[76px] max-md:w-[76px]" />
+        <span className="font-heading text-[13px] tracking-[-0.02em] text-foreground">
+          Hey, I&apos;m RelayGuy.
+        </span>
+      </div>
       <h1 className="text-[40px] leading-[1.08] tracking-tight max-md:text-[30px]">
         What do you know, care about,
         <br />

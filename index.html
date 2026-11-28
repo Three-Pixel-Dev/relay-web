@@ -2,14 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" href="/brand/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/brand/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/brand/apple-touch-icon-180.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#14121c" />
-    <title>Relay — build, sell and get seen</title>
+    <meta name="theme-color" content="#ffffff" />
+    <title>RelayGuy</title>
     <meta
       name="description"
-      content="Tell Relay what you know. It finds the profitable pocket, writes and designs your digital product, lists it on Whop, and runs the channels that bring people."
+      content="Tell RelayGuy what you know. It finds the profitable pocket, writes and designs your digital product, lists it on Whop, and runs the channels that bring people."
     />
+    <script>
+      (function () {
+        try {
+          var mode = localStorage.getItem("relayguy-mode") || "light"
+          if (mode === "dark") {
+            document.documentElement.classList.add("dark")
+            document.documentElement.style.colorScheme = "dark"
+            var meta = document.querySelector('meta[name="theme-color"]')
+            if (meta) meta.setAttribute("content", "#0f0f10")
+          }
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

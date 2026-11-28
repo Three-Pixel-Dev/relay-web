@@ -2,6 +2,7 @@ import { XIcon } from "lucide-react"
 import { Link, useNavigate } from "react-router"
 
 import { CoverArt, PosterLite } from "@/components/common/cover-art"
+import { RelayGuyMark } from "@/components/common/relayguy-mark"
 import { resolveBrandPalette } from "@/lib/brand-palette"
 import { ROUTES } from "@/constants/routes"
 import { protoBtn } from "@/lib/proto"
@@ -140,9 +141,10 @@ export function ProductsPage() {
         </div>
       ) : (
         <div className="rounded-[22px] border-[1.5px] border-dashed border-border-strong px-5 py-[60px] text-center">
+          <RelayGuyMark size={84} className="mx-auto mb-3.5" />
           <h2 className="mb-2">No products yet.</h2>
           <p className="mb-[18px] text-muted-foreground">
-            Tell Relay what you know and it finds the pocket, writes and designs the product.
+            Tell RelayGuy what you know and it finds the pocket, writes and designs the product.
           </p>
           <Link to={ROUTES.start} className={cn(protoBtn({ size: "big" }))}>
             Start

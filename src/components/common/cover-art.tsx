@@ -174,7 +174,7 @@ function CoverArtSvg({
         textAnchor={anchor}
         opacity=".8"
       >
-        A RELAY-BUILT GUIDE
+        A RELAYGUY-BUILT GUIDE
       </text>
     </svg>
   )
@@ -182,11 +182,11 @@ function CoverArtSvg({
 
 export function PosterLite() {
   return (
-    <svg viewBox="0 0 90 120" xmlns="http://www.w3.org/2000/svg">
-      <rect width="90" height="120" fill="#262238" />
-      <rect x="14" y="18" width="62" height="6" rx="3" fill="#ffcf5a" />
-      <rect x="14" y="32" width="48" height="4" rx="2" fill="#5f5a7a" />
-      <rect x="14" y="42" width="56" height="4" rx="2" fill="#5f5a7a" />
+    <svg viewBox="0 0 90 120" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <rect width="90" height="120" className="fill-primary" />
+      <rect x="14" y="18" width="62" height="6" rx="3" className="fill-primary-foreground" />
+      <rect x="14" y="32" width="48" height="4" rx="2" className="fill-muted-foreground" />
+      <rect x="14" y="42" width="56" height="4" rx="2" className="fill-muted-foreground" />
     </svg>
   )
 }

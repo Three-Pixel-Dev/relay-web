@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { Spin } from "@/components/common/spin"
+import { UserAvatar } from "@/components/common/user-avatar"
 import { cardClass, fieldClass, noteClass, protoBtn, protoChip } from "@/lib/proto"
 import { cn } from "@/lib/utils"
 import {
@@ -102,18 +103,12 @@ export function ProfilePage() {
 
       <section className={cardClass}>
         <div className="mb-4 flex items-center gap-3">
-          {me.avatarUrl ? (
-            <img src={me.avatarUrl} alt="" className="size-12 rounded-full object-cover" />
-          ) : (
-            <span className="grid size-12 place-items-center rounded-full bg-linear-to-br from-lilac to-sky text-sm font-extrabold text-lilac-foreground">
-              {(me.name || me.email)
-                .split(/\s+/)
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((part) => part[0]?.toUpperCase() ?? "")
-                .join("") || "YO"}
-            </span>
-          )}
+          <UserAvatar
+            name={me.name}
+            email={me.email}
+            avatarUrl={me.avatarUrl}
+            size={48}
+          />
           <div className="min-w-0">
             <div className="truncate font-semibold">{me.name || "—"}</div>
             <div className="truncate text-[13px] text-muted-foreground">{me.email}</div>
